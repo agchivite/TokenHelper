@@ -2,7 +2,7 @@
 
 GUI to anticipate success and reliable tokens.
 
-The main idea is to store your data from your journal token activity and suggest which token to be on.
+The main idea is to store your data from your journal token activity and suggest which token to bet on.
 
 ## MongoDB
 
