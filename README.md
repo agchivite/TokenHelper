@@ -10,6 +10,10 @@ To keep flexibility and easiest way to change data.
 
 - You must have MongoDB installed in your local S.O.
 
+## Dagger
+
+Developing... not implemented...
+
 ## Java & Gradle
 
 To have more compatibility with JavaFX.
