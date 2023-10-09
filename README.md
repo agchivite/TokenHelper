@@ -12,7 +12,7 @@ To keep flexibility and easiest way to change data.
 
 ## Java & Gradle
 
-To have more compatibility with JavFX.
+To have more compatibility with JavaFX.
 
 ## JavaFX
 
