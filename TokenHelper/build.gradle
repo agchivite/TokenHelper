@@ -26,7 +26,7 @@ tasks.withType(JavaCompile) {
 
 application {
     mainModule = 'dev.sbytmacke.tokenhelper'
-    mainClass = 'dev.sbytmacke.tokenhelper.HelloApplication'
+    mainClass = 'dev.sbytmacke.tokenhelper.AppMain'
 }
 
 javafx {
@@ -35,7 +35,6 @@ javafx {
 }
 
 dependencies {
-
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 
@@ -44,6 +43,9 @@ dependencies {
 
     // Logback
     implementation("ch.qos.logback:logback-classic:1.2.6")
+
+    // GSON
+    implementation("com.google.code.gson:gson:2.8.9")
 }
 
 test {

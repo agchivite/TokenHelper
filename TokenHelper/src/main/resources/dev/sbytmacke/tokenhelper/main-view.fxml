@@ -1,239 +1,271 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
-<VBox alignment="TOP_CENTER" prefHeight="744.0" prefWidth="1339.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dev.team.proyectofinalitv.controllers.MainViewController">
-           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="107.0" prefWidth="1496.0" style="-fx-background-color: #67114d;" text="TokenHelper" textFill="#ffcc7d" textOverrun="CLIP">
-      <font>
-         <Font name="Dubai Medium" size="60.0" />
-      </font>
-   </Label>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" prefHeight="744.0" prefWidth="1339.0"
+      xmlns="http://javafx.com/javafx/17.0.2-ea"
+      fx:controller="dev.sbytmacke.tokenhelper.controllers.MainViewController">
+    <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="107.0" prefWidth="1496.0"
+           style="-fx-background-color: #67114d;" text="TokenHelper" textFill="#ffcc7d" textOverrun="CLIP">
+        <font>
+            <Font name="Dubai Medium" size="60.0"/>
+        </font>
+    </Label>
     <AnchorPane prefHeight="622.0" prefWidth="978.0" VBox.vgrow="ALWAYS">
-        <SplitPane dividerPositions="0.7023186237845924" layoutX="61.0" prefHeight="674.0" prefWidth="978.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <AnchorPane prefHeight="639.0" prefWidth="931.0">
-            <children>
-               <VBox prefHeight="639.0" prefWidth="300.0">
-                  <children>
-                     <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="100.0" prefWidth="338.0" style="-fx-background-color: #ffcc7d;" text="Leyenda:" textFill="#67114d" textOverrun="CLIP">
-                        <font>
-                           <Font name="Dubai Medium" size="40.0" />
-                        </font>
-                     </Label>
-                     <HBox prefHeight="543.0" prefWidth="300.0" style="-fx-background-color: #ffcc7d;">
+        <SplitPane dividerPositions="0.7023186237845924" layoutX="61.0" prefHeight="674.0" prefWidth="978.0"
+                   AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                   AnchorPane.topAnchor="0.0">
+            <AnchorPane prefHeight="639.0" prefWidth="931.0">
+                <children>
+                    <VBox prefHeight="639.0" prefWidth="300.0">
                         <children>
-                           <GridPane alignment="CENTER" prefHeight="501.0" prefWidth="312.0">
-                              <columnConstraints>
-                                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
-                              </columnConstraints>
-                              <rowConstraints>
-                                 <RowConstraints maxHeight="131.0" minHeight="0.0" prefHeight="128.0" vgrow="SOMETIMES" />
-                                 <RowConstraints maxHeight="138.0" minHeight="10.0" prefHeight="128.0" vgrow="SOMETIMES" />
-                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                 <RowConstraints />
-                              </rowConstraints>
-                              <children>
-                                 <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
-                                    <children>
-                                       <Label alignment="CENTER" contentDisplay="CENTER" text="¿Quién es más fiable?" textFill="#67114d" underline="true">
-                                          <font>
-                                             <Font size="14.0" />
-                                          </font>
-                                       </Label>
-                                       <VBox alignment="TOP_CENTER" prefHeight="90.0" prefWidth="300.0">
-                                          <children>
-                                             <Label alignment="CENTER" contentDisplay="CENTER" text="Más apuestas (estadísticamente es + fiable)." textFill="#67114d" textOverrun="CLIP" wrapText="true">
-                                                <VBox.margin>
-                                                   <Insets bottom="10.0" />
-                                                </VBox.margin>
-                                                <font>
-                                                   <Font size="13.0" />
-                                                </font>
-                                             </Label>
-                                             <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="63.0" prefWidth="271.0" text="Si tiene menos apuestas hechas y más aciertos, el usuario sabe donde apostar." textAlignment="CENTER" textFill="#67114d" textOverrun="CLIP" wrapText="true">
-                                                <font>
-                                                   <Font size="13.0" />
-                                                </font>
-                                             </Label>
-                                          </children>
-                                          <VBox.margin>
-                                             <Insets top="10.0" />
-                                          </VBox.margin>
-                                       </VBox>
-                                    </children>
-                                 </VBox>
-                              </children>
-                           </GridPane>
+                            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="100.0" prefWidth="338.0"
+                                   style="-fx-background-color: #ffcc7d;" text="Leyenda:" textFill="#67114d"
+                                   textOverrun="CLIP">
+                                <font>
+                                    <Font name="Dubai Medium" size="40.0"/>
+                                </font>
+                            </Label>
+                            <HBox prefHeight="543.0" prefWidth="300.0" style="-fx-background-color: #ffcc7d;">
+                                <children>
+                                    <GridPane alignment="CENTER" prefHeight="501.0" prefWidth="312.0">
+                                        <columnConstraints>
+                                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308"/>
+                                        </columnConstraints>
+                                        <rowConstraints>
+                                            <RowConstraints maxHeight="131.0" minHeight="0.0" prefHeight="128.0"
+                                                            vgrow="SOMETIMES"/>
+                                            <RowConstraints maxHeight="138.0" minHeight="10.0" prefHeight="128.0"
+                                                            vgrow="SOMETIMES"/>
+                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                            <RowConstraints/>
+                                        </rowConstraints>
+                                        <children>
+                                            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+                                                <children>
+                                                    <Label alignment="CENTER" contentDisplay="CENTER"
+                                                           text="¿Quién es más fiable?" textFill="#67114d"
+                                                           underline="true">
+                                                        <font>
+                                                            <Font size="14.0"/>
+                                                        </font>
+                                                    </Label>
+                                                    <VBox alignment="TOP_CENTER" prefHeight="90.0" prefWidth="300.0">
+                                                        <children>
+                                                            <Label alignment="CENTER" contentDisplay="CENTER"
+                                                                   text="Más apuestas (estadísticamente es + fiable)."
+                                                                   textFill="#67114d" textOverrun="CLIP"
+                                                                   wrapText="true">
+                                                                <VBox.margin>
+                                                                    <Insets bottom="10.0"/>
+                                                                </VBox.margin>
+                                                                <font>
+                                                                    <Font size="13.0"/>
+                                                                </font>
+                                                            </Label>
+                                                            <Label alignment="CENTER" contentDisplay="CENTER"
+                                                                   prefHeight="63.0" prefWidth="271.0"
+                                                                   text="Si tiene menos apuestas hechas y más aciertos, el usuario sabe donde apostar."
+                                                                   textAlignment="CENTER" textFill="#67114d"
+                                                                   textOverrun="CLIP" wrapText="true">
+                                                                <font>
+                                                                    <Font size="13.0"/>
+                                                                </font>
+                                                            </Label>
+                                                        </children>
+                                                        <VBox.margin>
+                                                            <Insets top="10.0"/>
+                                                        </VBox.margin>
+                                                    </VBox>
+                                                </children>
+                                            </VBox>
+                                        </children>
+                                    </GridPane>
+                                </children>
+                            </HBox>
                         </children>
-                     </HBox>
-                  </children>
-               </VBox>
-                    <TableView fx:id="tableCitas" layoutX="300.0" layoutY="100.0" prefHeight="370.0" prefWidth="636.0" style="-fx-background-color: #67114d;">
+                    </VBox>
+                    <TableView fx:id="tableCitas" layoutX="300.0" layoutY="100.0" prefHeight="370.0" prefWidth="636.0"
+                               style="-fx-background-color: #67114d;">
                         <columns>
-                            <TableColumn fx:id="columnUsername" prefWidth="212.0" text="Usuario" />
-                            <TableColumn fx:id="columnSuccess" minWidth="0.0" prefWidth="207.0" text="\% Aciertos Positivos" />
-                            <TableColumn fx:id="columnTotalBet" editable="false" minWidth="0.0" prefWidth="214.0" text="Total Apuestas" />
+                            <TableColumn fx:id="columnUsername" prefWidth="212.0" text="Usuario"/>
+                            <TableColumn fx:id="columnSuccess" minWidth="0.0" prefWidth="207.0"
+                                         text="\% Aciertos Positivos"/>
+                            <TableColumn fx:id="columnTotalBet" editable="false" minWidth="0.0" prefWidth="214.0"
+                                         text="Total Apuestas"/>
                         </columns>
                     </TableView>
-               <VBox layoutX="300.0" layoutY="470.0" prefHeight="169.0" prefWidth="636.0">
-                  <children>
-                     <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="48.0" prefWidth="636.0" style="-fx-background-color: #ffcc7d;" text="Resultado general:" textFill="#67114d">
-                        <font>
-                           <Font name="System Bold" size="35.0" />
-                        </font>
-                        <padding>
-                           <Insets top="10.0" />
-                        </padding>
-                     </Label>
-                     <HBox alignment="CENTER" prefHeight="120.0" prefWidth="636.0" style="-fx-background-color: #ffcc7d;">
-                        <padding>
-                           <Insets bottom="5.0" top="5.0" />
-                        </padding>
+                    <VBox layoutX="300.0" layoutY="470.0" prefHeight="169.0" prefWidth="636.0">
                         <children>
-                           <Label fx:id="textFinalResult" text="Para la fecha X a las Xhoras con un total de X APUESTAS -&gt; 65% de ganar" textAlignment="CENTER" textFill="#67114d">
-                              <HBox.margin>
-                                 <Insets left="20.0" />
-                              </HBox.margin>
-                           </Label>
+                            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="48.0" prefWidth="636.0"
+                                   style="-fx-background-color: #ffcc7d;" text="Resultado general:" textFill="#67114d">
+                                <font>
+                                    <Font name="System Bold" size="35.0"/>
+                                </font>
+                                <padding>
+                                    <Insets top="10.0"/>
+                                </padding>
+                            </Label>
+                            <HBox alignment="CENTER" prefHeight="120.0" prefWidth="636.0"
+                                  style="-fx-background-color: #ffcc7d;">
+                                <padding>
+                                    <Insets bottom="5.0" top="5.0"/>
+                                </padding>
+                                <children>
+                                    <Label fx:id="textFinalResult"
+                                           text="Para la fecha X a las Xhoras con un total de X APUESTAS -&gt; 65% de ganar"
+                                           textAlignment="CENTER" textFill="#67114d">
+                                        <HBox.margin>
+                                            <Insets left="20.0"/>
+                                        </HBox.margin>
+                                    </Label>
+                                </children>
+                            </HBox>
                         </children>
-                     </HBox>
-                  </children>
-               </VBox>
-                    <HBox alignment="CENTER" layoutX="300.0" layoutY="40.0" prefHeight="60.0" prefWidth="636.0" style="-fx-background-color: #ffcc7d;">
+                    </VBox>
+                    <HBox alignment="CENTER" layoutX="300.0" layoutY="40.0" prefHeight="60.0" prefWidth="636.0"
+                          style="-fx-background-color: #ffcc7d;">
                         <Label text="Usuario:" textFill="#67114d">
                             <HBox.margin>
-                                <Insets />
+                                <Insets/>
                             </HBox.margin>
                         </Label>
-                        <TextField fx:id="textSearchUserFilter" prefHeight="25.0" prefWidth="103.0" style="-fx-background-color: #67114d;">
+                        <TextField fx:id="textSearchUserFilter" prefHeight="25.0" prefWidth="103.0"
+                                   style="-fx-background-color: #67114d;">
                             <HBox.margin>
-                                <Insets left="2.0" />
+                                <Insets left="2.0"/>
                             </HBox.margin>
                         </TextField>
-                  <Label text="Fecha(yyyy-mm-dd):" textFill="#67114d">
-                     <HBox.margin>
-                        <Insets left="20.0" />
-                     </HBox.margin>
-                  </Label>
-                        <DatePicker fx:id="datePickerFilter" prefHeight="21.0" prefWidth="120.0" style="-fx-background-color: #67114d;">
+                        <Label text="Fecha(yyyy-mm-dd):" textFill="#67114d">
                             <HBox.margin>
-                                <Insets left="2.0" />
+                                <Insets left="20.0"/>
+                            </HBox.margin>
+                        </Label>
+                        <DatePicker fx:id="datePickerFilter" prefHeight="21.0" prefWidth="120.0"
+                                    style="-fx-background-color: #67114d;">
+                            <HBox.margin>
+                                <Insets left="2.0"/>
                             </HBox.margin>
                         </DatePicker>
-                  <Label text="Hora (hh:mm):" textFill="#67114d">
-                     <padding>
-                        <Insets left="20.0" />
-                     </padding>
-                  </Label>
-                        <ComboBox fx:id="comboTimeFilter" prefHeight="18.0" prefWidth="78.0" style="-fx-background-color: #67114d;">
-                     <HBox.margin>
-                        <Insets left="2.0" />
-                     </HBox.margin>
-                  </ComboBox>
+                        <Label text="Hora (hh:mm):" textFill="#67114d">
+                            <padding>
+                                <Insets left="20.0"/>
+                            </padding>
+                        </Label>
+                        <ComboBox fx:id="comboTimeFilter" prefHeight="18.0" prefWidth="78.0"
+                                  style="-fx-background-color: #67114d;">
+                            <HBox.margin>
+                                <Insets left="2.0"/>
+                            </HBox.margin>
+                        </ComboBox>
                         <padding>
-                            <Insets bottom="5.0" top="5.0" />
+                            <Insets bottom="5.0" top="5.0"/>
                         </padding>
                     </HBox>
-               <Label alignment="CENTER" contentDisplay="CENTER" layoutX="300.0" layoutY="-2.0" prefHeight="46.0" prefWidth="636.0" style="-fx-background-color: #ffcc7d;" text="Filtro" textFill="#67114d" textOverrun="CLIP">
-                  <font>
-                     <Font name="System Bold" size="30.0" />
-                  </font>
-               </Label>
-               <Separator layoutX="298.0" layoutY="-3.0" orientation="VERTICAL" prefHeight="639.0" prefWidth="6.0" />
-            </children>
-         </AnchorPane>
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="628.0" prefWidth="416.0" style="-fx-background-color: #ffcc7d;">
-                <Label layoutX="89.0" layoutY="37.0" prefHeight="60.0" prefWidth="218.0" text="Añadir datos" textFill="#67114d" AnchorPane.leftAnchor="89.0" AnchorPane.topAnchor="37.0">
+                    <Label alignment="CENTER" contentDisplay="CENTER" layoutX="300.0" layoutY="-2.0" prefHeight="46.0"
+                           prefWidth="636.0" style="-fx-background-color: #ffcc7d;" text="Filtro" textFill="#67114d"
+                           textOverrun="CLIP">
+                        <font>
+                            <Font name="System Bold" size="30.0"/>
+                        </font>
+                    </Label>
+                    <Separator layoutX="298.0" layoutY="-3.0" orientation="VERTICAL" prefHeight="639.0"
+                               prefWidth="6.0"/>
+                </children>
+            </AnchorPane>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="628.0" prefWidth="416.0"
+                        style="-fx-background-color: #ffcc7d;">
+                <Label layoutX="89.0" layoutY="37.0" prefHeight="60.0" prefWidth="218.0" text="Añadir datos"
+                       textFill="#67114d" AnchorPane.leftAnchor="89.0" AnchorPane.topAnchor="37.0">
                     <font>
-                        <Font name="System Bold" size="35.0" />
+                        <Font name="System Bold" size="35.0"/>
                     </font>
                 </Label>
-            <Separator layoutX="92.0" layoutY="105.0" prefHeight="3.0" prefWidth="209.0" style="-fx-background-color: #67114d;" />
-                <GridPane layoutX="40.0" layoutY="204.0" prefHeight="156.0" prefWidth="326.0" translateY="-63.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="39.0">
+                <Separator layoutX="92.0" layoutY="105.0" prefHeight="3.0" prefWidth="209.0"
+                           style="-fx-background-color: #67114d;"/>
+                <GridPane layoutX="40.0" layoutY="204.0" prefHeight="156.0" prefWidth="326.0" translateY="-63.0"
+                          AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="39.0">
                     <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="182.0" minWidth="10.0" prefWidth="137.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="308.0" minWidth="10.0" prefWidth="189.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="182.0" minWidth="10.0" prefWidth="137.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="308.0" minWidth="10.0" prefWidth="189.0"/>
                     </columnConstraints>
                     <rowConstraints>
-                        <RowConstraints />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                  <RowConstraints />
+                        <RowConstraints/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                        <RowConstraints/>
                     </rowConstraints>
                     <children>
                         <Label text="Nombre de usuario:" textFill="#67114d" GridPane.rowIndex="1">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
+                            <font>
+                                <Font size="14.0"/>
+                            </font>
+                        </Label>
                         <Label text="Fecha (yyyy-mm-dd):" textFill="#67114d" GridPane.rowIndex="2">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
+                            <font>
+                                <Font size="14.0"/>
+                            </font>
+                        </Label>
                         <Label text="Hora (hh:mm):" textFill="#67114d" GridPane.rowIndex="3">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
+                            <font>
+                                <Font size="14.0"/>
+                            </font>
+                        </Label>
                         <Label text="Fiable:" textFill="#67114d" GridPane.rowIndex="4">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <DatePicker fx:id="datePicker" prefHeight="25.0" prefWidth="160.0" style="-fx-background-color: #67114d;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                     <children>
-                        <ComboBox fx:id="comboTime" prefHeight="25.0" prefWidth="160.0" style="-fx-background-color: #67114d;" />
-                     </children>
-                  </HBox>
-                  <TextField fx:id="textSearchUser" maxHeight="25.0" maxWidth="160.0" prefHeight="25.0" prefWidth="160.0" style="-fx-background-color: #67114d;" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </TextField>
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                     <children>
-                        <RadioButton fx:id="radioButtonGood" mnemonicParsing="false" text="✅ Mayor x5" />
-                        <RadioButton fx:id="radioButtonBad" mnemonicParsing="false" text="❌ Menor x5">
-                           <padding>
-                              <Insets left="10.0" />
-                           </padding>
-                        </RadioButton>
-                     </children>
-                  </HBox>
+                            <font>
+                                <Font size="14.0"/>
+                            </font>
+                        </Label>
+                        <DatePicker fx:id="datePicker" prefHeight="25.0" prefWidth="160.0"
+                                    style="-fx-background-color: #67114d;" GridPane.columnIndex="1"
+                                    GridPane.rowIndex="2"/>
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1"
+                              GridPane.rowIndex="3">
+                            <children>
+                                <ComboBox fx:id="comboTime" prefHeight="25.0" prefWidth="160.0"
+                                          style="-fx-background-color: #67114d;"/>
+                            </children>
+                        </HBox>
+                        <TextField fx:id="textFieldUser" maxHeight="25.0" maxWidth="160.0" prefHeight="25.0"
+                                   prefWidth="160.0" style="-fx-background-color: #67114d;" GridPane.columnIndex="1"
+                                   GridPane.rowIndex="1">
+                            <font>
+                                <Font size="14.0"/>
+                            </font>
+                        </TextField>
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1"
+                              GridPane.rowIndex="4">
+                            <children>
+                                <RadioButton fx:id="radioButtonGood" mnemonicParsing="false" text="✅ Mayor x5"/>
+                                <RadioButton fx:id="radioButtonBad" mnemonicParsing="false" text="❌ Menor x5">
+                                    <padding>
+                                        <Insets left="10.0"/>
+                                    </padding>
+                                </RadioButton>
+                            </children>
+                        </HBox>
                     </children>
                 </GridPane>
                 <Label layoutX="-13.0" layoutY="53.0" translateX="27.0" translateY="14.0">
                     <font>
-                        <Font name="System Bold" size="13.0" />
+                        <Font name="System Bold" size="13.0"/>
                     </font>
                 </Label>
-                <HBox alignment="CENTER" layoutX="15.0" layoutY="380.0" prefHeight="46.0" prefWidth="294.0" spacing="30.0" AnchorPane.bottomAnchor="32.666666666666686" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0">
+                <HBox alignment="CENTER" layoutX="15.0" layoutY="380.0" prefHeight="46.0" prefWidth="294.0"
+                      spacing="30.0" AnchorPane.bottomAnchor="32.666666666666686" AnchorPane.leftAnchor="15.0"
+                      AnchorPane.rightAnchor="15.0">
                     <opaqueInsets>
-                        <Insets />
+                        <Insets/>
                     </opaqueInsets>
                 </HBox>
-                  <Button fx:id="buttonCreate" contentDisplay="CENTER" layoutX="151.0" layoutY="336.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="90.0" style="-fx-background-color: #67114d;" text="Confirmar" textFill="#ffcc7d" />
+                <Button fx:id="buttonCreateUser" contentDisplay="CENTER" layoutX="151.0" layoutY="336.0"
+                        mnemonicParsing="false" prefHeight="28.0" prefWidth="90.0"
+                        style="-fx-background-color: #67114d;" text="Confirmar" textFill="#ffcc7d"/>
             </AnchorPane>
         </SplitPane>
     </AnchorPane>
