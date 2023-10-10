@@ -7,7 +7,7 @@ import com.mongodb.client.MongoDatabase;
 public class DatabaseManagerImpl implements DatabaseManager {
 
     // Con el ConfigApp
-    private final String connectionString = "mongodb://localhost:27017";
+    private final String connectionString = "mongodb://localhost:27010";
     private final String databaseName = "token_helper";
     private MongoDatabase database = null;
     private MongoClient mongoClient = null;

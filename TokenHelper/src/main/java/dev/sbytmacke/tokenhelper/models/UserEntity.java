@@ -7,7 +7,7 @@ import java.time.LocalDate;
 //  Con un ratio mínimo de 3 personas por franja (si no, no des resultado)
 //  % de tíos han acertado más veces en esa franja (individualmente y en grupo)
 
-public class User {
+public class UserEntity {
     // Dos casos de uso
     // 1. Que coincidan en el mismo día de la semana y franja horaria (este es más preciso y seguro al apostar)
     // 2. Que coincidan en la misma franja horaria solamente
@@ -17,7 +17,7 @@ public class User {
     private final String timeBet;
     private final Boolean reliable; // Menos del x5 son malos
 
-    public User(String username, LocalDate dateBet, String timeBet, Boolean reliable) {
+    public UserEntity(String username, LocalDate dateBet, String timeBet, Boolean reliable) {
         this.username = username;
         this.dateBet = dateBet;
         this.timeBet = timeBet;

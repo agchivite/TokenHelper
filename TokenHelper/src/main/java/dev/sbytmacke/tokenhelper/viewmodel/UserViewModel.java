@@ -1,55 +1,54 @@
 package dev.sbytmacke.tokenhelper.viewmodel;
 
-import dev.sbytmacke.tokenhelper.models.User;
-import dev.sbytmacke.tokenhelper.repositories.Repository;
+import dev.sbytmacke.tokenhelper.dto.UserDTO;
+import dev.sbytmacke.tokenhelper.mappers.UserMapper;
+import dev.sbytmacke.tokenhelper.models.UserEntity;
+import dev.sbytmacke.tokenhelper.repositories.UserRepository;
+import dev.sbytmacke.tokenhelper.state.UserState;
+import javafx.beans.property.SimpleObjectProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserViewModel {
-    private final Repository<User, String> repository;
-    Logger logger = LoggerFactory.getLogger(getClass());
+    private final SimpleObjectProperty<UserState> userStateProperty = new SimpleObjectProperty<>();
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final UserRepository<UserEntity, String> repository;
+    private final UserMapper userMapper;
 
-    // Gestión del estado de la vista de creación y edición
-
-
-    public UserViewModel(Repository<User, String> repository) {
+    public UserViewModel(UserRepository<UserEntity, String> repository) {
+        logger.info("Initializing UserViewModel");
         this.repository = repository;
-    }
+        List<UserEntity> userEntities = repository.findAll();
 
-    public User saveUser(User user) {
-        // Check si es correcto el USER
-        repository.addItem(user);
-        return user;
-    }
-
-    public List<String> getAllSliceHours() {
-        logger.info("Getting all slice hours");
-
-        List<String> sliceHours = new ArrayList<>();
-        LocalTime startTime = LocalTime.of(0, 1); // Hora de inicio a las 00:01
-
-        while (true) { // Bucle infinito para generar todas las franjas
-            LocalTime endTime = startTime.plusMinutes(59); // Agregar 59 minutos
-            String timeRange = startTime.format(DateTimeFormatter.ofPattern("HH:mm")) + "-" +
-                    endTime.format(DateTimeFormatter.ofPattern("HH:mm"));
-            sliceHours.add(timeRange);
-
-            if (startTime.equals(LocalTime.of(23, 1))) {
-                break; // Salir del bucle después de la franja 23:01-00:00
-            }
-
-            startTime = endTime.plusMinutes(1); // Agregar 1 minuto para comenzar en el siguiente minuto
-
-            if (startTime.equals(LocalTime.of(0, 0))) {
-                break; // Salir del bucle después de la franja 23:01-00:00
-            }
+        for (UserEntity userEntity : userEntities) {
+            logger.info("User: " + userEntity.getUsername());
         }
 
-        return sliceHours;
+        this.userMapper = new UserMapper(repository);
+        List<UserDTO> userDTOs = userMapper.convertUserEntitiesToDTOs(userEntities);
+
+        logger.info("Initializing UserStateProperty");
+        UserState userState = new UserState(userDTOs);
+        userStateProperty.setValue(userState);
+    }
+
+    public UserEntity saveUser(UserEntity userEntity) {
+        repository.addItem(userEntity);
+        List<UserDTO> currentUsers = userMapper.convertUserEntitiesToDTOs(repository.findAll());
+
+        // Crea un nuevo UserState con el nuevo usuario
+        UserState updatedState = new UserState(currentUsers);
+
+        // Establece el nuevo valor en userStateProperty
+        userStateProperty.setValue(updatedState);
+
+        return userEntity;
+    }
+
+
+    public SimpleObjectProperty<UserState> getUserStateProperty() {
+        return userStateProperty;
     }
 }
