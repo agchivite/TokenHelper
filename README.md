@@ -1,8 +1,10 @@
 # TokenHelper
 
-GUI to anticipate success and reliable tokens.
+GUI to anticipate reliable tokens.
 
 The main idea is to store your data from your journal token activity and suggest which token to bet on.
+
+- Like a "mega-app-note" to your bets.
 
 ## MongoDB
 
