@@ -155,7 +155,7 @@
                                 <Insets left="20.0"/>
                             </padding>
                         </Label>
-                        <ComboBox fx:id="comboTimeFilter" prefHeight="18.0" prefWidth="78.0">
+                        <ComboBox fx:id="comboTimeFilter" prefHeight="25.0" prefWidth="108.0">
                             <HBox.margin>
                                 <Insets left="2.0"/>
                             </HBox.margin>

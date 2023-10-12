@@ -27,6 +27,8 @@ public class TimeUtils {
             }
         }
 
+        sliceHours.add("--:--");
+
         return sliceHours;
     }
 }

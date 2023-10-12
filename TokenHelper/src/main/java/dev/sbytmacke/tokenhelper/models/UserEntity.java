@@ -15,7 +15,7 @@ public class UserEntity {
     private final String username;
     private final LocalDate dateBet; // La fecha tenemos que hacer el cálculo para los que corresponden al mismo día de la semana
     private final String timeBet;
-    private final Boolean reliable; // Menos del x5 son malos
+    private final Boolean reliable;
 
     public UserEntity(String username, LocalDate dateBet, String timeBet, Boolean reliable) {
         this.username = username;

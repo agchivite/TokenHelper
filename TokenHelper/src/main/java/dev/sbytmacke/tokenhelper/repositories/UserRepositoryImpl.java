@@ -1,8 +1,11 @@
 package dev.sbytmacke.tokenhelper.repositories;
 
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
+import dev.sbytmacke.tokenhelper.dto.UserDTO;
+import dev.sbytmacke.tokenhelper.mappers.UserMapper;
 import dev.sbytmacke.tokenhelper.models.UserEntity;
 import dev.sbytmacke.tokenhelper.services.database.DatabaseManager;
 import org.bson.Document;
@@ -10,7 +13,6 @@ import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -22,6 +24,15 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
     public UserRepositoryImpl(DatabaseManager databaseManager) {
 
         this.databaseManager = databaseManager;
+    }
+
+    private static UserEntity mapDocumentToEntity(Document document) {
+        String username = document.getString("username");
+        LocalDate dateBet = LocalDate.parse(document.getString("dateBet"));
+        String timeBet = document.getString("timeBet");
+        Boolean reliable = document.getBoolean("reliable");
+        UserEntity userEntity = new UserEntity(username, dateBet, timeBet, reliable);
+        return userEntity;
     }
 
     @Override
@@ -50,12 +61,6 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
     }
 
     @Override
-    public UserEntity findById(String username) {
-        logger.info("Finding user by id " + username);
-        return null;
-    }
-
-    @Override
     public ArrayList<UserEntity> findAll() {
         logger.info("Finding all users");
 
@@ -63,29 +68,18 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
 
         MongoCollection<Document> collection = databaseManager.getDatabase().getCollection("users_bet");
 
-        // Construye una consulta (por ejemplo, encontrar todos los documentos)
+        // Consulta sin filtro
         Document query = new Document();
-
-        // Ejecuta la consulta
-        MongoCursor<Document> cursor = collection.find(query).iterator();
 
         // Itera sobre los resultados de la consulta
         ArrayList<UserEntity> usersList = new ArrayList<>();
+        MongoCursor<Document> cursor = collection.find(query).iterator();
         while (cursor.hasNext()) {
             Document document = cursor.next();
-
-            // Extraer valores del documento y crear una instancia de UserEntity
-            String username = document.getString("username");
-            LocalDate dateBet = LocalDate.parse(document.getString("dateBet"));
-            String timeBet = document.getString("timeBet");
-            Boolean reliable = document.getBoolean("reliable");
-
-            UserEntity userEntity = new UserEntity(username, dateBet, timeBet, reliable);
-
+            UserEntity userEntity = mapDocumentToEntity(document);
             usersList.add(userEntity);
         }
 
-        // Cierra el cursor y la conexión
         cursor.close();
         databaseManager.closeDatabase();
 
@@ -93,47 +87,69 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
     }
 
     @Override
-    public int calculateTotalBetsByUsername(String username) {
-        logger.info("Calculating total bets for username: " + username);
+    public ArrayList<UserDTO> getAllByTime(String newTime) {
+        logger.info("getAllByTime");
 
-        // Conectar a la base de datos
         databaseManager.connectDatabase();
 
-        // Obtener la colección de usuarios
         MongoCollection<Document> collection = databaseManager.getDatabase().getCollection("users_bet");
 
-        // Crear un filtro para buscar documentos con el nombre de usuario especificado
-        Bson filter = Filters.eq("username", username);
+        // Crear un filtro para encontrar documentos con el valor de "timeBet" igual a newTime
+        Bson filter = Filters.eq("timeBet", newTime);
+        FindIterable<Document> result = collection.find(filter); // Consulta
 
-        // Realizar la consulta para contar el número de documentos que coinciden con el filtro
-        long totalCount = collection.countDocuments(filter);
+        ArrayList<UserEntity> usersFiltered = new ArrayList<>();
+        MongoCursor<Document> cursor = result.iterator();
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+            UserEntity user = mapDocumentToEntity(document);
+            usersFiltered.add(user);
+        }
 
-        // Cerrar la conexión
+        cursor.close();
         databaseManager.closeDatabase();
 
-        // Devolver el total como entero
-        return Integer.parseInt(String.valueOf(totalCount));
+        // Mapeamos a los usuarios filtrados
+        UserMapper userMapper = new UserMapper();
+        ArrayList<UserDTO> usersDTO = userMapper.convertUserEntitiesToDTOs(usersFiltered);
+
+        return usersDTO;
     }
 
     @Override
-    public String calculatePercentSuccess(UserEntity userEntity, int totalBets) {
+    public ArrayList<UserDTO> getAllByDateTime(String newTime, LocalDate newDate) {
+        logger.info("getAllByDateTime");
+
         databaseManager.connectDatabase();
 
         MongoCollection<Document> collection = databaseManager.getDatabase().getCollection("users_bet");
 
-        // Realizar una consulta para contar el número de apuestas exitosas del usuario
-        double numReliable = collection.countDocuments(new Document("username", userEntity.getUsername()).append("reliable", true));
-        // Calcular el porcentaje de éxito
-        String percent;
-        if (totalBets > 0) {
-            double percentValue = (numReliable / (double) totalBets) * 100;
-            DecimalFormat df = new DecimalFormat("#.##"); // Establecemos el formato a dos decimales
-            percent = df.format(percentValue); // Redondeamos el valor y se convierte a String
-        } else {
-            percent = "No hay datos";
+        // Crear un filtro para encontrar documentos con el valor de "timeBet" igual a newTime
+        Bson filter = Filters.eq("timeBet", newTime);
+        FindIterable<Document> result = collection.find(filter); // Consulta
+
+        ArrayList<UserEntity> usersFiltered = new ArrayList<>();
+        int targetDayOfWeek = newDate.getDayOfWeek().getValue(); // Obtiene el día de la semana de la fecha deseada
+
+        MongoCursor<Document> cursor = result.iterator();
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+            LocalDate documentDateBet = LocalDate.parse(document.getString("dateBet"));
+            int documentDayOfWeek = documentDateBet.getDayOfWeek().getValue();
+
+            if (documentDayOfWeek == targetDayOfWeek) {
+                UserEntity user = mapDocumentToEntity(document);
+                usersFiltered.add(user);
+            }
         }
 
+        cursor.close();
         databaseManager.closeDatabase();
-        return percent;
+
+        // Mapeamos a los usuarios filtrados
+        UserMapper userMapper = new UserMapper();
+        ArrayList<UserDTO> usersDTO = userMapper.convertUserEntitiesToDTOs(usersFiltered);
+
+        return usersDTO;
     }
 }
