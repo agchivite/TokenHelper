@@ -152,4 +152,75 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
 
         return usersDTO;
     }
+
+    @Override
+    public ArrayList<UserDTO> getByUsernameTime(String newUsername, String newTime) {
+        logger.info("getByUsernameTime");
+
+        databaseManager.connectDatabase();
+
+        MongoCollection<Document> collection = databaseManager.getDatabase().getCollection("users_bet");
+
+        Bson filter = Filters.and(
+                Filters.eq("timeBet", newTime),
+                Filters.eq("username", newUsername)
+        );
+        FindIterable<Document> result = collection.find(filter); // Consulta
+
+        ArrayList<UserEntity> usersFiltered = new ArrayList<>();
+        MongoCursor<Document> cursor = result.iterator();
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+            UserEntity user = mapDocumentToEntity(document);
+            usersFiltered.add(user);
+        }
+
+        cursor.close();
+        databaseManager.closeDatabase();
+
+        // Mapeamos a los usuarios filtrados
+        UserMapper userMapper = new UserMapper();
+        ArrayList<UserDTO> usersDTO = userMapper.convertUserEntitiesToDTOs(usersFiltered);
+
+        return usersDTO;
+    }
+
+    @Override
+    public ArrayList<UserDTO> getByUsernameDateTime(String newUsername, String newTime, LocalDate newDate) {
+        logger.info("getByUsernameDateTime");
+
+        databaseManager.connectDatabase();
+
+        MongoCollection<Document> collection = databaseManager.getDatabase().getCollection("users_bet");
+
+        Bson filter = Filters.and(
+                Filters.eq("timeBet", newTime),
+                Filters.eq("username", newUsername)
+        );
+        FindIterable<Document> result = collection.find(filter); // Consulta
+
+        ArrayList<UserEntity> usersFiltered = new ArrayList<>();
+        int targetDayOfWeek = newDate.getDayOfWeek().getValue(); // Obtiene el día de la semana de la fecha deseada
+
+        MongoCursor<Document> cursor = result.iterator();
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+            LocalDate documentDateBet = LocalDate.parse(document.getString("dateBet"));
+            int documentDayOfWeek = documentDateBet.getDayOfWeek().getValue();
+
+            if (documentDayOfWeek == targetDayOfWeek) {
+                UserEntity user = mapDocumentToEntity(document);
+                usersFiltered.add(user);
+            }
+        }
+
+        cursor.close();
+        databaseManager.closeDatabase();
+
+        // Mapeamos a los usuarios filtrados
+        UserMapper userMapper = new UserMapper();
+        ArrayList<UserDTO> usersDTO = userMapper.convertUserEntitiesToDTOs(usersFiltered);
+
+        return usersDTO;
+    }
 }

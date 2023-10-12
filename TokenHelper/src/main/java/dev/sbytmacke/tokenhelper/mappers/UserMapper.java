@@ -26,7 +26,7 @@ public class UserMapper {
                 String percentSuccess = calculatePercentSuccess(userEntities, username, totalBets);
 
                 // Crear un UserDTO con los valores calculados
-                UserDTO userDTO = new UserDTO(username, percentSuccess, totalBets);
+                UserDTO userDTO = new UserDTO(username, percentSuccess, String.valueOf(totalBets));
                 userDTOs.add(userDTO);
             }
         }

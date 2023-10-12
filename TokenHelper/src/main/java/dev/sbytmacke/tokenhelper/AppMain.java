@@ -8,6 +8,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -26,9 +27,12 @@ public class AppMain extends Application {
         UserViewModel userViewModel = new UserViewModel(new UserRepositoryImpl(new DatabaseManagerImpl()));
         controller.init(userViewModel); // Inyección de dependencias desde el DatabaseManager hasta el Controller
 
-        Scene scene = new Scene(root, 1339, 744);
+        Scene scene = new Scene(root, 1310, 745);
         stage.setResizable(false);
-        stage.setTitle("Hello!");
+        stage.setTitle("TokenHelper");
+        // Agregar un icono a la ventana
+        stage.getIcons().add(new Image("/dev/sbytmacke/tokenhelper/icons/main_icon.png"));
+
         stage.setScene(scene);
         stage.show();
     }

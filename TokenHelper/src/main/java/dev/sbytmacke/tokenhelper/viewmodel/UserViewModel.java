@@ -46,12 +46,15 @@ public class UserViewModel {
         return repository.getAllByDateTime(newTime, newDate);
     }
 
-    public void getUserByUsernameDateTime(String newUsername, String newTime, LocalDate newDate) {
-        logger.info("getUserByUsernameDateTime");
-
+    public ArrayList<UserDTO> getByUsernameTime(String newUsername, String newTime) {
+        logger.info("getByUsernameTime");
+        return repository.getByUsernameTime(newUsername, newTime);
     }
 
-    public void getUserByUsernameTime(String newUsername, String newTime) {
-        logger.info("getUserByUsernameTime");
+    public ArrayList<UserDTO> getByUsernameDateTime(String newUsername, String newTime, LocalDate newDate) {
+        logger.info("getByUsernameDateTime");
+        return repository.getByUsernameDateTime(newUsername, newTime, newDate);
     }
+
+
 }
