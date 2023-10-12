@@ -1,9 +1,18 @@
 package dev.sbytmacke.tokenhelper.repositories;
 
+import dev.sbytmacke.tokenhelper.dto.UserDTO;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+
 public interface UserRepository<T, ID> extends Repository<T, ID> {
 
-    int calculateTotalBetsByUsername(ID username);
+    ArrayList<UserDTO> getAllByTime(ID newTime);
 
-    String calculatePercentSuccess(T userEntity, int totalBets);
+    ArrayList<UserDTO> getAllByDateTime(ID newTime, LocalDate newDate);
+
+    ArrayList<UserDTO> getByUsernameTime(ID newUsername, ID newTime);
+
+    ArrayList<UserDTO> getByUsernameDateTime(ID newUsername, ID newTime, LocalDate newDate);
 }
 
