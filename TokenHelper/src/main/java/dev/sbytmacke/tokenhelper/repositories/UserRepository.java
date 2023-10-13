@@ -3,16 +3,20 @@ package dev.sbytmacke.tokenhelper.repositories;
 import dev.sbytmacke.tokenhelper.dto.UserDTO;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
 
 public interface UserRepository<T, ID> extends Repository<T, ID> {
 
-    ArrayList<UserDTO> getAllByTime(ID newTime);
+    List<UserDTO> getAllByTime(ID newTime);
 
-    ArrayList<UserDTO> getAllByDateTime(ID newTime, LocalDate newDate);
+    List<UserDTO> getAllByDateTime(String newTime, LocalDate newDate);
 
-    ArrayList<UserDTO> getByUsernameTime(ID newUsername, ID newTime);
+    List<UserDTO> getByUsernameTime(ID newUsername, String newTime);
 
-    ArrayList<UserDTO> getByUsernameDateTime(ID newUsername, ID newTime, LocalDate newDate);
+    List<UserDTO> getByUsernameDateTime(ID newUsername, String newTime, LocalDate newDate);
+
+    Integer getGlobalTotalBetsByTime(String newTime);
+
+    Integer getGlobalTotalBetsByDateTime(String newTime, LocalDate newDate);
 }
 

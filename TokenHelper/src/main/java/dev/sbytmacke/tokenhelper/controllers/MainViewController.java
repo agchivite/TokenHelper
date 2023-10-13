@@ -2,21 +2,27 @@ package dev.sbytmacke.tokenhelper.controllers;
 
 import dev.sbytmacke.tokenhelper.dto.UserDTO;
 import dev.sbytmacke.tokenhelper.models.UserEntity;
+import dev.sbytmacke.tokenhelper.utils.DateFormatterUtils;
 import dev.sbytmacke.tokenhelper.utils.TimeUtils;
 import dev.sbytmacke.tokenhelper.viewmodel.UserViewModel;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
@@ -52,7 +58,6 @@ public class MainViewController {
     private TableColumn<UserDTO, String> columnSuccess;
     @FXML
     private TableColumn<UserDTO, String> columnTotalBets;
-
     // Global Result
     @FXML
     private Label textFinalResultDate;
@@ -75,8 +80,8 @@ public class MainViewController {
         setColorsTable();
         centerTextTable();
 
-        comboTimeFilter.getStylesheets().add(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css").toExternalForm());
-        comboTime.getStylesheets().add(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css").toExternalForm());
+        comboTimeFilter.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
+        comboTime.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
     }
 
     private void initBindings() {
@@ -90,19 +95,13 @@ public class MainViewController {
         comboTimeFilter.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
         comboTimeFilter.getSelectionModel().select(24);
 
-        // Tabla (nada más carga el programa)
-        //tableUsers.setItems(FXCollections.observableArrayList(userViewModel.getUserStateProperty().getValue().getUsers()));
-
         // Para poder concatenar el % al final del número del porcentaje
         Callback<TableColumn.CellDataFeatures<UserDTO, String>, ObservableValue<String>> percentReliableCellFactory
-                = new Callback<TableColumn.CellDataFeatures<UserDTO, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<UserDTO, String> p) {
-                if (p.getValue() == null) {
-                    return new SimpleStringProperty("");
-                }
-                return new SimpleStringProperty(p.getValue().getPercentReliable() + "%");
+                = p -> {
+            if (p.getValue() == null) {
+                return new SimpleStringProperty("");
             }
+            return new SimpleStringProperty(p.getValue().getPercentReliable() + "%");
         };
 
         columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
@@ -112,13 +111,10 @@ public class MainViewController {
         ToggleGroup toggleGroup = new ToggleGroup();
         radioButtonGood.setToggleGroup(toggleGroup);
         radioButtonBad.setToggleGroup(toggleGroup);
-
-        // Observable del State, cada vez que cambie se actualiza la tabla
-        //userViewModel.getUserStateProperty().addListener((observable, oldState, newState) -> updateTable(oldState, newState));
     }
 
     private void setColorsTable() {
-        tableUsers.setRowFactory(tv -> new TableRow<UserDTO>() {
+        tableUsers.setRowFactory(tv -> new TableRow<>() {
             @Override
             protected void updateItem(UserDTO item, boolean empty) {
                 super.updateItem(item, empty);
@@ -126,15 +122,14 @@ public class MainViewController {
                 if (item == null || empty) {
                     setStyle("");
                 } else {
-                    double success = Double.parseDouble(item.getPercentReliable());
-                    if (success < 45) {
+                    if (item.getPercentReliable() <= 49) {
                         setStyle("-fx-background-color: #ff6161;");
-                    } else if (success >= 45 && success <= 55) {
+                    } else if (item.getPercentReliable() > 49 && item.getPercentReliable() <= 65) {
                         setStyle("-fx-background-color: orange;");
-                    } else if (success > 55) {
+                    } else if (item.getPercentReliable() > 65) {
                         setStyle("-fx-background-color: #53db78;");
                     } else {
-                        setStyle(""); // Restablece cualquier estilo personalizado si el valor no cumple ningún criterio.
+                        setStyle("-fx-background-color: #ffffff");
                     }
                 }
             }
@@ -142,83 +137,49 @@ public class MainViewController {
     }
 
     private void centerTextTable() {
-        columnSuccess.setCellFactory(tc -> {
-            TableCell<UserDTO, String> cell = new TableCell<UserDTO, String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (item == null || empty) {
-                        setText(null);
-                    } else {
-                        setText(item);
-                        setAlignment(Pos.CENTER); // Centrar el contenido de la celda
-                    }
-                }
-            };
-            return cell;
-        });
-
-        columnUsername.setCellFactory(tc -> {
-            TableCell<UserDTO, String> cell = new TableCell<UserDTO, String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (item == null || empty) {
-                        setText(null);
-                    } else {
-                        setText(item);
-                        setAlignment(Pos.CENTER); // Centrar el contenido de la celda
-                    }
-                }
-            };
-            return cell;
-        });
-
-        columnTotalBets.setCellFactory(tc -> {
-            TableCell<UserDTO, String> cell = new TableCell<UserDTO, String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (item == null || empty) {
-                        setText(null);
-                    } else {
-                        setText(item);
-                        setAlignment(Pos.CENTER); // Centrar el contenido de la celda
-                    }
-                }
-            };
-            return cell;
-        });
-    }
-
-/*    private void updateTable(UserState oldState, UserState newState) {
-        logger.debug("Updating user's table");
-
-        if (!oldState.getUsers().equals(newState.getUsers())) {
-            // Limpia la selección en la tabla
-            tableUsers.setSelectionModel(null);
-            tableUsers.getItems().clear();
-            tableUsers.setItems(FXCollections.observableArrayList(newState.getUsers()));
+        for (int i = 0; i < tableUsers.getColumns().size(); i++) {
+            tableUsers.getColumns().get(i).setStyle("-fx-alignment: CENTER;");
         }
-    }*/
+    }
 
     private void initEvents() {
         logger.info("Initializing Events");
         buttonCreateUser.setOnAction(event -> saveUser());
+        textSearchUserFilter.setOnKeyReleased(event -> onFilterDataTable());
+        comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> onFilterDataTable());
 
-        textSearchUserFilter.setOnKeyReleased(event -> {
-            onFilterDataTable();
+        DateFormatterUtils dateFormatterUtils = new DateFormatterUtils();
+        DateTimeFormatter dateFormatterDatePickerFilter = dateFormatterUtils.formatDate(datePickerFilter);
+        datePickerFilter.valueProperty().addListener(event -> onFilterDataTable());
+        datePickerFilter.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                LocalDate parsedDate = LocalDate.parse(newValue, dateFormatterDatePickerFilter);
+                datePickerFilter.setValue(parsedDate); // Actualiza el DatePicker
+                onFilterDataTable(); // Llama a la función después de actualizar el DatePicker
+            } catch (DateTimeParseException e) {
+                logger.error("No Valid - DatePickerFilter: " + newValue);
+                if (newValue.isEmpty()) {
+                    datePickerFilter.setValue(null); // Establece newDate como nulo si el valor está vacío
+                    onFilterDataTable(); // Llama a la función con newDate nulo
+                } else {
+                    tableUsers.setSelectionModel(null); // Borramos toda la tabla en caso de fallar
+                    tableUsers.getItems().clear();
+                }
+            }
         });
 
-        comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> {
-            onFilterDataTable();
-        });
-
-        datePickerFilter.valueProperty().addListener(event -> {
-            onFilterDataTable();
+        // Cambiamos también en el DatePicker al añadir
+        DateTimeFormatter dateFormatterDatePicker = dateFormatterUtils.formatDate(datePicker);
+        datePicker.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                LocalDate parsedDate = LocalDate.parse(newValue, dateFormatterDatePicker);
+                datePicker.setValue(parsedDate); // Actualiza el DatePicker
+            } catch (DateTimeParseException e) {
+                logger.error("No Valid - DatePickerFilter: " + newValue);
+            }
         });
     }
-
+    
     private void onFilterDataTable() {
         String newUsername = textSearchUserFilter.getText();
         String newTime = comboTimeFilter.getSelectionModel().getSelectedItem();
@@ -234,53 +195,81 @@ public class MainViewController {
 
     private void setGlobalResult(String newTime, LocalDate newDate) {
         logger.info("Setting global result");
-        if (newTime.equals("--:--")) {
+
+        String noDataTime = "--:--";
+        setGlobalTime(newTime, noDataTime);
+        setGlobalDate(newDate);
+
+        // Recoger todas las apuestas y hacer la media con hora y día de la semana
+        if (!newTime.equals(noDataTime) && newDate != null) {
+            Integer totalBets = userViewModel.getGlobalTotalBetsByDateTime(newTime, newDate);
+            double percentSuccess = userViewModel.getGlobalPercentSuccessByDateTime(newTime, newDate);
+            setDetailsGlobalResult(totalBets, percentSuccess);
+        } else if (!newTime.equals(noDataTime)) {
+            // Si no solo con la hora
+            Integer totalBets = userViewModel.getGlobalTotalBetsByTime(newTime);
+            double percentSuccess = userViewModel.getGlobalPercentSuccessByTime(newTime);
+            setDetailsGlobalResult(totalBets, percentSuccess);
+        }
+    }
+
+    private void setDetailsGlobalResult(Integer totalBets, double percentSuccess) {
+        if (percentSuccess == 0.0) {
+            textFinalResultPercentSuccess.setText("sin datos");
+            textFinalResultPercentSuccess.setTextFill(Color.WHITE);
+        }
+
+        if (totalBets == 0) {
+            textFinalResultTotalBets.setText("sin datos");
+            textFinalResultTotalBets.setTextFill(Color.WHITE);
+            return;
+        }
+        textFinalResultPercentSuccess.setText(percentSuccess + "%");
+        if (percentSuccess <= 49.00) {
+            textFinalResultPercentSuccess.setTextFill(Color.RED);
+        } else if (percentSuccess > 49.00 && percentSuccess <= 65.00) {
+            textFinalResultPercentSuccess.setTextFill(Color.ORANGE);
+        } else if (percentSuccess > 65.00) {
+            textFinalResultPercentSuccess.setTextFill(Color.GREEN);
+        } else {
+            textFinalResultPercentSuccess.setTextFill(Color.WHITE);
+        }
+        textFinalResultTotalBets.setText(String.valueOf(totalBets));
+    }
+
+    private void setGlobalDate(LocalDate newDate) {
+        if (newDate == null) {
+            textFinalResultDate.setText("sin filtro");
+        } else {
+            Map<Integer, String> dayOfWeekMap = new HashMap<>();
+            dayOfWeekMap.put(1, "Lunes");
+            dayOfWeekMap.put(2, "Martes");
+            dayOfWeekMap.put(3, "Miércoles");
+            dayOfWeekMap.put(4, "Jueves");
+            dayOfWeekMap.put(5, "Viernes");
+            dayOfWeekMap.put(6, "Sábado");
+            dayOfWeekMap.put(7, "Domingo");
+
+            int dayOfWeekValue = newDate.getDayOfWeek().getValue();
+            String dayOfWeek = dayOfWeekMap.get(dayOfWeekValue);
+            textFinalResultDate.setText(dayOfWeek + "-" + newDate);
+        }
+        textFinalResultDate.setTextFill(Color.WHITE);
+    }
+
+    private void setGlobalTime(String newTime, String noDataTime) {
+        if (newTime.equals(noDataTime)) {
             textFinalResultTime.setText("sin filtro");
         } else {
             textFinalResultTime.setText(newTime);
         }
-
-        if (newDate == null) {
-            textFinalResultDate.setText("sin filtro");
-        } else {
-            String dayOfWeek = String.valueOf(newDate.getDayOfWeek().getValue());
-            logger.info("Day of week: " + dayOfWeek);
-            if (dayOfWeek.equals("1")) {
-                textFinalResultDate.setText("Lunes" + "-" + newDate);
-            }
-            if (dayOfWeek.equals("2")) {
-                textFinalResultDate.setText("Martes" + "-" + newDate);
-            }
-            if (dayOfWeek.equals("3")) {
-                textFinalResultDate.setText("Miércoles" + "-" + newDate);
-            }
-            if (dayOfWeek.equals("4")) {
-                textFinalResultDate.setText("Jueves" + "-" + newDate);
-            }
-            if (dayOfWeek.equals("5")) {
-                textFinalResultDate.setText("Viernes" + "-" + newDate);
-            }
-            if (dayOfWeek.equals("6")) {
-                textFinalResultDate.setText("Sábado" + "-" + newDate);
-            }
-            if (dayOfWeek.equals("7")) {
-                textFinalResultDate.setText("Domingo" + "-" + newDate);
-            }
-        }
-
-        // Recoger todas las apuestas y hacer la media
-        if (newDate == null) {
-            //double percentSuccess = userViewModel.getGlobalPercentSuccessByTime(newTime);
-        }
-        
-        textFinalResultPercentSuccess.setText("sin datos");
-        textFinalResultTotalBets.setText("sin datos");
+        textFinalResultTime.setTextFill(Color.WHITE);
     }
 
     private void onFilterDataTableByTime(String newUsername, String newTime, LocalDate newDate) {
         logger.info("Filtering all by time");
         if (newUsername == null || newUsername.isEmpty() && newTime != null && !newTime.isEmpty() && newDate == null) {
-            ArrayList<UserDTO> usersToShow = userViewModel.getAllByTime(newTime);
+            List<UserDTO> usersToShow = userViewModel.getAllByTime(newTime);
 
             tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
@@ -288,11 +277,10 @@ public class MainViewController {
         }
     }
 
-
     private void onFilterDataTableByDateTime(String newUsername, String newTime, LocalDate newDate) {
         logger.info("Filtering all by date time");
         if (newUsername == null || newUsername.isEmpty() && newTime != null && !newTime.isEmpty() && newDate != null) {
-            ArrayList<UserDTO> usersToShow = userViewModel.getAllByDateTime(newTime, newDate);
+            List<UserDTO> usersToShow = userViewModel.getAllByDateTime(newTime, newDate);
 
             tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
@@ -303,7 +291,7 @@ public class MainViewController {
     private void onFilterDataTableByUserTime(String newUsername, String newTime, LocalDate newDate) {
         logger.info("Filtering by user & time");
         if (newUsername != null && !newUsername.isEmpty() && newTime != null && !newTime.isEmpty() && newDate == null) {
-            ArrayList<UserDTO> usersToShow = userViewModel.getByUsernameTime(newUsername, newTime);
+            List<UserDTO> usersToShow = userViewModel.getByUsernameTime(newUsername, newTime);
 
             tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
@@ -314,7 +302,7 @@ public class MainViewController {
     private void onFilterDataTableByUserDateTime(String newUsername, String newTime, LocalDate newDate) {
         logger.info("Filtering by user & date time");
         if (newUsername != null && !newUsername.isEmpty() && newTime != null && !newTime.isEmpty() && newDate != null) {
-            ArrayList<UserDTO> usersToShow = userViewModel.getByUsernameDateTime(newUsername, newTime, newDate);
+            List<UserDTO> usersToShow = userViewModel.getByUsernameDateTime(newUsername, newTime, newDate);
 
             tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
@@ -328,7 +316,7 @@ public class MainViewController {
 
         // Validate User
         String userName = (textFieldUser.getText() != null && !textFieldUser.getText().isEmpty()) ? textFieldUser.getText() : null;
-        String date = (datePicker.getValue() != null && !datePicker.getValue().toString().isEmpty()) ? datePicker.getValue().toString() : null;
+        LocalDate date = (datePicker.getValue() != null && !datePicker.getValue().toString().isEmpty()) ? datePicker.getValue() : null;
         String time = (comboTime.getValue() != null && !comboTime.getValue().isEmpty()) ? comboTime.getValue() : null;
 
         if (userName == null) {
@@ -345,8 +333,8 @@ public class MainViewController {
             logger.info(infoError);
             Alert alert = new Alert(ERROR);
             alert.setTitle(titleError);
-            alert.setHeaderText("Fecha vacía");
-            alert.setContentText("La fecha NO puede estar vacía");
+            alert.setHeaderText("Fecha incorrecta");
+            alert.setContentText("La fecha es incorrecta, debe tener formato (yyyy-MM-dd)");
             alert.showAndWait();
             return;
         }
@@ -375,7 +363,7 @@ public class MainViewController {
         // User is valid, continue saving the user
         logger.info("Saving user");
 
-        userViewModel.saveUser(new UserEntity(textFieldUser.getText(), datePicker.getValue(), comboTime.getValue(), radioButtonGood.isSelected()));
+        userViewModel.saveUser(new UserEntity(textFieldUser.getText().toUpperCase(), datePicker.getValue(), comboTime.getValue(), radioButtonGood.isSelected()));
 
         // Clean fields
         datePicker.setValue(null);

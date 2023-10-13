@@ -6,10 +6,21 @@ import dev.sbytmacke.tokenhelper.models.UserEntity;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class UserMapper {
-    public ArrayList<UserDTO> convertUserEntitiesToDTOs(ArrayList<UserEntity> userEntities) {
+    private static int calculateSuccessfulBets(List<UserEntity> userEntities, String username) {
+        int successfulBets = 0;
+        for (UserEntity userEntity : userEntities) {
+            if (userEntity.getUsername().equals(username) && userEntity.getIsReliable()) {
+                successfulBets++;
+            }
+        }
+        return successfulBets;
+    }
+
+    public List<UserDTO> convertUserEntitiesToDTOs(List<UserEntity> userEntities) {
         Set<String> processedUsernames = new HashSet<>();
         ArrayList<UserDTO> userDTOs = new ArrayList<>();
 
@@ -22,11 +33,12 @@ public class UserMapper {
                 processedUsernames.add(username);
 
                 // Calcular el total de apuestas y el porcentaje de éxito para el usuario
+                int totalSuccessfulBets = calculateSuccessfulBets(userEntities, username);
                 int totalBets = calculateTotalBets(userEntities, username);
-                String percentSuccess = calculatePercentSuccess(userEntities, username, totalBets);
+                String percentSuccess = calculatePercentSuccess(totalBets, totalSuccessfulBets);
 
                 // Crear un UserDTO con los valores calculados
-                UserDTO userDTO = new UserDTO(username, percentSuccess, String.valueOf(totalBets));
+                UserDTO userDTO = new UserDTO(username, percentSuccess, String.valueOf(totalBets), totalSuccessfulBets);
                 userDTOs.add(userDTO);
             }
         }
@@ -34,7 +46,7 @@ public class UserMapper {
         return userDTOs;
     }
 
-    private int calculateTotalBets(ArrayList<UserEntity> userEntities, String username) {
+    private int calculateTotalBets(List<UserEntity> userEntities, String username) {
         int totalBets = 0;
         for (UserEntity userEntity : userEntities) {
             if (userEntity.getUsername().equals(username)) {
@@ -44,16 +56,9 @@ public class UserMapper {
         return totalBets;
     }
 
-    private String calculatePercentSuccess(ArrayList<UserEntity> userEntities, String username, int totalBets) {
-        double successfulBets = 0;
-        for (UserEntity userEntity : userEntities) {
-            if (userEntity.getUsername().equals(username) && userEntity.getIsReliable()) {
-                successfulBets++;
-            }
-        }
-
+    private String calculatePercentSuccess(int totalBets, double successfulBets) {
         if (totalBets > 0) {
-            double percentValue = (successfulBets / (double) totalBets) * 100;
+            double percentValue = (successfulBets / totalBets) * 100;
             DecimalFormat df = new DecimalFormat("#.##"); // Establecemos el formato a dos decimales
             return df.format(percentValue); // Redondeamos el valor y se convierte a String
         } else {
