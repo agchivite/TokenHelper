@@ -6,7 +6,6 @@ module dev.sbytmacke.tokenhelper {
     requires org.slf4j;
     requires org.mongodb.driver.core;
 
-
     opens dev.sbytmacke.tokenhelper to javafx.fxml;
     exports dev.sbytmacke.tokenhelper;
 
@@ -15,5 +14,4 @@ module dev.sbytmacke.tokenhelper {
 
     opens dev.sbytmacke.tokenhelper.dto to javafx.base;
     exports dev.sbytmacke.tokenhelper.dto;
-
 }

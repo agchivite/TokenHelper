@@ -7,10 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
 
 public class UserViewModel {
-    //private final SimpleObjectProperty<UserState> userStateProperty = new SimpleObjectProperty<>();
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final UserRepository<UserEntity, String> repository;
 
@@ -19,42 +18,95 @@ public class UserViewModel {
         this.repository = repository;
     }
 
-    public UserEntity saveUser(UserEntity userEntity) {
-        repository.addItem(userEntity);
-/*        List<UserDTO> currentUsers = repository.findAll();
+    private double calculateGlobalAverageSuccess(List<UserDTO> users) {
+        int totalSuccess = 0;
+        int totalBets = 0;
 
-        // Crea un nuevo UserState con el nuevo usuario
-        UserState updatedState = new UserState(currentUsers);
+        for (UserDTO user : users) {
+            totalSuccess += user.getTotalSuccess();
+            totalBets += Integer.parseInt(user.getTotalBets());
+        }
 
-        // Establece el nuevo valor en userStateProperty
-        userStateProperty.setValue(updatedState);*/
+        // Comprobar si la suma total es cero
+        if (totalBets == 0) {
+            return 0.0;
+        }
 
-        return userEntity;
+        double totalPercentSuccess = (double) totalSuccess * 100 / totalBets * 100;
+
+        return Math.round(totalPercentSuccess) / 100.0;
     }
 
-/*    public SimpleObjectProperty<UserState> getUserStateProperty() {
-        return userStateProperty;
-    }*/
 
-    public ArrayList<UserDTO> getAllByTime(String newTime) {
+    public void saveUser(UserEntity userEntity) {
+        repository.addItem(userEntity);
+    }
+
+    public List<UserDTO> getAllByTime(String newTime) {
         logger.info("getAllByTime");
         return repository.getAllByTime(newTime);
     }
 
-    public ArrayList<UserDTO> getAllByDateTime(String newTime, LocalDate newDate) {
+    public List<UserDTO> getAllByDateTime(String newTime, LocalDate newDate) {
         logger.info("getAllByDateTime");
         return repository.getAllByDateTime(newTime, newDate);
     }
 
-    public ArrayList<UserDTO> getByUsernameTime(String newUsername, String newTime) {
-        logger.info("getByUsernameTime");
-        return repository.getByUsernameTime(newUsername, newTime);
+    public Integer getGlobalTotalBetsByTime(String newTime) {
+        logger.info("getGlobalTotalBetsByTime");
+        return repository.getGlobalTotalBetsByTime(newTime);
     }
 
-    public ArrayList<UserDTO> getByUsernameDateTime(String newUsername, String newTime, LocalDate newDate) {
-        logger.info("getByUsernameDateTime");
-        return repository.getByUsernameDateTime(newUsername, newTime, newDate);
+    public double getGlobalPercentSuccessByTime(String newTime) {
+        logger.info("getGlobalPercentSuccessByTime");
+        List<UserDTO> users = repository.getAllByTime(newTime);
+
+        if (users.isEmpty()) {
+            return 0.0;
+        }
+
+        return calculateGlobalAverageSuccess(users);
     }
 
+    public Integer getGlobalTotalBetsByDateTime(String newTime, LocalDate newDate) {
+        logger.info("getGlobalTotalBetsByDateTime");
+        return repository.getGlobalTotalBetsByDateTime(newTime, newDate);
+    }
 
+    public double getGlobalPercentSuccessByDateTime(String newTime, LocalDate newDate) {
+        logger.info("getGlobalPercentSuccessByDateTime");
+        List<UserDTO> users = repository.getAllByDateTime(newTime, newDate);
+
+        if (users.isEmpty()) {
+            return 0.0;
+        }
+
+        return calculateGlobalAverageSuccess(users);
+    }
+
+    public List<String> getAllUsernamesNoRepeat() {
+        logger.info("getAllUsernames");
+        return repository.getAllUsernamesNoRepeat();
+    }
+
+    public Integer getGlobalTotalBetsByDate(LocalDate newDate) {
+        logger.info("getGlobalTotalBetsByDate");
+        return repository.getGlobalTotalBetsByDate(newDate);
+    }
+
+    public double getGlobalPercentSuccessByDate(LocalDate newDate) {
+        logger.info("getGlobalPercentSuccessByDate");
+        List<UserDTO> users = repository.getAllByDate(newDate);
+
+        if (users.isEmpty()) {
+            return 0.0;
+        }
+
+        return calculateGlobalAverageSuccess(users);
+    }
+
+    public List<UserDTO> getAllByDate(LocalDate newDate) {
+        logger.info("getAllByDate");
+        return repository.getAllByDate(newDate);
+    }
 }
