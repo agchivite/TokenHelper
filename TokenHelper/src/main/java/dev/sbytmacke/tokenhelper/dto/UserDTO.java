@@ -4,10 +4,10 @@ public class UserDTO {
 
     private final String username;
     private final String totalBets;
-    private final String percentReliable;
+    private final double percentReliable;
     private final int totalSuccess;
 
-    public UserDTO(String username, String percentReliable, String totalBets, int totalSuccess) {
+    public UserDTO(String username, double percentReliable, String totalBets, int totalSuccess) {
         this.username = username;
         this.percentReliable = percentReliable;
         this.totalBets = totalBets;
@@ -19,7 +19,9 @@ public class UserDTO {
     }
 
     public double getPercentReliable() {
-        return Double.parseDouble(percentReliable);
+        String formattedValue = String.format("%.2f", percentReliable);
+        formattedValue = formattedValue.replace(',', '.');
+        return Double.parseDouble(formattedValue);
     }
 
     public String getTotalBets() {

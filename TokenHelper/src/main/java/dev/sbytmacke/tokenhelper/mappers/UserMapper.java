@@ -35,7 +35,7 @@ public class UserMapper {
                 // Calcular el total de apuestas y el porcentaje de éxito para el usuario
                 int totalSuccessfulBets = calculateSuccessfulBets(userEntities, username);
                 int totalBets = calculateTotalBets(userEntities, username);
-                String percentSuccess = calculatePercentSuccess(totalBets, totalSuccessfulBets);
+                double percentSuccess = calculatePercentSuccess(totalBets, totalSuccessfulBets);
 
                 // Crear un UserDTO con los valores calculados
                 UserDTO userDTO = new UserDTO(username, percentSuccess, String.valueOf(totalBets), totalSuccessfulBets);
@@ -56,13 +56,13 @@ public class UserMapper {
         return totalBets;
     }
 
-    private String calculatePercentSuccess(int totalBets, double successfulBets) {
+    private double calculatePercentSuccess(int totalBets, double successfulBets) {
         if (totalBets > 0) {
             double percentValue = (successfulBets / totalBets) * 100;
             DecimalFormat df = new DecimalFormat("#.##"); // Establecemos el formato a dos decimales
-            return df.format(percentValue); // Redondeamos el valor y se convierte a String
+            return percentValue; //df.format(percentValue); // Redondeamos el valor y se convierte a String
         } else {
-            return "0.0"; // Evitar división por cero
+            return 0.0; // Evitar división por cero
         }
     }
 }

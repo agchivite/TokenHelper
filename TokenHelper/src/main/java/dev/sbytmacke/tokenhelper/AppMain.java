@@ -27,7 +27,7 @@ public class AppMain extends Application {
         UserViewModel userViewModel = new UserViewModel(new UserRepositoryImpl(new DatabaseManagerImpl()));
         controller.init(userViewModel); // Inyección de dependencias desde el DatabaseManager hasta el Controller
 
-        Scene scene = new Scene(root, 1310, 745);
+        Scene scene = new Scene(root, 1310, 760);
         stage.setResizable(false);
         stage.setTitle("TokenHelper");
         // Agregar un icono a la ventana

@@ -52,16 +52,6 @@ public class UserViewModel {
         return repository.getAllByDateTime(newTime, newDate);
     }
 
-    public List<UserDTO> getByUsernameTime(String newUsername, String newTime) {
-        logger.info("getByUsernameTime");
-        return repository.getByUsernameTime(newUsername, newTime);
-    }
-
-    public List<UserDTO> getByUsernameDateTime(String newUsername, String newTime, LocalDate newDate) {
-        logger.info("getByUsernameDateTime");
-        return repository.getByUsernameDateTime(newUsername, newTime, newDate);
-    }
-
     public Integer getGlobalTotalBetsByTime(String newTime) {
         logger.info("getGlobalTotalBetsByTime");
         return repository.getGlobalTotalBetsByTime(newTime);
@@ -94,4 +84,29 @@ public class UserViewModel {
         return calculateGlobalAverageSuccess(users);
     }
 
+    public List<String> getAllUsernamesNoRepeat() {
+        logger.info("getAllUsernames");
+        return repository.getAllUsernamesNoRepeat();
+    }
+
+    public Integer getGlobalTotalBetsByDate(LocalDate newDate) {
+        logger.info("getGlobalTotalBetsByDate");
+        return repository.getGlobalTotalBetsByDate(newDate);
+    }
+
+    public double getGlobalPercentSuccessByDate(LocalDate newDate) {
+        logger.info("getGlobalPercentSuccessByDate");
+        List<UserDTO> users = repository.getAllByDate(newDate);
+
+        if (users.isEmpty()) {
+            return 0.0;
+        }
+
+        return calculateGlobalAverageSuccess(users);
+    }
+
+    public List<UserDTO> getAllByDate(LocalDate newDate) {
+        logger.info("getAllByDate");
+        return repository.getAllByDate(newDate);
+    }
 }
