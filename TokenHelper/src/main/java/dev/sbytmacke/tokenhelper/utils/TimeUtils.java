@@ -10,6 +10,8 @@ public class TimeUtils {
         List<String> sliceHours = new ArrayList<>();
         LocalTime startTime = LocalTime.of(0, 1);
 
+        sliceHours.add("--:--");
+
         while (true) {
             LocalTime endTime = startTime.plusMinutes(59);
             String timeRange = startTime.format(DateTimeFormatter.ofPattern("HH:mm")) + "-" +
