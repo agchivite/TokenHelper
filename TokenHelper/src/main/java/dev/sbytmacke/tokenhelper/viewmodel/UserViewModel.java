@@ -24,7 +24,7 @@ public class UserViewModel {
 
         for (UserDTO user : users) {
             totalSuccess += user.getTotalSuccess();
-            totalBets += Integer.parseInt(user.getTotalBets());
+            totalBets += user.getTotalBets();
         }
 
         // Comprobar si la suma total es cero
@@ -108,5 +108,16 @@ public class UserViewModel {
     public List<UserDTO> getAllByDate(LocalDate newDate) {
         logger.info("getAllByDate");
         return repository.getAllByDate(newDate);
+    }
+
+    public List<UserDTO> getAll() {
+        logger.info("getAll");
+        List<UserDTO> users = repository.getAll();
+
+        if (users.isEmpty()) {
+            return null;
+        }
+
+        return users;
     }
 }

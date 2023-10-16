@@ -68,7 +68,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
     }
 
     @Override
-    public List<UserEntity> findAll() {
+    public List<UserDTO> getAll() {
         logger.info("Finding all users");
 
         databaseManager.connectDatabase();
@@ -90,7 +90,9 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
         cursor.close();
         databaseManager.closeDatabase();
 
-        return usersList;
+        // Mapeamos a los usuarios filtrados
+        UserMapper userMapper = new UserMapper();
+        return userMapper.convertUserEntitiesToDTOs(usersList);
     }
 
     @Override
@@ -292,4 +294,5 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
         UserMapper userMapper = new UserMapper();
         return userMapper.convertUserEntitiesToDTOs(usersFiltered);
     }
+
 }

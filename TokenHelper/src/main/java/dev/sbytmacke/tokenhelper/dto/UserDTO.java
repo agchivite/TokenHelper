@@ -2,12 +2,12 @@ package dev.sbytmacke.tokenhelper.dto;
 
 public class UserDTO {
 
-    private final String username;
-    private final String totalBets;
+    private final int totalBets;
     private final double percentReliable;
     private final int totalSuccess;
+    private String username;
 
-    public UserDTO(String username, double percentReliable, String totalBets, int totalSuccess) {
+    public UserDTO(String username, double percentReliable, int totalBets, int totalSuccess) {
         this.username = username;
         this.percentReliable = percentReliable;
         this.totalBets = totalBets;
@@ -18,18 +18,21 @@ public class UserDTO {
         return username;
     }
 
+    public void setUsername(String newUsername) {
+        this.username = newUsername;
+    }
+
     public double getPercentReliable() {
         String formattedValue = String.format("%.2f", percentReliable);
         formattedValue = formattedValue.replace(',', '.');
         return Double.parseDouble(formattedValue);
     }
 
-    public String getTotalBets() {
+    public int getTotalBets() {
         return totalBets;
     }
 
     public int getTotalSuccess() {
         return totalSuccess;
     }
-
 }

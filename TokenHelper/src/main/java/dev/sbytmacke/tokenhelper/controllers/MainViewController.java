@@ -2,33 +2,42 @@ package dev.sbytmacke.tokenhelper.controllers;
 
 import dev.sbytmacke.tokenhelper.dto.UserDTO;
 import dev.sbytmacke.tokenhelper.models.UserEntity;
+import dev.sbytmacke.tokenhelper.routes.RoutesManager;
 import dev.sbytmacke.tokenhelper.utils.DateFormatterUtils;
+import dev.sbytmacke.tokenhelper.utils.DateNodes.MapNodes;
 import dev.sbytmacke.tokenhelper.utils.TimeUtils;
 import dev.sbytmacke.tokenhelper.viewmodel.UserViewModel;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
 public class MainViewController {
     private final String noDataTime = "--:--";
     Logger logger = LoggerFactory.getLogger(getClass());
+    // Almacenar la fecha actual y la fecha anterior
+    LocalDate savedDate = null;
     private UserViewModel userViewModel;
+    // Menu
+    @FXML
+    private MenuItem menuDeleteData;
     /* Create user */
     @FXML
     private TextField textFieldUser;
-    @FXML
-    private ListView<String> suggestionListView;
+    private ContextMenu contextMenu;
     @FXML
     private DatePicker datePicker;
     @FXML
@@ -44,6 +53,11 @@ public class MainViewController {
     private TextField textSearchUserFilter;
     @FXML
     private DatePicker datePickerFilter;
+    private MapNodes mapNodes; // TODO
+    @FXML
+    private Button buttonBackDate;
+    @FXML
+    private Button buttonNextDate;
     @FXML
     private ComboBox<String> comboTimeFilter;
     @FXML
@@ -52,7 +66,7 @@ public class MainViewController {
     private RadioButton radioButtonHideOrange;
     @FXML
     private RadioButton radioButtonHideRed;
-    /* Table */
+    /* Table General */
     @FXML
     private TableView<UserDTO> tableUsers;
     @FXML
@@ -61,6 +75,16 @@ public class MainViewController {
     private TableColumn<UserDTO, String> columnSuccess;
     @FXML
     private TableColumn<UserDTO, String> columnTotalBets;
+    /* Table Ranking Global */
+    @FXML
+    private TableView<UserDTO> tableUsersRanking;
+    @FXML
+    private TableColumn<UserDTO, String> columnUsernameRanking;
+    @FXML
+    private TableColumn<UserDTO, String> columnSuccessRanking;
+    @FXML
+    private TableColumn<UserDTO, String> columnTotalBetsRanking;
+
     // Global Result
     @FXML
     private Label textFinalResultDate;
@@ -74,6 +98,7 @@ public class MainViewController {
     public void init(UserViewModel userViewModel) {
         logger.info("Initializing MainViewController");
         this.userViewModel = userViewModel;
+        this.mapNodes = new MapNodes();
         initEvents();
         initBindings();
         initDetails();
@@ -82,19 +107,56 @@ public class MainViewController {
     private void initEvents() {
         logger.info("Initializing Events");
 
+        DateFormatterUtils dateFormatterUtils = new DateFormatterUtils();
+        DateTimeFormatter dateFormatterDatePickerFilter = dateFormatterUtils.formatDate(datePickerFilter);
+
+        menuDeleteData.setOnAction(event -> onDeleteMenuAction());
+
         buttonCreateUser.setOnAction(event -> saveUser());
+
+        buttonBackDate.setOnAction(event -> {
+          /*  if (mapNodes.navigateToPreviousDate(datePickerFilter)) {
+                onFilterDataTable();
+            }*/
+
+            // Almacena la fecha actual si no se ha almacenado antes
+            if (savedDate == null) {
+                savedDate = datePickerFilter.getValue();
+            }
+
+            // Borra la fecha actual
+            datePickerFilter.setValue(null);
+            onFilterDataTable();
+        });
+
+        buttonNextDate.setOnAction(event -> {
+           /* if (mapNodes.navigateToNextDate(datePickerFilter)) {
+                onFilterDataTable();
+            }*/
+
+            // Restaura la fecha anterior si está almacenada
+            if (savedDate != null) {
+                datePickerFilter.setValue(savedDate);
+                savedDate = null;
+                onFilterDataTable();
+            }
+        });
 
         // Filters
         textSearchUserFilter.setOnKeyReleased(event -> onFilterDataTable());
         comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> onFilterDataTable());
 
-        DateFormatterUtils dateFormatterUtils = new DateFormatterUtils();
-        DateTimeFormatter dateFormatterDatePickerFilter = dateFormatterUtils.formatDate(datePickerFilter);
         datePickerFilter.valueProperty().addListener(event -> onFilterDataTable());
         datePickerFilter.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             try {
+                // Actualizamos la navegación de fechas, si es exitoso
+                //if(){
+                // Comprobamos si el valor ya está asignado
                 LocalDate parsedDate = LocalDate.parse(newValue, dateFormatterDatePickerFilter);
                 datePickerFilter.setValue(parsedDate); // Actualiza el DatePicker
+                //mapNodes.addDate(parsedDate);
+                //}
+
                 onFilterDataTable(); // Llama a la función después de actualizar el DatePicker
             } catch (DateTimeParseException e) {
                 logger.error("No Valid - DatePickerFilter: " + newValue);
@@ -123,30 +185,78 @@ public class MainViewController {
         radioButtonHideOrange.setOnAction(event -> onFilterDataTable());
         radioButtonHideRed.setOnAction(event -> onFilterDataTable());
 
-        // Autocomplete suggestions
-        suggestionListView.setVisible(false);
+        contextMenu = new ContextMenu();
         textFieldUser.textProperty().addListener((observable, oldValue, newValue) -> {
-            updateSuggestionsListView(newValue);
-            suggestionListView.setVisible(!newValue.isEmpty());
+            contextMenu.getItems().clear();
+
+            List<String> listSuggestions = filterSuggestionsList(newValue);
+
+            // Agrega sugerencias al ContextMenu basadas en el valor del TextField
+            for (String suggestion : listSuggestions) {
+                MenuItem menuItem = new MenuItem(suggestion);
+                menuItem.setStyle("-fx-text-fill: white;"); // Cambia el color del texto a blanco
+                contextMenu.getItems().add(menuItem);
+            }
+
+            contextMenu.show(textFieldUser, Side.BOTTOM, 0, 0);
+
+            if (newValue == null || newValue.isEmpty()) {
+                contextMenu.getItems().clear();
+            }
+
         });
 
-        suggestionListView.setOnMouseClicked(event -> {
-            String selectedSuggestion = suggestionListView.getSelectionModel().getSelectedItem();
-            textFieldUser.setText(selectedSuggestion);
-            suggestionListView.setVisible(false);
+        textSearchUserFilter.textProperty().addListener((observable, oldValue, newValue) -> {
+            contextMenu.getItems().clear();
+
+            List<String> listSuggestions = filterSuggestionsList(newValue);
+
+            // Agrega sugerencias al ContextMenu basadas en el valor del TextField
+            for (String suggestion : listSuggestions) {
+                MenuItem menuItem = new MenuItem(suggestion);
+                menuItem.setStyle("-fx-text-fill: white;"); // Cambia el color del texto a blanco
+                contextMenu.getItems().add(menuItem);
+            }
+
+            contextMenu.show(textSearchUserFilter, Side.BOTTOM, 0, 0);
+
+            if (newValue == null || newValue.isEmpty()) {
+                contextMenu.getItems().clear();
+            }
+        });
+
+        contextMenu.setOnAction(event -> {
+            MenuItem selectedItem = (MenuItem) event.getTarget();
+
+            if (textFieldUser.isFocused()) {
+                textFieldUser.setText(selectedItem.getText());
+            } else if (textSearchUserFilter.isFocused()) {
+                textSearchUserFilter.setText(selectedItem.getText());
+            }
+
+            onFilterDataTable();
+            contextMenu.hide();
         });
     }
+
 
     private void initBindings() {
         logger.info("Initializing Bindings");
 
+        // Table Ranking Global
+        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable(5)));
+
+        columnUsernameRanking.setCellValueFactory(new PropertyValueFactory<>("username"));
+        columnSuccessRanking.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
+        columnTotalBetsRanking.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
+
         // ComboTime
         comboTime.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
-        comboTime.getSelectionModel().select(24);
+        comboTime.getSelectionModel().select(0);
 
         // ComboTimeFilter
         comboTimeFilter.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
-        comboTimeFilter.getSelectionModel().select(24);
+        comboTimeFilter.getSelectionModel().select(0);
 
         columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         columnSuccess.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
@@ -157,9 +267,20 @@ public class MainViewController {
         radioButtonBad.setToggleGroup(toggleGroup);
     }
 
+    private List<UserDTO> filterTopUsersReliable(int numberUsersToShow) {
+        List<UserDTO> usersToFilter = userViewModel.getAll();
+
+        return usersToFilter.stream()
+                .filter(user -> user.getPercentReliable() > 49.00) // Filtra usuarios fiables
+                .sorted(Comparator.comparing(UserDTO::getTotalBets).reversed()) // Ordena por totalBets en orden descendente, buscando los datos más reales
+                .limit(numberUsersToShow)
+                //.sorted(Comparator.comparing(UserDTO::getPercentReliable).reversed()) // Ordena por percentReliable en orden descendente, en caso de quererlo
+                .collect(Collectors.toList());
+    }
+
     private void initDetails() {
+        centerAndFontTextTable();
         setColorsTable();
-        centerTextTable();
 
         comboTimeFilter.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
         comboTime.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
@@ -182,22 +303,45 @@ public class MainViewController {
                     } else if (item.getPercentReliable() > 65.00) {
                         setStyle("-fx-background-color: #53db78;");
                     } else {
-                        setStyle("-fx-background-color: #ffffff");
+                        setStyle("-fx-background-color: #ffffff;");
                     }
+                }
+            }
+        });
 
-                    // Ahora puedes usar formattedPercentReliable donde necesites mostrar el valor con dos decimales.
+        tableUsersRanking.setRowFactory(tv -> new TableRow<>() {
+
+            @Override
+            protected void updateItem(UserDTO item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (item == null) {
+                    setStyle("");
+                } else {
+                    if (item.getPercentReliable() <= 49.00) {
+                        setStyle("-fx-background-color: #ff6161;");
+                    } else if (item.getPercentReliable() > 49.00 && item.getPercentReliable() <= 65.00) {
+                        setStyle("-fx-background-color: orange;");
+                    } else if (item.getPercentReliable() > 65.00) {
+                        setStyle("-fx-background-color: #53db78;");
+                    } else {
+                        setStyle("-fx-background-color: #ffffff;");
+                    }
                 }
             }
         });
     }
 
-    private void centerTextTable() {
+    private void centerAndFontTextTable() {
         for (int i = 0; i < tableUsers.getColumns().size(); i++) {
-            tableUsers.getColumns().get(i).setStyle("-fx-alignment: CENTER;");
+            tableUsers.getColumns().get(i).setStyle("-fx-alignment: CENTER; -fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 14px;");
+        }
+        for (int i = 0; i < tableUsersRanking.getColumns().size(); i++) {
+            tableUsersRanking.getColumns().get(i).setStyle("-fx-alignment: CENTER;");
         }
     }
 
-    private void updateSuggestionsListView(String input) {
+    private List<String> filterSuggestionsList(String input) {
         List<String> allUsernames = userViewModel.getAllUsernamesNoRepeat();
         List<String> filteredSuggestions = new ArrayList<>();
 
@@ -210,7 +354,8 @@ public class MainViewController {
             }
         }
 
-        suggestionListView.getItems().setAll(filteredSuggestions);
+        //suggestionListView.getItems().setAll(filteredSuggestions);
+        return filteredSuggestions;
     }
 
     private void onFilterDataTable() {
@@ -230,12 +375,23 @@ public class MainViewController {
         // Ordena la tabla por 'percentSucces'
         tableUsers.getSortOrder().setAll(columnSuccess);
 
+        // Y para aquellos que tengan el mismo percentSuccess, ordena por 'totalBets'
+        Comparator<UserDTO> customComparator = (user1, user2) -> {
+            if (user1.getPercentReliable() != user2.getPercentReliable()) {
+                // Si los percentSuccess son diferentes, ordénalos por percentSuccess
+                return Double.compare(user2.getPercentReliable(), user1.getPercentReliable());
+            } else {
+                // Si los percentSuccess son iguales, ordénalos por totalBets
+                return Integer.compare(user2.getTotalBets(), user1.getTotalBets());
+            }
+        };
+        tableUsers.getItems().sort(customComparator); // Aplicamos el comparador personalizado
+
         if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
             tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
         }
     }
-
 
     private void setGlobalResult(String newTime, LocalDate newDate) {
         logger.info("Setting global result");
@@ -308,6 +464,16 @@ public class MainViewController {
         textFinalResultDate.setTextFill(Color.WHITE);
     }
 
+    private void onDeleteMenuAction() {
+        logger.info("Initializing windows delete view");
+        RoutesManager routesManager = new RoutesManager();
+        try {
+            routesManager.intiDeleteView();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void setGlobalTime(String newTime, String noDataTime) {
         if (newTime.equals(noDataTime)) {
             textFinalResultTime.setText("sin filtro");
@@ -336,6 +502,7 @@ public class MainViewController {
             logger.info("Filtering all by date");
             List<UserDTO> usersToShow = userViewModel.getAllByDate(newDate);
 
+            setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
             tableUsers.setSelectionModel(null);
@@ -347,11 +514,54 @@ public class MainViewController {
         return false;
     }
 
+    private void setTopicUsers(List<UserDTO> usersToShow) {
+        int mostTotalBets = 0;
+        double mostPercentSuccess = 0.0;
+        UserDTO topicUser = null;
+
+        for (UserDTO user : usersToShow) {
+            int totalBets = user.getTotalBets();
+            double percentSuccess = user.getPercentReliable();
+
+            if (totalBets > mostTotalBets || (totalBets == mostTotalBets && percentSuccess > mostPercentSuccess)) {
+                mostTotalBets = totalBets;
+                mostPercentSuccess = percentSuccess;
+                topicUser = user;
+            }
+        }
+/*
+        List<UserDTO> usersTopic = new ArrayList<>();
+        for (UserDTO user : usersToShow) {
+            int totalBets = Integer.parseInt(user.getTotalBets());
+            double percentSuccess = user.getPercentReliable();
+
+            if (totalBets == mostTotalBets && percentSuccess == mostPercentSuccess) {
+                usersTopic.add(user);
+            }
+        }
+
+        for (UserDTO user : usersTopic) {
+            if (user != null) {
+                user.setUsername("⭐ " + topicUser.getUsername());
+            }
+
+            usersToShow.remove(user); // Elimina al usuario de la lista original
+            usersToShow.add(user); // Agrega al usuario destacado en la posición 0
+        }*/
+
+        if (topicUser != null) {
+            usersToShow.remove(topicUser); // Elimina al usuario de la lista original
+            topicUser.setUsername(topicUser.getUsername() + " ⭐"); // Agrega al usuario destacado en la posición 0
+            usersToShow.add(topicUser);
+        }
+    }
+
     private Boolean onFilterDataTableByTime(String newUsername, String newTime, LocalDate newDate) {
         if (newUsername == null || newUsername.isEmpty() && !newTime.equals(noDataTime) && newDate == null) {
             logger.info("Filtering all by time");
             List<UserDTO> usersToShow = userViewModel.getAllByTime(newTime);
 
+            setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
             tableUsers.setSelectionModel(null);
@@ -368,6 +578,7 @@ public class MainViewController {
 
             List<UserDTO> usersToShow = userViewModel.getAllByDateTime(newTime, newDate);
 
+            setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
             tableUsers.setSelectionModel(null);
@@ -397,6 +608,7 @@ public class MainViewController {
             logger.info("Filtering all by user & date");
             List<UserDTO> usersToShow = userViewModel.getAllByDate(newDate);
 
+            setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
             // Filtrar la lista por los primeros caracteres del nombre de usuario
@@ -418,6 +630,7 @@ public class MainViewController {
 
             List<UserDTO> usersToShow = userViewModel.getAllByTime(newTime);
 
+            setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
             // Filtrar la lista por los primeros caracteres del nombre de usuario
@@ -437,6 +650,7 @@ public class MainViewController {
 
             List<UserDTO> usersToShow = userViewModel.getAllByDateTime(newTime, newDate);
 
+            setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
             // Filtrar la lista por los primeros caracteres del nombre de usuario
@@ -487,7 +701,7 @@ public class MainViewController {
             return;
         }
 
-        if (time == null) {
+        if (time == null || time.equals(noDataTime)) {
             logger.info(infoError);
             Alert alert = new Alert(ERROR);
             alert.setTitle(titleError);
