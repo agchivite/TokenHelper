@@ -26,4 +26,4 @@ Simple interface where you can filter when yopu want to bet, and is going to sug
 
 ### Init interface (developing)
 
-![interface](./assets/new_interface.png)
+![interface](./assets/interface.png)
