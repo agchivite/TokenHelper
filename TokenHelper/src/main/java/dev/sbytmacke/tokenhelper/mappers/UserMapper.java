@@ -13,7 +13,7 @@ public class UserMapper {
     private static int calculateSuccessfulBets(List<UserEntity> userEntities, String username) {
         int successfulBets = 0;
         for (UserEntity userEntity : userEntities) {
-            if (userEntity.getUsername().equals(username) && userEntity.getIsReliable()) {
+            if (userEntity.getUsername().equals(username) && userEntity.getReliable()) {
                 successfulBets++;
             }
         }

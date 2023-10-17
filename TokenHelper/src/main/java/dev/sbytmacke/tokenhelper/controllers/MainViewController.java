@@ -50,6 +50,8 @@ public class MainViewController {
     private ComboBox<String> comboTime;
     /* Filter */
     @FXML
+    private Button buttonClearFilters;
+    @FXML
     private TextField textSearchUserFilter;
     @FXML
     private DatePicker datePickerFilter;
@@ -106,6 +108,20 @@ public class MainViewController {
 
     private void initEvents() {
         logger.info("Initializing Events");
+
+        buttonClearFilters.setOnAction(event -> {
+            if (savedDate == null) {
+                savedDate = datePickerFilter.getValue();
+            }
+
+            textSearchUserFilter.setText("");
+            datePickerFilter.setValue(null);
+            comboTimeFilter.getSelectionModel().select(0);
+            radioButtonHideGreen.setSelected(false);
+            radioButtonHideOrange.setSelected(false);
+            radioButtonHideRed.setSelected(false);
+            onFilterDataTable();
+        });
 
         DateFormatterUtils dateFormatterUtils = new DateFormatterUtils();
         DateTimeFormatter dateFormatterDatePickerFilter = dateFormatterUtils.formatDate(datePickerFilter);
@@ -515,44 +531,27 @@ public class MainViewController {
     }
 
     private void setTopicUsers(List<UserDTO> usersToShow) {
-        int mostTotalBets = 0;
-        double mostPercentSuccess = 0.0;
-        UserDTO topicUser = null;
+        List<UserDTO> usersFiltered = usersToShow.stream()
+                .filter(user -> user.getPercentReliable() > 65.00)
+                .sorted(Comparator.comparing(UserDTO::getTotalBets).reversed()) // Ordena por totalBets en orden descendente, buscando los datos más
+                //.sorted(Comparator.comparing(UserDTO::getPercentReliable).reversed()) // Ordena por percentReliable en orden descendente, en caso de quererlo
+                .limit(1)
+                .collect(Collectors.toList());
 
-        for (UserDTO user : usersToShow) {
-            int totalBets = user.getTotalBets();
-            double percentSuccess = user.getPercentReliable();
-
-            if (totalBets > mostTotalBets || (totalBets == mostTotalBets && percentSuccess > mostPercentSuccess)) {
-                mostTotalBets = totalBets;
-                mostPercentSuccess = percentSuccess;
-                topicUser = user;
-            }
-        }
-/*
-        List<UserDTO> usersTopic = new ArrayList<>();
-        for (UserDTO user : usersToShow) {
-            int totalBets = Integer.parseInt(user.getTotalBets());
-            double percentSuccess = user.getPercentReliable();
-
-            if (totalBets == mostTotalBets && percentSuccess == mostPercentSuccess) {
-                usersTopic.add(user);
-            }
+        if (usersFiltered.isEmpty()) {
+            //Filtramos por naranjas
+            usersFiltered = usersToShow.stream()
+                    .filter(user -> user.getPercentReliable() > 49.00)
+                    .sorted(Comparator.comparing(UserDTO::getTotalBets).reversed()) // Ordena por totalBets en orden descendente, buscando los datos más
+                    //.sorted(Comparator.comparing(UserDTO::getPercentReliable).reversed()) // Ordena por percentReliable en orden descendente, en caso de quererlo
+                    .limit(1)
+                    .collect(Collectors.toList());
         }
 
-        for (UserDTO user : usersTopic) {
-            if (user != null) {
-                user.setUsername("⭐ " + topicUser.getUsername());
+        if (!usersFiltered.isEmpty()) {
+            for (UserDTO user : usersFiltered) {
+                user.setUsername(user.getUsername() + " ⭐"); // Modifica el usuario destacado
             }
-
-            usersToShow.remove(user); // Elimina al usuario de la lista original
-            usersToShow.add(user); // Agrega al usuario destacado en la posición 0
-        }*/
-
-        if (topicUser != null) {
-            usersToShow.remove(topicUser); // Elimina al usuario de la lista original
-            topicUser.setUsername(topicUser.getUsername() + " ⭐"); // Agrega al usuario destacado en la posición 0
-            usersToShow.add(topicUser);
         }
     }
 

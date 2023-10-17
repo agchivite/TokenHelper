@@ -1,7 +1,7 @@
 package dev.sbytmacke.tokenhelper.routes;
 
 import dev.sbytmacke.tokenhelper.AppMain;
-import dev.sbytmacke.tokenhelper.controllers.DeleteMenuViewController;
+import dev.sbytmacke.tokenhelper.controllers.DataGestorViewController;
 import dev.sbytmacke.tokenhelper.controllers.MainViewController;
 import dev.sbytmacke.tokenhelper.repositories.UserRepositoryImpl;
 import dev.sbytmacke.tokenhelper.services.database.DatabaseManagerImpl;
@@ -51,14 +51,14 @@ public class RoutesManager {
 
     public void intiDeleteView() throws IOException {
 
-        FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("delete-menu-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("data-gestor-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
 
-        DeleteMenuViewController controller = fxmlLoader.getController(); // Obtenemos el controlador
+        DataGestorViewController controller = fxmlLoader.getController(); // Obtenemos el controlador
         controller.init(userViewModel); // Inyección de dependencias desde el DatabaseManager hasta el Controller
 
         Stage stage = new Stage();
-        stage.setTitle("Menú de eliminación");
+        stage.setTitle("Visualizador de datos");
         stage.setResizable(false);
         stage.getIcons().add(new Image("/dev/sbytmacke/tokenhelper/icons/main_icon.png"));
 

@@ -4,18 +4,23 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" xmlns="http://javafx.com/javafx/17.0.2-ea"
-      fx:controller="dev.sbytmacke.tokenhelper.controllers.DeleteMenuViewController">
+<VBox xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" style="-fx-background-color: #313338;"
+      xmlns="http://javafx.com/javafx/17.0.2-ea"
+      fx:controller="dev.sbytmacke.tokenhelper.controllers.DataGestorViewController">
     <HBox alignment="CENTER" prefHeight="60.0" prefWidth="942.0" style="-fx-background-color: #313338;">
         <children>
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="60.0" prefWidth="348.0"
-                   style="-fx-background-color: #313338;" text="Menú de borrado" textFill="#8f99a4" textOverrun="CLIP">
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="60.0" prefWidth="363.0"
+                   style="-fx-background-color: #313338;" text="Visualizador de datos" textFill="#8f99a4"
+                   textOverrun="CLIP">
                 <font>
                     <Font name="Arial Rounded MT Bold" size="34.0"/>
                 </font>
                 <padding>
                     <Insets bottom="10.0" top="10.0"/>
                 </padding>
+                <HBox.margin>
+                    <Insets top="10.0"/>
+                </HBox.margin>
             </Label>
         </children>
     </HBox>
@@ -74,15 +79,15 @@
             <Insets bottom="5.0" top="5.0"/>
         </padding>
     </HBox>
-    <TableView fx:id="tableUsers" prefHeight="497.0" prefWidth="942.0" style="-fx-background-color: #1e1f22;">
+    <TableView fx:id="tableUsers" maxWidth="920.0" minWidth="300.0" prefHeight="498.0" prefWidth="920.0"
+               style="-fx-background-color: #1e1f22;">
         <columns>
             <TableColumn fx:id="columnUsername" editable="false" prefWidth="205.0" text="Usuario"/>
-            <TableColumn fx:id="columnTime" editable="false" minWidth="0.0" prefWidth="193.0" sortType="DESCENDING"
-                         text="Hora (hh:mm)"/>
-            <TableColumn fx:id="columnDate" editable="false" minWidth="0.0" prefWidth="223.0"
+            <TableColumn fx:id="columnTime" editable="false" minWidth="0.0" prefWidth="227.33331298828125"
+                         sortType="DESCENDING" text="Hora (hh:mm)"/>
+            <TableColumn fx:id="columnDate" editable="false" minWidth="0.0" prefWidth="231.6666259765625"
                          text="Fecha (yyyy-mm-dd)"/>
-            <TableColumn fx:id="columnReliable" editable="false" minWidth="0.0" prefWidth="150.0" text="Fiable"/>
-            <TableColumn fx:id="columnDelete" editable="false" minWidth="0.0" prefWidth="170.0"/>
+            <TableColumn fx:id="columnReliable" editable="false" minWidth="0.0" prefWidth="179.0" text="Fiable"/>
         </columns>
     </TableView>
 </VBox>

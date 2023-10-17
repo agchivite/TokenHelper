@@ -86,7 +86,7 @@ public class UserViewModel {
 
     public List<String> getAllUsernamesNoRepeat() {
         logger.info("getAllUsernames");
-        return repository.getAllUsernamesNoRepeat();
+        return repository.getAllUsernamesWithoutRepeat();
     }
 
     public Integer getGlobalTotalBetsByDate(LocalDate newDate) {
@@ -119,5 +119,30 @@ public class UserViewModel {
         }
 
         return users;
+    }
+
+    public List<UserEntity> getAllEntityByDateTime(String newTime, LocalDate newDate) {
+        logger.info("getAllEntityByDateTime");
+        return repository.getAllEntityByDateTime(newTime, newDate);
+    }
+
+    public List<UserEntity> getAllEntityByTime(String newTime) {
+        logger.info("getAllEntityByTime");
+        return repository.getAllEntityByTime(newTime);
+    }
+
+    public List<UserEntity> getAllEntityByDate(LocalDate newDate) {
+        logger.info("getAllEntityByDate");
+        return repository.getAllEntityByDate(newDate);
+    }
+
+    public List<UserEntity> getAllEntity() {
+        logger.info("getAllEntity");
+        return repository.getAllEntity();
+    }
+
+    public void deleteUser(UserEntity user) {
+        logger.info("deleteUser");
+        repository.deleteItem(user);
     }
 }

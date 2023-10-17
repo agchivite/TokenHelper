@@ -14,4 +14,7 @@ module dev.sbytmacke.tokenhelper {
 
     opens dev.sbytmacke.tokenhelper.dto to javafx.base;
     exports dev.sbytmacke.tokenhelper.dto;
+
+    opens dev.sbytmacke.tokenhelper.models to javafx.base;
+    exports dev.sbytmacke.tokenhelper.models;
 }

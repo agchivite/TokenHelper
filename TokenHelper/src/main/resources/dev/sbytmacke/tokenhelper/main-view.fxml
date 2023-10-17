@@ -12,7 +12,7 @@
             <Menu mnemonicParsing="false" text="Menú">
                 <items>
                     <MenuItem fx:id="menuRanking" mnemonicParsing="false" text="Rankings"/>
-                    <MenuItem fx:id="menuDeleteData" mnemonicParsing="false" text="Borrado de datos"/>
+                    <MenuItem fx:id="menuDeleteData" mnemonicParsing="false" text="Visualizador de datos"/>
                 </items>
             </Menu>
         </menus>
@@ -133,98 +133,7 @@
                 </Label>
             </children>
         </VBox>
-        <HBox alignment="CENTER" layoutX="306.0" layoutY="59.0" prefHeight="110.0" prefWidth="646.0"
-              style="-fx-background-color: #313338;">
-            <GridPane prefHeight="99.0" prefWidth="613.0">
-                <columnConstraints>
-                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="163.0" minWidth="10.0" prefWidth="85.0"/>
-                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="234.0" minWidth="10.0" prefWidth="131.0"/>
-                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="234.0" minWidth="0.0" prefWidth="42.0"/>
-                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="258.0" minWidth="10.0" prefWidth="110.0"/>
-                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="357.0" minWidth="10.0" prefWidth="241.0"/>
-                </columnConstraints>
-                <rowConstraints>
-                    <RowConstraints maxHeight="57.0" minHeight="10.0" prefHeight="48.0" vgrow="SOMETIMES"/>
-                    <RowConstraints maxHeight="75.0" minHeight="10.0" prefHeight="75.0" vgrow="SOMETIMES"/>
-                </rowConstraints>
-                <children>
-                    <TextField fx:id="textSearchUserFilter" prefHeight="25.0" prefWidth="106.0"
-                               style="-fx-background-color: #1e1f22; -fx-control-inner-background: #1e1f22;"
-                               GridPane.columnIndex="1"/>
-                    <HBox alignment="CENTER" prefHeight="62.0" prefWidth="255.0" GridPane.columnIndex="4">
-                        <children>
-                            <RadioButton fx:id="radioButtonHideGreen" mnemonicParsing="false" text="Verde"
-                                         textFill="#96ff6d">
-                                <HBox.margin>
-                                    <Insets/>
-                                </HBox.margin>
-                                <padding>
-                                    <Insets right="10.0"/>
-                                </padding>
-                            </RadioButton>
-                            <RadioButton fx:id="radioButtonHideOrange" mnemonicParsing="false" text="Naranja"
-                                         textFill="#ffc85a">
-                                <HBox.margin>
-                                    <Insets/>
-                                </HBox.margin>
-                                <padding>
-                                    <Insets right="10.0"/>
-                                </padding>
-                            </RadioButton>
-                            <RadioButton fx:id="radioButtonHideRed" mnemonicParsing="false" text="Rojo"
-                                         textFill="#ff5d4e"/>
-                        </children>
-                    </HBox>
-                    <ComboBox fx:id="comboTimeFilter" prefHeight="25.0" prefWidth="136.0"
-                              style="-fx-background-color: #1e1f22; -fx-control-inner-background: #1e1f22;"
-                              GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
-                        <children>
-                            <Label text="Usuario:" textFill="#cfd0d1"/>
-                        </children>
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT" prefHeight="61.0" prefWidth="104.0" GridPane.rowIndex="1">
-                        <children>
-                            <Label text="Hora (hh:mm):" textFill="#cfd0d1"/>
-                        </children>
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT" prefHeight="62.0" prefWidth="107.0" GridPane.columnIndex="3">
-                        <children>
-                            <Label text="Ocultar % de color:" textFill="#cfd0d1"/>
-                        </children>
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3"
-                          GridPane.rowIndex="1">
-                        <children>
-                            <Label text="Fecha (yyyy-mm-dd):" textFill="#cfd0d1"/>
-                        </children>
-                    </HBox>
-                    <HBox alignment="CENTER" prefHeight="61.0" prefWidth="286.0" GridPane.columnIndex="4"
-                          GridPane.rowIndex="1">
-                        <children>
-                            <Button fx:id="buttonBackDate" mnemonicParsing="false" prefHeight="25.0" prefWidth="32.0"
-                                    text="&lt;-">
-                                <HBox.margin>
-                                    <Insets right="10.0"/>
-                                </HBox.margin>
-                            </Button>
-                            <DatePicker fx:id="datePickerFilter" prefHeight="21.0" prefWidth="120.0"
-                                        style="-fx-background-color: #1e1f22; -fx-control-inner-background: #1e1f22;">
-                                <HBox.margin>
-                                    <Insets right="10.0"/>
-                                </HBox.margin>
-                            </DatePicker>
-                            <Button fx:id="buttonNextDate" layoutX="45.0" layoutY="29.0" mnemonicParsing="false"
-                                    prefHeight="25.0" prefWidth="32.0" text="-&gt;"/>
-                        </children>
-                    </HBox>
-                </children>
-            </GridPane>
-            <padding>
-                <Insets bottom="5.0" top="5.0"/>
-            </padding>
-        </HBox>
-        <TableView fx:id="tableUsers" layoutX="306.0" layoutY="163.0" prefHeight="357.0" prefWidth="646.0"
+        <TableView fx:id="tableUsers" layoutX="306.0" layoutY="170.0" prefHeight="378.0" prefWidth="646.0"
                    style="-fx-background-color: #1e1f22;">
             <columns>
                 <TableColumn fx:id="columnUsername" editable="false" prefWidth="212.0" resizable="false"
@@ -235,7 +144,7 @@
                              text="Total Apuestas"/>
             </columns>
         </TableView>
-        <HBox alignment="CENTER" layoutX="306.0" layoutY="520.0" prefHeight="149.0" prefWidth="646.0"
+        <HBox alignment="CENTER" layoutX="306.0" layoutY="548.0" prefHeight="121.0" prefWidth="646.0"
               style="-fx-background-color: #313338;">
             <padding>
                 <Insets bottom="5.0" top="5.0"/>
@@ -341,20 +250,6 @@
                         </HBox>
                     </children>
                 </VBox>
-            </children>
-        </HBox>
-        <HBox alignment="CENTER" layoutX="306.0" prefHeight="51.0" prefWidth="646.0"
-              style="-fx-background-color: #313338;">
-            <children>
-                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="39.0" prefWidth="253.0"
-                       style="-fx-background-color: #313338;" text="Filtros" textFill="#8f99a4" textOverrun="CLIP">
-                    <font>
-                        <Font name="Arial Rounded MT Bold" size="34.0"/>
-                    </font>
-                    <padding>
-                        <Insets bottom="10.0" top="10.0"/>
-                    </padding>
-                </Label>
             </children>
         </HBox>
         <Separator layoutX="949.0" orientation="VERTICAL" prefHeight="669.0" prefWidth="6.0"/>
@@ -517,6 +412,134 @@
                                      resizable="false" sortable="false" text="Total Apuestas"/>
                     </columns>
                 </TableView>
+            </children>
+        </VBox>
+        <VBox alignment="CENTER" layoutX="304.0" prefHeight="173.0" prefWidth="646.0"
+              style="-fx-background-color: #313338;">
+            <children>
+                <HBox alignment="CENTER_RIGHT" prefHeight="59.0" prefWidth="646.0">
+                    <children>
+                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="59.0" prefWidth="151.0"
+                               style="-fx-background-color: #313338;" text="Filtros" textFill="#8f99a4"
+                               textOverrun="CLIP">
+                            <font>
+                                <Font name="Arial Rounded MT Bold" size="34.0"/>
+                            </font>
+                            <padding>
+                                <Insets bottom="6.0" top="5.0"/>
+                            </padding>
+                        </Label>
+                        <Button fx:id="buttonClearFilters" mnemonicParsing="false" prefHeight="26.0" prefWidth="41.0"
+                                text="🫧">
+                            <font>
+                                <Font name="Segoe UI Emoji" size="14.0"/>
+                            </font>
+                            <HBox.margin>
+                                <Insets right="200.0"/>
+                            </HBox.margin>
+                        </Button>
+                    </children>
+                </HBox>
+                <GridPane prefHeight="89.0" prefWidth="631.0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="163.0" minWidth="10.0" prefWidth="85.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="234.0" minWidth="10.0" prefWidth="131.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="234.0" minWidth="0.0" prefWidth="51.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="258.0" minWidth="10.0" prefWidth="129.0"/>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="357.0" minWidth="10.0" prefWidth="206.0"/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints maxHeight="85.33334477742513" minHeight="10.0" prefHeight="47.0"
+                                        vgrow="SOMETIMES"/>
+                        <RowConstraints maxHeight="75.0" minHeight="10.0" prefHeight="55.0" vgrow="SOMETIMES"/>
+                    </rowConstraints>
+                    <children>
+                        <TextField fx:id="textSearchUserFilter" prefHeight="25.0" prefWidth="106.0"
+                                   style="-fx-background-color: #1e1f22; -fx-control-inner-background: #1e1f22;"
+                                   GridPane.columnIndex="1"/>
+                        <HBox alignment="CENTER" prefHeight="62.0" prefWidth="255.0" GridPane.columnIndex="4">
+                            <children>
+                                <RadioButton fx:id="radioButtonHideGreen" mnemonicParsing="false" text="Verde"
+                                             textFill="#96ff6d">
+                                    <HBox.margin>
+                                        <Insets/>
+                                    </HBox.margin>
+                                    <padding>
+                                        <Insets right="10.0"/>
+                                    </padding>
+                                </RadioButton>
+                                <RadioButton fx:id="radioButtonHideOrange" mnemonicParsing="false" text="Naranja"
+                                             textFill="#ffc85a">
+                                    <HBox.margin>
+                                        <Insets/>
+                                    </HBox.margin>
+                                    <padding>
+                                        <Insets right="10.0"/>
+                                    </padding>
+                                </RadioButton>
+                                <RadioButton fx:id="radioButtonHideRed" mnemonicParsing="false" text="Rojo"
+                                             textFill="#ff5d4e"/>
+                            </children>
+                            <padding>
+                                <Insets right="10.0"/>
+                            </padding>
+                        </HBox>
+                        <ComboBox fx:id="comboTimeFilter" prefHeight="25.0" prefWidth="146.0"
+                                  style="-fx-background-color: #1e1f22; -fx-control-inner-background: #1e1f22;"
+                                  GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                            <children>
+                                <Label text="Usuario:" textFill="#cfd0d1">
+                                    <padding>
+                                        <Insets left="10.0"/>
+                                    </padding>
+                                </Label>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" prefHeight="61.0" prefWidth="104.0" GridPane.rowIndex="1">
+                            <children>
+                                <Label text="Hora (hh:mm):" textFill="#cfd0d1">
+                                    <padding>
+                                        <Insets left="10.0"/>
+                                    </padding>
+                                </Label>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" prefHeight="62.0" prefWidth="107.0" GridPane.columnIndex="3">
+                            <children>
+                                <Label text="Ocultar % de color:" textFill="#cfd0d1"/>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3"
+                              GridPane.rowIndex="1">
+                            <children>
+                                <Label text="Fecha (yyyy-mm-dd):" textFill="#cfd0d1"/>
+                            </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="61.0" prefWidth="286.0" GridPane.columnIndex="4"
+                              GridPane.rowIndex="1">
+                            <children>
+                                <Button fx:id="buttonBackDate" mnemonicParsing="false" prefHeight="25.0"
+                                        prefWidth="32.0" text="&lt;-">
+                                    <HBox.margin>
+                                        <Insets right="10.0"/>
+                                    </HBox.margin>
+                                </Button>
+                                <DatePicker fx:id="datePickerFilter" prefHeight="21.0" prefWidth="120.0"
+                                            style="-fx-background-color: #1e1f22; -fx-control-inner-background: #1e1f22;">
+                                    <HBox.margin>
+                                        <Insets right="10.0"/>
+                                    </HBox.margin>
+                                </DatePicker>
+                                <Button fx:id="buttonNextDate" layoutX="45.0" layoutY="29.0" mnemonicParsing="false"
+                                        prefHeight="25.0" prefWidth="32.0" text="-&gt;"/>
+                            </children>
+                            <padding>
+                                <Insets right="10.0"/>
+                            </padding>
+                        </HBox>
+                    </children>
+                </GridPane>
             </children>
         </VBox>
     </AnchorPane>
