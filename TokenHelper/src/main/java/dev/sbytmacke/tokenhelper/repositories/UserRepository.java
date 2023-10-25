@@ -9,9 +9,9 @@ public interface UserRepository<U, N> extends Repository<U, N> {
 
     List<UserDTO> getAllByTime(N newTime);
 
-    List<UserDTO> getAllByDate(LocalDate newDate);
+    List<UserDTO> getAllByDate(Integer newDate);
 
-    List<UserDTO> getAllByDateTime(String newTime, LocalDate newDate);
+    List<UserDTO> getAllByDateTime(String newTime, Integer newDate);
 
     List<U> getAllEntity();
 
@@ -24,9 +24,9 @@ public interface UserRepository<U, N> extends Repository<U, N> {
 
     Integer getGlobalTotalBetsByTime(String newTime);
 
-    Integer getGlobalTotalBetsByDateTime(String newTime, LocalDate newDate);
+    Integer getGlobalTotalBetsByDateTime(String newTime, Integer newDate);
 
-    Integer getGlobalTotalBetsByDate(LocalDate newDate);
+    Integer getGlobalTotalBetsByDate(Integer newDate);
 
     List<N> getAllUsernamesWithoutRepeat();
 

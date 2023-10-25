@@ -442,11 +442,14 @@
 				</HBox>
 				<GridPane prefHeight="89.0" prefWidth="631.0">
 					<columnConstraints>
-						<ColumnConstraints hgrow="SOMETIMES" maxWidth="163.0" minWidth="10.0" prefWidth="85.0"/>
-						<ColumnConstraints hgrow="SOMETIMES" maxWidth="234.0" minWidth="10.0" prefWidth="131.0"/>
-						<ColumnConstraints hgrow="SOMETIMES" maxWidth="234.0" minWidth="0.0" prefWidth="51.0"/>
-						<ColumnConstraints hgrow="SOMETIMES" maxWidth="258.0" minWidth="10.0" prefWidth="129.0"/>
-						<ColumnConstraints hgrow="SOMETIMES" maxWidth="357.0" minWidth="10.0" prefWidth="206.0"/>
+						<ColumnConstraints hgrow="SOMETIMES" maxWidth="163.0" minWidth="10.0" prefWidth="92.0"/>
+						<ColumnConstraints hgrow="SOMETIMES" maxWidth="234.0" minWidth="10.0"
+						                   prefWidth="123.33333333333334"/>
+						<ColumnConstraints hgrow="SOMETIMES" maxWidth="234.0" minWidth="0.0" prefWidth="16.0"/>
+						<ColumnConstraints hgrow="SOMETIMES" maxWidth="258.0" minWidth="10.0"
+						                   prefWidth="102.66666666666669"/>
+						<ColumnConstraints hgrow="SOMETIMES" maxWidth="357.0" minWidth="10.0"
+						                   prefWidth="314.66666666666674"/>
 					</columnConstraints>
 					<rowConstraints>
 						<RowConstraints maxHeight="85.33334477742513" minHeight="10.0" prefHeight="47.0"
@@ -457,7 +460,7 @@
 						<TextField fx:id="textSearchUserFilter" prefHeight="25.0" prefWidth="106.0"
 						           style="-fx-background-color: #1e1f22; -fx-text-fill: #ffffff;"
 						           GridPane.columnIndex="1"/>
-						<HBox alignment="CENTER" prefHeight="62.0" prefWidth="255.0" GridPane.columnIndex="4">
+						<HBox alignment="CENTER" prefHeight="40.0" prefWidth="280.0" GridPane.columnIndex="4">
 							<children>
 								<RadioButton fx:id="radioButtonHideGreen" mnemonicParsing="false" text="Verde"
 								             textFill="#96ff6d">
@@ -513,30 +516,62 @@
 						<HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3"
 						      GridPane.rowIndex="1">
 							<children>
-								<Label text="Fecha (yyyy-mm-dd):" textFill="#cfd0d1"/>
+								<Label text="Día de la semana:" textFill="#cfd0d1"/>
 							</children>
 						</HBox>
-						<HBox alignment="CENTER" prefHeight="61.0" prefWidth="286.0" GridPane.columnIndex="4"
+						<HBox alignment="CENTER_LEFT" prefHeight="62.0" prefWidth="255.0" GridPane.columnIndex="4"
 						      GridPane.rowIndex="1">
 							<children>
-								<Button fx:id="buttonBackDate" mnemonicParsing="false" prefHeight="25.0"
-								        prefWidth="32.0" text="&lt;-">
-									<HBox.margin>
-										<Insets right="8.0"/>
-									</HBox.margin>
-								</Button>
-								<Button fx:id="buttonNextDate" layoutX="45.0" layoutY="29.0" mnemonicParsing="false"
-								        prefHeight="25.0" prefWidth="32.0" text="-&gt;">
-									<HBox.margin>
-										<Insets right="10.0"/>
-									</HBox.margin>
-								</Button>
-								<DatePicker fx:id="datePickerFilter" prefHeight="21.0" prefWidth="120.0"
-								            style="-fx-background-color: #1e1f22; -fx-control-inner-background: #1e1f22;">
+								<RadioButton fx:id="radioButtonNone" layoutX="10.0" layoutY="26.0"
+								             mnemonicParsing="false" text="💤" textFill="WHITE">
+									<padding>
+										<Insets left="5.0" right="10.0"/>
+									</padding>
+								</RadioButton>
+								<RadioButton fx:id="radioButtonMonday" mnemonicParsing="false" text="L"
+								             textFill="WHITE">
 									<HBox.margin>
 										<Insets/>
 									</HBox.margin>
-								</DatePicker>
+									<padding>
+										<Insets left="5.0" right="10.0"/>
+									</padding>
+								</RadioButton>
+								<RadioButton fx:id="radioButtonTuesday" mnemonicParsing="false" text="M"
+								             textFill="WHITE">
+									<HBox.margin>
+										<Insets/>
+									</HBox.margin>
+									<padding>
+										<Insets right="10.0"/>
+									</padding>
+								</RadioButton>
+								<RadioButton fx:id="radioButtonWednesday" mnemonicParsing="false" text="X"
+								             textFill="WHITE">
+									<padding>
+										<Insets right="10.0"/>
+									</padding>
+								</RadioButton>
+								<RadioButton fx:id="radioButtonThursday" mnemonicParsing="false" text="J"
+								             textFill="WHITE">
+									<padding>
+										<Insets right="10.0"/>
+									</padding>
+								</RadioButton>
+								<RadioButton fx:id="radioButtonFriday" mnemonicParsing="false" text="V"
+								             textFill="WHITE">
+									<padding>
+										<Insets right="10.0"/>
+									</padding>
+								</RadioButton>
+								<RadioButton fx:id="radioButtonSaturday" mnemonicParsing="false" text="S"
+								             textFill="WHITE">
+									<padding>
+										<Insets right="10.0"/>
+									</padding>
+								</RadioButton>
+								<RadioButton fx:id="radioButtonSunday" mnemonicParsing="false" text="D"
+								             textFill="WHITE"/>
 							</children>
 							<padding>
 								<Insets right="10.0"/>

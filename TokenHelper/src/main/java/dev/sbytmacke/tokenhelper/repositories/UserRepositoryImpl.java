@@ -126,7 +126,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
     }
 
     @Override
-    public List<UserDTO> getAllByDate(LocalDate newDate) {
+    public List<UserDTO> getAllByDate(Integer newDate) {
         logger.info("getAllByDate");
 
         databaseManager.connectDatabase();
@@ -136,7 +136,6 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
         FindIterable<Document> result = collection.find(); // Todos los documentos
 
         ArrayList<UserEntity> usersFiltered = new ArrayList<>();
-        int targetDayOfWeek = newDate.getDayOfWeek().getValue(); // Obtiene el día de la semana de la fecha deseada
 
         MongoCursor<Document> cursor = result.iterator();
         while (cursor.hasNext()) {
@@ -144,7 +143,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
             LocalDate documentDateBet = LocalDate.parse(document.getString(FIELD_DATE_BET));
             int documentDayOfWeek = documentDateBet.getDayOfWeek().getValue();
 
-            if (documentDayOfWeek == targetDayOfWeek) {
+            if (documentDayOfWeek == newDate) {
                 UserEntity user = mapDocumentToEntity(document);
                 usersFiltered.add(user);
             }
@@ -159,7 +158,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
     }
 
     @Override
-    public List<UserDTO> getAllByDateTime(String newTime, LocalDate newDate) {
+    public List<UserDTO> getAllByDateTime(String newTime, Integer newDate) {
         logger.info("getAllByDateTime");
 
         databaseManager.connectDatabase();
@@ -171,7 +170,6 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
         FindIterable<Document> result = collection.find(filter); // Consulta
 
         ArrayList<UserEntity> usersFiltered = new ArrayList<>();
-        int targetDayOfWeek = newDate.getDayOfWeek().getValue(); // Obtiene el día de la semana de la fecha deseada
 
         MongoCursor<Document> cursor = result.iterator();
         while (cursor.hasNext()) {
@@ -179,7 +177,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
             LocalDate documentDateBet = LocalDate.parse(document.getString(FIELD_DATE_BET));
             int documentDayOfWeek = documentDateBet.getDayOfWeek().getValue();
 
-            if (documentDayOfWeek == targetDayOfWeek) {
+            if (documentDayOfWeek == newDate) {
                 UserEntity user = mapDocumentToEntity(document);
                 usersFiltered.add(user);
             }
@@ -318,7 +316,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
     }
 
     @Override
-    public Integer getGlobalTotalBetsByDateTime(String newTime, LocalDate newDate) {
+    public Integer getGlobalTotalBetsByDateTime(String newTime, Integer newDate) {
         logger.info("getGlobalTotalBetsByDateTime");
 
         databaseManager.connectDatabase();
@@ -330,7 +328,6 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
         FindIterable<Document> result = collection.find(filter); // Consulta
 
         ArrayList<UserEntity> usersFiltered = new ArrayList<>();
-        int targetDayOfWeek = newDate.getDayOfWeek().getValue(); // Obtiene el día de la semana de la fecha deseada
 
         MongoCursor<Document> cursor = result.iterator();
         while (cursor.hasNext()) {
@@ -338,7 +335,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
             LocalDate documentDateBet = LocalDate.parse(document.getString(FIELD_DATE_BET));
             int documentDayOfWeek = documentDateBet.getDayOfWeek().getValue();
 
-            if (documentDayOfWeek == targetDayOfWeek) {
+            if (documentDayOfWeek == newDate) {
                 UserEntity user = mapDocumentToEntity(document);
                 usersFiltered.add(user);
             }
@@ -374,7 +371,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
     }
 
     @Override
-    public Integer getGlobalTotalBetsByDate(LocalDate newDate) {
+    public Integer getGlobalTotalBetsByDate(Integer newDate) {
         logger.info("getGlobalTotalBetsByDate");
 
         databaseManager.connectDatabase();
@@ -384,7 +381,6 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
         FindIterable<Document> result = collection.find(); // Todos los documentos
 
         ArrayList<UserEntity> usersFiltered = new ArrayList<>();
-        int targetDayOfWeek = newDate.getDayOfWeek().getValue(); // Obtiene el día de la semana de la fecha deseada
 
         MongoCursor<Document> cursor = result.iterator();
         while (cursor.hasNext()) {
@@ -392,7 +388,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
             LocalDate documentDateBet = LocalDate.parse(document.getString(FIELD_DATE_BET));
             int documentDayOfWeek = documentDateBet.getDayOfWeek().getValue();
 
-            if (documentDayOfWeek == targetDayOfWeek) {
+            if (documentDayOfWeek == newDate) {
                 UserEntity user = mapDocumentToEntity(document);
                 usersFiltered.add(user);
             }
