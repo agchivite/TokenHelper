@@ -409,6 +409,9 @@ public class MainViewController {
             tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
         }
+
+        // Actualizamos el ranking general
+        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable(5)));
     }
 
     private void setGlobalResult(String newTime, LocalDate newDate) {
