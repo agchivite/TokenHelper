@@ -552,8 +552,10 @@ public class MainViewController {
 
         if (!usersFiltered.isEmpty()) {
             for (UserDTO user : usersFiltered) {
-                user.setUsername(user.getUsername() + " ⭐"); // Modifica el usuario destacado, y lo ponemos el primero de la lista
-
+                // Lo ponemos el primero de la lista
+                usersToShow.remove(user);
+                user.setUsername(user.getUsername() + " ⭐");
+                usersToShow.add(0, user);
             }
         }
     }
