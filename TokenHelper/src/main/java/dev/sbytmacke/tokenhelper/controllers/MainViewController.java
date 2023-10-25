@@ -212,7 +212,7 @@ public class MainViewController {
             // Agrega sugerencias al ContextMenu basadas en el valor del TextField
             for (String suggestion : listSuggestions) {
                 MenuItem menuItem = new MenuItem(suggestion);
-                menuItem.setStyle("-fx-text-fill: white;"); // Cambia el color del texto a blanco
+                //menuItem.setStyle("-fx-text-fill: white;"); // Cambia el color del texto a blanco
                 contextMenu.getItems().add(menuItem);
             }
 
@@ -232,7 +232,7 @@ public class MainViewController {
             // Agrega sugerencias al ContextMenu basadas en el valor del TextField
             for (String suggestion : listSuggestions) {
                 MenuItem menuItem = new MenuItem(suggestion);
-                menuItem.setStyle("-fx-text-fill: white;"); // Cambia el color del texto a blanco
+                //menuItem.setStyle("-fx-text-fill: white;"); // Cambia el color del texto a blanco
                 contextMenu.getItems().add(menuItem);
             }
 
