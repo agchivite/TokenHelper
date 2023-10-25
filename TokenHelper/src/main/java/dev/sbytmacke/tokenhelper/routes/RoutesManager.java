@@ -35,7 +35,7 @@ public class RoutesManager {
         MainViewController controller = fxmlLoader.getController(); // Obtenemos el controlador
         controller.init(userViewModel); // Inyección de dependencias desde el DatabaseManager hasta el Controller
 
-        Scene scene = new Scene(root, 1325, 790);
+        Scene scene = new Scene(root, 1325, 810);
         stage.setResizable(false);
         stage.setTitle("TokenHelper");
         // Agregar un icono a la ventana

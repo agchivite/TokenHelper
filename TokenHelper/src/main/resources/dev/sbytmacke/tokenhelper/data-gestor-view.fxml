@@ -4,7 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" style="-fx-background-color: #313338;"
+<VBox xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" maxHeight="633.0" minHeight="633.0"
+      prefHeight="633.0" style="-fx-background-color: #313338;"
       xmlns="http://javafx.com/javafx/17.0.2-ea"
       fx:controller="dev.sbytmacke.tokenhelper.controllers.DataGestorViewController">
     <HBox alignment="CENTER" prefHeight="60.0" prefWidth="942.0" style="-fx-background-color: #313338;">
@@ -79,7 +80,7 @@
             <Insets bottom="5.0" top="5.0"/>
         </padding>
     </HBox>
-    <TableView fx:id="tableUsers" maxWidth="920.0" minWidth="300.0" prefHeight="498.0" prefWidth="920.0"
+    <TableView fx:id="tableUsers" maxWidth="920.0" minWidth="300.0" prefHeight="465.0" prefWidth="920.0"
                style="-fx-background-color: #1e1f22;">
         <columns>
             <TableColumn fx:id="columnUsername" editable="false" prefWidth="205.0" text="Usuario"/>
@@ -89,5 +90,8 @@
                          text="Fecha (yyyy-mm-dd)"/>
             <TableColumn fx:id="columnReliable" editable="false" minWidth="0.0" prefWidth="179.0" text="Fiable"/>
         </columns>
+        <VBox.margin>
+            <Insets left="15.0"/>
+        </VBox.margin>
     </TableView>
 </VBox>

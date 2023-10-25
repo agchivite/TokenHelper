@@ -128,7 +128,9 @@ public class MainViewController {
 
         menuDeleteData.setOnAction(event -> onDeleteMenuAction());
 
-        buttonCreateUser.setOnAction(event -> saveUser());
+        buttonCreateUser.setOnAction(event -> {
+            saveUser();
+        });
 
         buttonBackDate.setOnAction(event -> {
           /*  if (mapNodes.navigateToPreviousDate(datePickerFilter)) {
@@ -205,7 +207,7 @@ public class MainViewController {
         textFieldUser.textProperty().addListener((observable, oldValue, newValue) -> {
             contextMenu.getItems().clear();
 
-            List<String> listSuggestions = filterSuggestionsList(newValue);
+            List<String> listSuggestions = filterSuggestionsList(newValue.trim());
 
             // Agrega sugerencias al ContextMenu basadas en el valor del TextField
             for (String suggestion : listSuggestions) {
@@ -225,7 +227,7 @@ public class MainViewController {
         textSearchUserFilter.textProperty().addListener((observable, oldValue, newValue) -> {
             contextMenu.getItems().clear();
 
-            List<String> listSuggestions = filterSuggestionsList(newValue);
+            List<String> listSuggestions = filterSuggestionsList(newValue.trim());
 
             // Agrega sugerencias al ContextMenu basadas en el valor del TextField
             for (String suggestion : listSuggestions) {
@@ -550,7 +552,8 @@ public class MainViewController {
 
         if (!usersFiltered.isEmpty()) {
             for (UserDTO user : usersFiltered) {
-                user.setUsername(user.getUsername() + " ⭐"); // Modifica el usuario destacado
+                user.setUsername(user.getUsername() + " ⭐"); // Modifica el usuario destacado, y lo ponemos el primero de la lista
+
             }
         }
     }
@@ -724,7 +727,7 @@ public class MainViewController {
         // User is valid, continue saving the user
         logger.info("Saving user");
 
-        userViewModel.saveUser(new UserEntity(textFieldUser.getText().toUpperCase(), datePicker.getValue(), comboTime.getValue(), radioButtonGood.isSelected()));
+        userViewModel.saveUser(new UserEntity(textFieldUser.getText().trim().toUpperCase(), datePicker.getValue(), comboTime.getValue(), radioButtonGood.isSelected()));
 
         // Clean fields
         datePicker.setValue(null);
