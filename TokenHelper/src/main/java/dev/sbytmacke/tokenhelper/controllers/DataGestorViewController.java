@@ -56,6 +56,12 @@ public class DataGestorViewController {
     @FXML
     private TableColumn<UserEntity, Boolean> columnReliable;
 
+    private MainViewController mainController;
+
+    public void setMainController(MainViewController mainController) {
+        this.mainController = mainController;
+    }
+
     public void init(UserViewModel userViewModel) {
         logger.info("Initializing MainViewController");
         this.userViewModel = userViewModel;
@@ -66,24 +72,24 @@ public class DataGestorViewController {
 
     private void initEvents() {
         // Filters
-        textSearchUserFilter.setOnKeyReleased(event -> onFilterDataTable());
-        comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> onFilterDataTable());
+        textSearchUserFilter.setOnKeyReleased(event -> updateAllTables());
+        comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> updateAllTables());
 
         DateFormatterUtils dateFormatterUtils = new DateFormatterUtils();
         DateTimeFormatter dateFormatterDatePickerFilter = dateFormatterUtils.formatDate(datePickerFilter);
-        datePickerFilter.valueProperty().addListener(event -> onFilterDataTable());
+        datePickerFilter.valueProperty().addListener(event -> updateAllTables());
         datePickerFilter.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 // Comprobamos si el valor ya está asignado
                 LocalDate parsedDate = LocalDate.parse(newValue, dateFormatterDatePickerFilter);
                 datePickerFilter.setValue(parsedDate); // Actualiza el DatePicker
 
-                onFilterDataTable(); // Llama a la función después de actualizar el DatePicker
+                updateAllTables(); // Llama a la función después de actualizar el DatePicker
             } catch (DateTimeParseException e) {
                 logger.error("No Valid - DatePickerFilter: " + newValue);
                 if (newValue.isEmpty()) {
                     datePickerFilter.setValue(null); // Establece newDate como nulo si el valor está vacío
-                    onFilterDataTable(); // Llama a la función con newDate nulo
+                    updateAllTables(); // Llama a la función con newDate nulo
                 } else {
                     tableUsers.setSelectionModel(null); // Borramos toda la tabla en caso de fallar
                     tableUsers.getItems().clear();
@@ -117,7 +123,7 @@ public class DataGestorViewController {
                 textSearchUserFilter.setText(selectedItem.getText());
             }
 
-            onFilterDataTable();
+            updateAllTables();
             contextMenu.hide();
         });
     }
@@ -197,8 +203,8 @@ public class DataGestorViewController {
         columnTime.setCellValueFactory(new PropertyValueFactory<>("timeBet"));
         columnReliable.setCellValueFactory(new PropertyValueFactory<>("reliable"));
 
-        radioButtonReliableFilter.setOnAction(event -> onFilterDataTable());
-        radioButtonNoReliableFilter.setOnAction(event -> onFilterDataTable());
+        radioButtonReliableFilter.setOnAction(event -> updateAllTables());
+        radioButtonNoReliableFilter.setOnAction(event -> updateAllTables());
     }
 
     private void setColorsTable() {
@@ -272,6 +278,8 @@ public class DataGestorViewController {
                         if (response == ButtonType.OK) {
                             userViewModel.deleteUser(user);
                             tableUsers.getItems().remove(user);
+
+                            mainController.updateAllTables();
                         }
                     });
                 });
@@ -309,7 +317,7 @@ public class DataGestorViewController {
         }
     }
 
-    private void onFilterDataTable() {
+    public void updateAllTables() {
         String newUsername = textSearchUserFilter.getText().toUpperCase();
         String newTime = comboTimeFilter.getSelectionModel().getSelectedItem();
         LocalDate newDate = datePickerFilter.getValue();

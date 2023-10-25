@@ -120,7 +120,7 @@ public class MainViewController {
             radioButtonHideGreen.setSelected(false);
             radioButtonHideOrange.setSelected(false);
             radioButtonHideRed.setSelected(false);
-            onFilterDataTable();
+            updateAllTables();
         });
 
         DateFormatterUtils dateFormatterUtils = new DateFormatterUtils();
@@ -144,7 +144,7 @@ public class MainViewController {
 
             // Borra la fecha actual
             datePickerFilter.setValue(null);
-            onFilterDataTable();
+            updateAllTables();
         });
 
         buttonNextDate.setOnAction(event -> {
@@ -156,15 +156,15 @@ public class MainViewController {
             if (savedDate != null) {
                 datePickerFilter.setValue(savedDate);
                 savedDate = null;
-                onFilterDataTable();
+                updateAllTables();
             }
         });
 
         // Filters
-        textSearchUserFilter.setOnKeyReleased(event -> onFilterDataTable());
-        comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> onFilterDataTable());
+        textSearchUserFilter.setOnKeyReleased(event -> updateAllTables());
+        comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> updateAllTables());
 
-        datePickerFilter.valueProperty().addListener(event -> onFilterDataTable());
+        datePickerFilter.valueProperty().addListener(event -> updateAllTables());
         datePickerFilter.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 // Actualizamos la navegación de fechas, si es exitoso
@@ -175,12 +175,12 @@ public class MainViewController {
                 //mapNodes.addDate(parsedDate);
                 //}
 
-                onFilterDataTable(); // Llama a la función después de actualizar el DatePicker
+                updateAllTables(); // Llama a la función después de actualizar el DatePicker
             } catch (DateTimeParseException e) {
                 logger.error("No Valid - DatePickerFilter: " + newValue);
                 if (newValue.isEmpty()) {
                     datePickerFilter.setValue(null); // Establece newDate como nulo si el valor está vacío
-                    onFilterDataTable(); // Llama a la función con newDate nulo
+                    updateAllTables(); // Llama a la función con newDate nulo
                 } else {
                     tableUsers.setSelectionModel(null); // Borramos toda la tabla en caso de fallar
                     tableUsers.getItems().clear();
@@ -199,9 +199,9 @@ public class MainViewController {
             }
         });
 
-        radioButtonHideGreen.setOnAction(event -> onFilterDataTable());
-        radioButtonHideOrange.setOnAction(event -> onFilterDataTable());
-        radioButtonHideRed.setOnAction(event -> onFilterDataTable());
+        radioButtonHideGreen.setOnAction(event -> updateAllTables());
+        radioButtonHideOrange.setOnAction(event -> updateAllTables());
+        radioButtonHideRed.setOnAction(event -> updateAllTables());
 
         contextMenu = new ContextMenu();
         textFieldUser.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -221,7 +221,6 @@ public class MainViewController {
             if (newValue == null || newValue.isEmpty()) {
                 contextMenu.getItems().clear();
             }
-
         });
 
         textSearchUserFilter.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -250,9 +249,8 @@ public class MainViewController {
                 textFieldUser.setText(selectedItem.getText());
             } else if (textSearchUserFilter.isFocused()) {
                 textSearchUserFilter.setText(selectedItem.getText());
+                updateAllTables();
             }
-
-            onFilterDataTable();
             contextMenu.hide();
         });
     }
@@ -376,7 +374,7 @@ public class MainViewController {
         return filteredSuggestions;
     }
 
-    private void onFilterDataTable() {
+    public void updateAllTables() {
         String newUsername = textSearchUserFilter.getText().toUpperCase();
         String newTime = comboTimeFilter.getSelectionModel().getSelectedItem();
         LocalDate newDate = datePickerFilter.getValue();
@@ -489,7 +487,7 @@ public class MainViewController {
         logger.info("Initializing windows delete view");
         RoutesManager routesManager = new RoutesManager();
         try {
-            routesManager.intiDeleteView();
+            routesManager.intiDataGestorView(this);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -740,6 +738,6 @@ public class MainViewController {
         radioButtonGood.setSelected(false);
         radioButtonBad.setSelected(false);
 
-        onFilterDataTable();
+        updateAllTables();
     }
 }

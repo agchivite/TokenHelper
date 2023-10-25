@@ -18,7 +18,6 @@ import java.util.Locale;
 
 public class RoutesManager {
 
-    // El viewModel llamará a todas las funciones del repositorio a través de la vista y gracias al controlador
     UserViewModel userViewModel = new UserViewModel(new UserRepositoryImpl(new DatabaseManagerImpl())); // Acoplamiento
     private Stage _mainStage;
     private Stage _activeStage;
@@ -49,12 +48,13 @@ public class RoutesManager {
         stage.show();
     }
 
-    public void intiDeleteView() throws IOException {
+    public void intiDataGestorView(MainViewController mainViewController) throws IOException {
 
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("data-gestor-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
 
         DataGestorViewController controller = fxmlLoader.getController(); // Obtenemos el controlador
+        controller.setMainController(mainViewController); // Para poder acceder a la función de actualizar las tablas
         controller.init(userViewModel); // Inyección de dependencias desde el DatabaseManager hasta el Controller
 
         Stage stage = new Stage();
