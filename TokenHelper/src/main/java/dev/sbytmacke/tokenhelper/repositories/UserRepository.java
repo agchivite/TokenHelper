@@ -9,16 +9,27 @@ public interface UserRepository<U, N> extends Repository<U, N> {
 
     List<UserDTO> getAllByTime(N newTime);
 
-    List<UserDTO> getAllByDateTime(String newTime, LocalDate newDate);
+    List<UserDTO> getAllByDate(Integer newDate);
+
+    List<UserDTO> getAllByDateTime(String newTime, Integer newDate);
+
+    List<U> getAllEntity();
+
+    List<U> getAllEntityByTime(N newTime);
+
+    List<U> getAllEntityByDate(LocalDate newDate);
+
+    List<U> getAllEntityByDateTime(N newTime, LocalDate newDate);
+
 
     Integer getGlobalTotalBetsByTime(String newTime);
 
-    Integer getGlobalTotalBetsByDateTime(String newTime, LocalDate newDate);
+    Integer getGlobalTotalBetsByDateTime(String newTime, Integer newDate);
 
-    List<N> getAllUsernamesNoRepeat();
+    Integer getGlobalTotalBetsByDate(Integer newDate);
 
-    Integer getGlobalTotalBetsByDate(LocalDate newDate);
+    List<N> getAllUsernamesWithoutRepeat();
 
-    List<UserDTO> getAllByDate(LocalDate newDate);
+    void deleteItem(U user);
 }
 

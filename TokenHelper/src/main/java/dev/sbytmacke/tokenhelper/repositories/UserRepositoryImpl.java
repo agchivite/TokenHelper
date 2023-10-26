@@ -4,6 +4,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.result.DeleteResult;
 import dev.sbytmacke.tokenhelper.dto.UserDTO;
 import dev.sbytmacke.tokenhelper.mappers.UserMapper;
 import dev.sbytmacke.tokenhelper.models.UserEntity;
@@ -56,7 +57,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
         Document userDocument = new Document(FIELD_USERNAME, userEntity.getUsername())
                 .append(FIELD_DATE_BET, userEntity.getDateBet().toString())
                 .append(FIELD_TIME_BET, userEntity.getTimeBet())
-                .append(FIELD_RELIABLE, userEntity.getIsReliable());
+                .append(FIELD_RELIABLE, userEntity.getReliable());
 
         // Insertar el documento en la colección
         collection.insertOne(userDocument);
@@ -125,19 +126,16 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
     }
 
     @Override
-    public List<UserDTO> getAllByDateTime(String newTime, LocalDate newDate) {
-        logger.info("getAllByDateTime");
+    public List<UserDTO> getAllByDate(Integer newDate) {
+        logger.info("getAllByDate");
 
         databaseManager.connectDatabase();
 
         MongoCollection<Document> collection = databaseManager.getDatabase().getCollection(COLLECTION_NAME);
 
-        // Crear un filtro para encontrar documentos con el valor de "timeBet" igual a newTime
-        Bson filter = Filters.eq(FIELD_TIME_BET, newTime);
-        FindIterable<Document> result = collection.find(filter); // Consulta
+        FindIterable<Document> result = collection.find(); // Todos los documentos
 
         ArrayList<UserEntity> usersFiltered = new ArrayList<>();
-        int targetDayOfWeek = newDate.getDayOfWeek().getValue(); // Obtiene el día de la semana de la fecha deseada
 
         MongoCursor<Document> cursor = result.iterator();
         while (cursor.hasNext()) {
@@ -145,7 +143,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
             LocalDate documentDateBet = LocalDate.parse(document.getString(FIELD_DATE_BET));
             int documentDayOfWeek = documentDateBet.getDayOfWeek().getValue();
 
-            if (documentDayOfWeek == targetDayOfWeek) {
+            if (documentDayOfWeek == newDate) {
                 UserEntity user = mapDocumentToEntity(document);
                 usersFiltered.add(user);
             }
@@ -157,6 +155,148 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
         // Mapeamos a los usuarios filtrados
         UserMapper userMapper = new UserMapper();
         return userMapper.convertUserEntitiesToDTOs(usersFiltered);
+    }
+
+    @Override
+    public List<UserDTO> getAllByDateTime(String newTime, Integer newDate) {
+        logger.info("getAllByDateTime");
+
+        databaseManager.connectDatabase();
+
+        MongoCollection<Document> collection = databaseManager.getDatabase().getCollection(COLLECTION_NAME);
+
+        // Crear un filtro para encontrar documentos con el valor de "timeBet" igual a newTime
+        Bson filter = Filters.eq(FIELD_TIME_BET, newTime);
+        FindIterable<Document> result = collection.find(filter); // Consulta
+
+        ArrayList<UserEntity> usersFiltered = new ArrayList<>();
+
+        MongoCursor<Document> cursor = result.iterator();
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+            LocalDate documentDateBet = LocalDate.parse(document.getString(FIELD_DATE_BET));
+            int documentDayOfWeek = documentDateBet.getDayOfWeek().getValue();
+
+            if (documentDayOfWeek == newDate) {
+                UserEntity user = mapDocumentToEntity(document);
+                usersFiltered.add(user);
+            }
+        }
+
+        cursor.close();
+        databaseManager.closeDatabase();
+
+        // Mapeamos a los usuarios filtrados
+        UserMapper userMapper = new UserMapper();
+        return userMapper.convertUserEntitiesToDTOs(usersFiltered);
+    }
+
+    @Override
+    public List<UserEntity> getAllEntity() {
+        logger.info("Finding all users entity");
+
+        databaseManager.connectDatabase();
+
+        MongoCollection<Document> collection = databaseManager.getDatabase().getCollection(COLLECTION_NAME);
+
+        // Consulta sin filtro
+        Document query = new Document();
+
+        // Itera sobre los resultados de la consulta
+        List<UserEntity> usersList = new ArrayList<>();
+        MongoCursor<Document> cursor = collection.find(query).iterator();
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+            UserEntity userEntity = mapDocumentToEntity(document);
+            usersList.add(userEntity);
+        }
+
+        cursor.close();
+        databaseManager.closeDatabase();
+
+        return usersList;
+    }
+
+    @Override
+    public List<UserEntity> getAllEntityByTime(String newTime) {
+        logger.info("getAllEntityByTime");
+
+        databaseManager.connectDatabase();
+
+        MongoCollection<Document> collection = databaseManager.getDatabase().getCollection(COLLECTION_NAME);
+
+        // Crear un filtro para encontrar documentos con el valor de "timeBet" igual a newTime
+        Bson filter = Filters.eq(FIELD_TIME_BET, newTime);
+        FindIterable<Document> result = collection.find(filter); // Consulta
+
+        List<UserEntity> usersFiltered = new ArrayList<>();
+
+        MongoCursor<Document> cursor = result.iterator();
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+            UserEntity user = mapDocumentToEntity(document);
+            usersFiltered.add(user);
+        }
+
+        cursor.close();
+        databaseManager.closeDatabase();
+
+        return usersFiltered;
+    }
+
+    @Override
+    public List<UserEntity> getAllEntityByDate(LocalDate newDate) {
+        logger.info("getAllEntityByDate");
+
+        databaseManager.connectDatabase();
+
+        MongoCollection<Document> collection = databaseManager.getDatabase().getCollection(COLLECTION_NAME);
+
+        Bson filter = Filters.eq(FIELD_DATE_BET, newDate.toString());
+        FindIterable<Document> result = collection.find(filter); // Consulta
+
+        List<UserEntity> usersFiltered = new ArrayList<>();
+
+        MongoCursor<Document> cursor = result.iterator();
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+            UserEntity user = mapDocumentToEntity(document);
+            usersFiltered.add(user);
+        }
+
+        cursor.close();
+        databaseManager.closeDatabase();
+
+        return usersFiltered;
+    }
+
+    @Override
+    public List<UserEntity> getAllEntityByDateTime(String newTime, LocalDate newDate) {
+
+        databaseManager.connectDatabase();
+
+        MongoCollection<Document> collection = databaseManager.getDatabase().getCollection(COLLECTION_NAME);
+
+        Bson filter = Filters.and(
+                Filters.eq(FIELD_TIME_BET, newTime),
+                Filters.eq(FIELD_DATE_BET, newDate.toString())
+        );
+
+        FindIterable<Document> result = collection.find(filter); // Consulta
+
+        ArrayList<UserEntity> usersFiltered = new ArrayList<>();
+
+        MongoCursor<Document> cursor = result.iterator();
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+            UserEntity user = mapDocumentToEntity(document);
+            usersFiltered.add(user);
+        }
+
+        cursor.close();
+        databaseManager.closeDatabase();
+
+        return usersFiltered;
     }
 
     @Override
@@ -176,7 +316,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
     }
 
     @Override
-    public Integer getGlobalTotalBetsByDateTime(String newTime, LocalDate newDate) {
+    public Integer getGlobalTotalBetsByDateTime(String newTime, Integer newDate) {
         logger.info("getGlobalTotalBetsByDateTime");
 
         databaseManager.connectDatabase();
@@ -188,7 +328,6 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
         FindIterable<Document> result = collection.find(filter); // Consulta
 
         ArrayList<UserEntity> usersFiltered = new ArrayList<>();
-        int targetDayOfWeek = newDate.getDayOfWeek().getValue(); // Obtiene el día de la semana de la fecha deseada
 
         MongoCursor<Document> cursor = result.iterator();
         while (cursor.hasNext()) {
@@ -196,7 +335,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
             LocalDate documentDateBet = LocalDate.parse(document.getString(FIELD_DATE_BET));
             int documentDayOfWeek = documentDateBet.getDayOfWeek().getValue();
 
-            if (documentDayOfWeek == targetDayOfWeek) {
+            if (documentDayOfWeek == newDate) {
                 UserEntity user = mapDocumentToEntity(document);
                 usersFiltered.add(user);
             }
@@ -209,7 +348,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
     }
 
     @Override
-    public List<String> getAllUsernamesNoRepeat() {
+    public List<String> getAllUsernamesWithoutRepeat() {
         logger.info("getAllUsernames");
 
         databaseManager.connectDatabase();
@@ -232,7 +371,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
     }
 
     @Override
-    public Integer getGlobalTotalBetsByDate(LocalDate newDate) {
+    public Integer getGlobalTotalBetsByDate(Integer newDate) {
         logger.info("getGlobalTotalBetsByDate");
 
         databaseManager.connectDatabase();
@@ -242,7 +381,6 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
         FindIterable<Document> result = collection.find(); // Todos los documentos
 
         ArrayList<UserEntity> usersFiltered = new ArrayList<>();
-        int targetDayOfWeek = newDate.getDayOfWeek().getValue(); // Obtiene el día de la semana de la fecha deseada
 
         MongoCursor<Document> cursor = result.iterator();
         while (cursor.hasNext()) {
@@ -250,7 +388,7 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
             LocalDate documentDateBet = LocalDate.parse(document.getString(FIELD_DATE_BET));
             int documentDayOfWeek = documentDateBet.getDayOfWeek().getValue();
 
-            if (documentDayOfWeek == targetDayOfWeek) {
+            if (documentDayOfWeek == newDate) {
                 UserEntity user = mapDocumentToEntity(document);
                 usersFiltered.add(user);
             }
@@ -262,37 +400,30 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
         return Math.toIntExact(usersFiltered.size());
     }
 
-    @Override
-    public List<UserDTO> getAllByDate(LocalDate newDate) {
-        logger.info("getAllByDate");
+    public void deleteItem(UserEntity item) {
+        logger.info("deleteItem");
 
         databaseManager.connectDatabase();
 
         MongoCollection<Document> collection = databaseManager.getDatabase().getCollection(COLLECTION_NAME);
 
-        FindIterable<Document> result = collection.find(); // Todos los documentos
+        // Construir un filtro basado en todos los campos del objeto item
+        Bson filter = Filters.and(
+                Filters.eq(FIELD_TIME_BET, item.getTimeBet()),
+                Filters.eq(FIELD_DATE_BET, item.getDateBet().toString()), // Cuidado que me llega el valor como LocalDate y en la base de datos lo almacenamos como String
+                Filters.eq(FIELD_USERNAME, item.getUsername()),
+                Filters.eq(FIELD_RELIABLE, item.getReliable())
+        ); // Debería hacer el filtro con el ObjectId, pero la cagué aquí
 
-        ArrayList<UserEntity> usersFiltered = new ArrayList<>();
-        int targetDayOfWeek = newDate.getDayOfWeek().getValue(); // Obtiene el día de la semana de la fecha deseada
+        DeleteResult deleteResult = collection.deleteOne(filter); // Solamente uno, por si alguno tiene lo mismo
 
-        MongoCursor<Document> cursor = result.iterator();
-        while (cursor.hasNext()) {
-            Document document = cursor.next();
-            LocalDate documentDateBet = LocalDate.parse(document.getString(FIELD_DATE_BET));
-            int documentDayOfWeek = documentDateBet.getDayOfWeek().getValue();
-
-            if (documentDayOfWeek == targetDayOfWeek) {
-                UserEntity user = mapDocumentToEntity(document);
-                usersFiltered.add(user);
-            }
+        if (deleteResult.getDeletedCount() == 1) {
+            logger.info("Usuario eliminado con éxito.");
+        } else {
+            logger.error("No se pudo eliminar el usuario.");
         }
 
-        cursor.close();
         databaseManager.closeDatabase();
-
-        // Mapeamos a los usuarios filtrados
-        UserMapper userMapper = new UserMapper();
-        return userMapper.convertUserEntitiesToDTOs(usersFiltered);
     }
 
 }

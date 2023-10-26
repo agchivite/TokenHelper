@@ -36,7 +36,7 @@ public class UserEntity {
         return timeBet;
     }
 
-    public Boolean getIsReliable() {
+    public Boolean getReliable() {
         return reliable;
     }
 }

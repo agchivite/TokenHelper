@@ -1,7 +1,7 @@
 package dev.sbytmacke.tokenhelper.routes;
 
 import dev.sbytmacke.tokenhelper.AppMain;
-import dev.sbytmacke.tokenhelper.controllers.DeleteMenuViewController;
+import dev.sbytmacke.tokenhelper.controllers.DataGestorViewController;
 import dev.sbytmacke.tokenhelper.controllers.MainViewController;
 import dev.sbytmacke.tokenhelper.repositories.UserRepositoryImpl;
 import dev.sbytmacke.tokenhelper.services.database.DatabaseManagerImpl;
@@ -18,7 +18,6 @@ import java.util.Locale;
 
 public class RoutesManager {
 
-    // El viewModel llamará a todas las funciones del repositorio a través de la vista y gracias al controlador
     UserViewModel userViewModel = new UserViewModel(new UserRepositoryImpl(new DatabaseManagerImpl())); // Acoplamiento
     private Stage _mainStage;
     private Stage _activeStage;
@@ -35,7 +34,7 @@ public class RoutesManager {
         MainViewController controller = fxmlLoader.getController(); // Obtenemos el controlador
         controller.init(userViewModel); // Inyección de dependencias desde el DatabaseManager hasta el Controller
 
-        Scene scene = new Scene(root, 1325, 790);
+        Scene scene = new Scene(root, 1325, 810);
         stage.setResizable(false);
         stage.setTitle("TokenHelper");
         // Agregar un icono a la ventana
@@ -49,16 +48,17 @@ public class RoutesManager {
         stage.show();
     }
 
-    public void intiDeleteView() throws IOException {
+    public void intiDataGestorView(MainViewController mainViewController) throws IOException {
 
-        FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("delete-menu-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("data-gestor-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
 
-        DeleteMenuViewController controller = fxmlLoader.getController(); // Obtenemos el controlador
+        DataGestorViewController controller = fxmlLoader.getController(); // Obtenemos el controlador
+        controller.setMainController(mainViewController); // Para poder acceder a la función de actualizar las tablas
         controller.init(userViewModel); // Inyección de dependencias desde el DatabaseManager hasta el Controller
 
         Stage stage = new Stage();
-        stage.setTitle("Menú de eliminación");
+        stage.setTitle("Visualizador de datos");
         stage.setResizable(false);
         stage.getIcons().add(new Image("/dev/sbytmacke/tokenhelper/icons/main_icon.png"));
 

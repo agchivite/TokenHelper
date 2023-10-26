@@ -47,7 +47,7 @@ public class UserViewModel {
         return repository.getAllByTime(newTime);
     }
 
-    public List<UserDTO> getAllByDateTime(String newTime, LocalDate newDate) {
+    public List<UserDTO> getAllByDateTime(String newTime, Integer newDate) {
         logger.info("getAllByDateTime");
         return repository.getAllByDateTime(newTime, newDate);
     }
@@ -68,12 +68,12 @@ public class UserViewModel {
         return calculateGlobalAverageSuccess(users);
     }
 
-    public Integer getGlobalTotalBetsByDateTime(String newTime, LocalDate newDate) {
+    public Integer getGlobalTotalBetsByDateTime(String newTime, Integer newDate) {
         logger.info("getGlobalTotalBetsByDateTime");
         return repository.getGlobalTotalBetsByDateTime(newTime, newDate);
     }
 
-    public double getGlobalPercentSuccessByDateTime(String newTime, LocalDate newDate) {
+    public double getGlobalPercentSuccessByDateTime(String newTime, Integer newDate) {
         logger.info("getGlobalPercentSuccessByDateTime");
         List<UserDTO> users = repository.getAllByDateTime(newTime, newDate);
 
@@ -86,15 +86,15 @@ public class UserViewModel {
 
     public List<String> getAllUsernamesNoRepeat() {
         logger.info("getAllUsernames");
-        return repository.getAllUsernamesNoRepeat();
+        return repository.getAllUsernamesWithoutRepeat();
     }
 
-    public Integer getGlobalTotalBetsByDate(LocalDate newDate) {
+    public Integer getGlobalTotalBetsByDate(Integer newDate) {
         logger.info("getGlobalTotalBetsByDate");
         return repository.getGlobalTotalBetsByDate(newDate);
     }
 
-    public double getGlobalPercentSuccessByDate(LocalDate newDate) {
+    public double getGlobalPercentSuccessByDate(Integer newDate) {
         logger.info("getGlobalPercentSuccessByDate");
         List<UserDTO> users = repository.getAllByDate(newDate);
 
@@ -105,7 +105,7 @@ public class UserViewModel {
         return calculateGlobalAverageSuccess(users);
     }
 
-    public List<UserDTO> getAllByDate(LocalDate newDate) {
+    public List<UserDTO> getAllByDate(Integer newDate) {
         logger.info("getAllByDate");
         return repository.getAllByDate(newDate);
     }
@@ -119,5 +119,30 @@ public class UserViewModel {
         }
 
         return users;
+    }
+
+    public List<UserEntity> getAllEntityByDateTime(String newTime, LocalDate newDate) {
+        logger.info("getAllEntityByDateTime");
+        return repository.getAllEntityByDateTime(newTime, newDate);
+    }
+
+    public List<UserEntity> getAllEntityByTime(String newTime) {
+        logger.info("getAllEntityByTime");
+        return repository.getAllEntityByTime(newTime);
+    }
+
+    public List<UserEntity> getAllEntityByDate(LocalDate newDate) {
+        logger.info("getAllEntityByDate");
+        return repository.getAllEntityByDate(newDate);
+    }
+
+    public List<UserEntity> getAllEntity() {
+        logger.info("getAllEntity");
+        return repository.getAllEntity();
+    }
+
+    public void deleteUser(UserEntity user) {
+        logger.info("deleteUser");
+        repository.deleteItem(user);
     }
 }

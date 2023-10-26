@@ -4,7 +4,6 @@ import dev.sbytmacke.tokenhelper.dto.UserDTO;
 import dev.sbytmacke.tokenhelper.models.UserEntity;
 import dev.sbytmacke.tokenhelper.routes.RoutesManager;
 import dev.sbytmacke.tokenhelper.utils.DateFormatterUtils;
-import dev.sbytmacke.tokenhelper.utils.DateNodes.MapNodes;
 import dev.sbytmacke.tokenhelper.utils.TimeUtils;
 import dev.sbytmacke.tokenhelper.viewmodel.UserViewModel;
 import javafx.collections.FXCollections;
@@ -50,14 +49,9 @@ public class MainViewController {
     private ComboBox<String> comboTime;
     /* Filter */
     @FXML
+    private Button buttonClearFilters;
+    @FXML
     private TextField textSearchUserFilter;
-    @FXML
-    private DatePicker datePickerFilter;
-    private MapNodes mapNodes; // TODO
-    @FXML
-    private Button buttonBackDate;
-    @FXML
-    private Button buttonNextDate;
     @FXML
     private ComboBox<String> comboTimeFilter;
     @FXML
@@ -66,6 +60,24 @@ public class MainViewController {
     private RadioButton radioButtonHideOrange;
     @FXML
     private RadioButton radioButtonHideRed;
+    @FXML
+    private RadioButton radioButtonNone;
+    @FXML
+    private RadioButton radioButtonMonday;
+    @FXML
+    private RadioButton radioButtonTuesday;
+    @FXML
+    private RadioButton radioButtonWednesday;
+    @FXML
+    private RadioButton radioButtonThursday;
+    @FXML
+    private RadioButton radioButtonFriday;
+    @FXML
+    private RadioButton radioButtonSaturday;
+    @FXML
+    private RadioButton radioButtonSunday;
+
+
     /* Table General */
     @FXML
     private TableView<UserDTO> tableUsers;
@@ -98,7 +110,6 @@ public class MainViewController {
     public void init(UserViewModel userViewModel) {
         logger.info("Initializing MainViewController");
         this.userViewModel = userViewModel;
-        this.mapNodes = new MapNodes();
         initEvents();
         initBindings();
         initDetails();
@@ -107,68 +118,33 @@ public class MainViewController {
     private void initEvents() {
         logger.info("Initializing Events");
 
+        buttonClearFilters.setOnAction(event -> {
+            textSearchUserFilter.setText("");
+            comboTimeFilter.getSelectionModel().select(0);
+            radioButtonHideGreen.setSelected(false);
+            radioButtonHideOrange.setSelected(false);
+            radioButtonHideRed.setSelected(false);
+            radioButtonMonday.setSelected(false);
+            radioButtonTuesday.setSelected(false);
+            radioButtonWednesday.setSelected(false);
+            radioButtonThursday.setSelected(false);
+            radioButtonFriday.setSelected(false);
+            radioButtonSaturday.setSelected(false);
+            radioButtonSunday.setSelected(false);
+            updateAllTables();
+        });
+
         DateFormatterUtils dateFormatterUtils = new DateFormatterUtils();
-        DateTimeFormatter dateFormatterDatePickerFilter = dateFormatterUtils.formatDate(datePickerFilter);
 
         menuDeleteData.setOnAction(event -> onDeleteMenuAction());
 
-        buttonCreateUser.setOnAction(event -> saveUser());
-
-        buttonBackDate.setOnAction(event -> {
-          /*  if (mapNodes.navigateToPreviousDate(datePickerFilter)) {
-                onFilterDataTable();
-            }*/
-
-            // Almacena la fecha actual si no se ha almacenado antes
-            if (savedDate == null) {
-                savedDate = datePickerFilter.getValue();
-            }
-
-            // Borra la fecha actual
-            datePickerFilter.setValue(null);
-            onFilterDataTable();
-        });
-
-        buttonNextDate.setOnAction(event -> {
-           /* if (mapNodes.navigateToNextDate(datePickerFilter)) {
-                onFilterDataTable();
-            }*/
-
-            // Restaura la fecha anterior si está almacenada
-            if (savedDate != null) {
-                datePickerFilter.setValue(savedDate);
-                savedDate = null;
-                onFilterDataTable();
-            }
+        buttonCreateUser.setOnAction(event -> {
+            saveUser();
         });
 
         // Filters
-        textSearchUserFilter.setOnKeyReleased(event -> onFilterDataTable());
-        comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> onFilterDataTable());
-
-        datePickerFilter.valueProperty().addListener(event -> onFilterDataTable());
-        datePickerFilter.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                // Actualizamos la navegación de fechas, si es exitoso
-                //if(){
-                // Comprobamos si el valor ya está asignado
-                LocalDate parsedDate = LocalDate.parse(newValue, dateFormatterDatePickerFilter);
-                datePickerFilter.setValue(parsedDate); // Actualiza el DatePicker
-                //mapNodes.addDate(parsedDate);
-                //}
-
-                onFilterDataTable(); // Llama a la función después de actualizar el DatePicker
-            } catch (DateTimeParseException e) {
-                logger.error("No Valid - DatePickerFilter: " + newValue);
-                if (newValue.isEmpty()) {
-                    datePickerFilter.setValue(null); // Establece newDate como nulo si el valor está vacío
-                    onFilterDataTable(); // Llama a la función con newDate nulo
-                } else {
-                    tableUsers.setSelectionModel(null); // Borramos toda la tabla en caso de fallar
-                    tableUsers.getItems().clear();
-                }
-            }
-        });
+        textSearchUserFilter.setOnKeyReleased(event -> updateAllTables());
+        comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> updateAllTables());
 
         // Cambiamos también en el DatePicker al añadir
         DateTimeFormatter dateFormatterDatePicker = dateFormatterUtils.formatDate(datePicker);
@@ -181,20 +157,29 @@ public class MainViewController {
             }
         });
 
-        radioButtonHideGreen.setOnAction(event -> onFilterDataTable());
-        radioButtonHideOrange.setOnAction(event -> onFilterDataTable());
-        radioButtonHideRed.setOnAction(event -> onFilterDataTable());
+        radioButtonHideGreen.setOnAction(event -> updateAllTables());
+        radioButtonHideOrange.setOnAction(event -> updateAllTables());
+        radioButtonHideRed.setOnAction(event -> updateAllTables());
+
+        radioButtonNone.setOnAction(event -> updateAllTables());
+        radioButtonMonday.setOnAction(event -> updateAllTables());
+        radioButtonTuesday.setOnAction(event -> updateAllTables());
+        radioButtonWednesday.setOnAction(event -> updateAllTables());
+        radioButtonThursday.setOnAction(event -> updateAllTables());
+        radioButtonFriday.setOnAction(event -> updateAllTables());
+        radioButtonSaturday.setOnAction(event -> updateAllTables());
+        radioButtonSunday.setOnAction(event -> updateAllTables());
 
         contextMenu = new ContextMenu();
         textFieldUser.textProperty().addListener((observable, oldValue, newValue) -> {
             contextMenu.getItems().clear();
 
-            List<String> listSuggestions = filterSuggestionsList(newValue);
+            List<String> listSuggestions = filterSuggestionsList(newValue.trim());
 
             // Agrega sugerencias al ContextMenu basadas en el valor del TextField
             for (String suggestion : listSuggestions) {
                 MenuItem menuItem = new MenuItem(suggestion);
-                menuItem.setStyle("-fx-text-fill: white;"); // Cambia el color del texto a blanco
+                //menuItem.setStyle("-fx-text-fill: white;"); // Cambia el color del texto a blanco
                 contextMenu.getItems().add(menuItem);
             }
 
@@ -203,18 +188,17 @@ public class MainViewController {
             if (newValue == null || newValue.isEmpty()) {
                 contextMenu.getItems().clear();
             }
-
         });
 
         textSearchUserFilter.textProperty().addListener((observable, oldValue, newValue) -> {
             contextMenu.getItems().clear();
 
-            List<String> listSuggestions = filterSuggestionsList(newValue);
+            List<String> listSuggestions = filterSuggestionsList(newValue.trim());
 
             // Agrega sugerencias al ContextMenu basadas en el valor del TextField
             for (String suggestion : listSuggestions) {
                 MenuItem menuItem = new MenuItem(suggestion);
-                menuItem.setStyle("-fx-text-fill: white;"); // Cambia el color del texto a blanco
+                //menuItem.setStyle("-fx-text-fill: white;"); // Cambia el color del texto a blanco
                 contextMenu.getItems().add(menuItem);
             }
 
@@ -232,13 +216,11 @@ public class MainViewController {
                 textFieldUser.setText(selectedItem.getText());
             } else if (textSearchUserFilter.isFocused()) {
                 textSearchUserFilter.setText(selectedItem.getText());
+                updateAllTables();
             }
-
-            onFilterDataTable();
             contextMenu.hide();
         });
     }
-
 
     private void initBindings() {
         logger.info("Initializing Bindings");
@@ -265,6 +247,16 @@ public class MainViewController {
         ToggleGroup toggleGroup = new ToggleGroup();
         radioButtonGood.setToggleGroup(toggleGroup);
         radioButtonBad.setToggleGroup(toggleGroup);
+
+        ToggleGroup toggleGroupDaysOfWeek = new ToggleGroup();
+        radioButtonNone.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonMonday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonTuesday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonWednesday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonThursday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonFriday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonSaturday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonSunday.setToggleGroup(toggleGroupDaysOfWeek);
     }
 
     private List<UserDTO> filterTopUsersReliable(int numberUsersToShow) {
@@ -358,19 +350,19 @@ public class MainViewController {
         return filteredSuggestions;
     }
 
-    private void onFilterDataTable() {
+    public void updateAllTables() {
         String newUsername = textSearchUserFilter.getText().toUpperCase();
         String newTime = comboTimeFilter.getSelectionModel().getSelectedItem();
-        LocalDate newDate = datePickerFilter.getValue();
+        Integer newDateOfWeek = getNewDateOfWeek();
 
-        setGlobalResult(newTime, newDate);
+        setGlobalResult(newTime, newDateOfWeek);
 
-        Boolean onFilterByDate = onFilterDataTableByDate(newUsername, newTime, newDate);
-        Boolean onFilterByTime = onFilterDataTableByTime(newUsername, newTime, newDate);
-        Boolean onFilterByDateTime = onFilterDataTableByDateTime(newUsername, newTime, newDate);
-        Boolean onFilterByUserDate = onFilterDataTableByUserDate(newUsername, newTime, newDate);
-        Boolean onFilterByUserTime = onFilterDataTableByUserTime(newUsername, newTime, newDate);
-        Boolean onFilterByUserDateTime = onFilterDataTableByUserDateTime(newUsername, newTime, newDate);
+        Boolean onFilterByDate = onFilterDataTableByDate(newUsername, newTime, newDateOfWeek);
+        Boolean onFilterByTime = onFilterDataTableByTime(newUsername, newTime, newDateOfWeek);
+        Boolean onFilterByDateTime = onFilterDataTableByDateTime(newUsername, newTime, newDateOfWeek);
+        Boolean onFilterByUserDate = onFilterDataTableByUserDate(newUsername, newTime, newDateOfWeek);
+        Boolean onFilterByUserTime = onFilterDataTableByUserTime(newUsername, newTime, newDateOfWeek);
+        Boolean onFilterByUserDateTime = onFilterDataTableByUserDateTime(newUsername, newTime, newDateOfWeek);
 
         // Ordena la tabla por 'percentSucces'
         tableUsers.getSortOrder().setAll(columnSuccess);
@@ -391,28 +383,58 @@ public class MainViewController {
             tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
         }
+
+        // Actualizamos el ranking general
+        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable(5)));
     }
 
-    private void setGlobalResult(String newTime, LocalDate newDate) {
+    private Integer getNewDateOfWeek() {
+        Integer newDateOfWeek = null;
+
+        if (radioButtonMonday.isSelected()) {
+            newDateOfWeek = 1;
+        }
+        if (radioButtonTuesday.isSelected()) {
+            newDateOfWeek = 2;
+        }
+        if (radioButtonWednesday.isSelected()) {
+            newDateOfWeek = 3;
+        }
+        if (radioButtonThursday.isSelected()) {
+            newDateOfWeek = 4;
+        }
+        if (radioButtonFriday.isSelected()) {
+            newDateOfWeek = 5;
+        }
+        if (radioButtonSaturday.isSelected()) {
+            newDateOfWeek = 6;
+        }
+        if (radioButtonSunday.isSelected()) {
+            newDateOfWeek = 7;
+        }
+        return newDateOfWeek;
+    }
+
+    private void setGlobalResult(String newTime, Integer newDateOfWeek) {
         logger.info("Setting global result");
 
         setGlobalTime(newTime, noDataTime);
-        setGlobalDate(newDate);
+        setGlobalDate(newDateOfWeek);
 
         // Recoger todas las apuestas y hacer la media con hora y día de la semana
-        if (!newTime.equals(noDataTime) && newDate != null) {
-            Integer totalBets = userViewModel.getGlobalTotalBetsByDateTime(newTime, newDate);
-            double percentSuccess = userViewModel.getGlobalPercentSuccessByDateTime(newTime, newDate);
+        if (!newTime.equals(noDataTime) && newDateOfWeek != null) {
+            Integer totalBets = userViewModel.getGlobalTotalBetsByDateTime(newTime, newDateOfWeek);
+            double percentSuccess = userViewModel.getGlobalPercentSuccessByDateTime(newTime, newDateOfWeek);
             setDetailsGlobalResult(totalBets, percentSuccess);
         } else if (!newTime.equals(noDataTime)) {
             // Si no solo con la hora
             Integer totalBets = userViewModel.getGlobalTotalBetsByTime(newTime);
             double percentSuccess = userViewModel.getGlobalPercentSuccessByTime(newTime);
             setDetailsGlobalResult(totalBets, percentSuccess);
-        } else if (newDate != null) {
+        } else if (newDateOfWeek != null) {
             // Solo con la fecha (todos los datos)
-            Integer totalBets = userViewModel.getGlobalTotalBetsByDate(newDate);
-            double percentSuccess = userViewModel.getGlobalPercentSuccessByDate(newDate);
+            Integer totalBets = userViewModel.getGlobalTotalBetsByDate(newDateOfWeek);
+            double percentSuccess = userViewModel.getGlobalPercentSuccessByDate(newDateOfWeek);
             setDetailsGlobalResult(totalBets, percentSuccess);
         } else {
             // Si no hay ningún filtro
@@ -444,8 +466,8 @@ public class MainViewController {
         textFinalResultTotalBets.setText(String.valueOf(totalBets));
     }
 
-    private void setGlobalDate(LocalDate newDate) {
-        if (newDate == null) {
+    private void setGlobalDate(Integer newDateOfWeek) {
+        if (newDateOfWeek == null) {
             textFinalResultDate.setText("sin filtro");
         } else {
             Map<Integer, String> dayOfWeekMap = new HashMap<>();
@@ -457,9 +479,27 @@ public class MainViewController {
             dayOfWeekMap.put(6, "Sábado");
             dayOfWeekMap.put(7, "Domingo");
 
-            int dayOfWeekValue = newDate.getDayOfWeek().getValue();
-            String dayOfWeek = dayOfWeekMap.get(dayOfWeekValue);
-            textFinalResultDate.setText(dayOfWeek);
+            if (newDateOfWeek == 1) {
+                textFinalResultDate.setText("Lunes");
+            }
+            if (newDateOfWeek == 2) {
+                textFinalResultDate.setText("Martes");
+            }
+            if (newDateOfWeek == 3) {
+                textFinalResultDate.setText("Miércoles");
+            }
+            if (newDateOfWeek == 4) {
+                textFinalResultDate.setText("Jueves");
+            }
+            if (newDateOfWeek == 5) {
+                textFinalResultDate.setText("Viernes");
+            }
+            if (newDateOfWeek == 6) {
+                textFinalResultDate.setText("Sábado");
+            }
+            if (newDateOfWeek == 7) {
+                textFinalResultDate.setText("Domingo");
+            }
         }
         textFinalResultDate.setTextFill(Color.WHITE);
     }
@@ -468,7 +508,7 @@ public class MainViewController {
         logger.info("Initializing windows delete view");
         RoutesManager routesManager = new RoutesManager();
         try {
-            routesManager.intiDeleteView();
+            routesManager.intiDataGestorView(this);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -497,10 +537,10 @@ public class MainViewController {
         }
     }
 
-    private Boolean onFilterDataTableByDate(String newUsername, String newTime, LocalDate newDate) {
-        if (newUsername == null || newUsername.isEmpty() && newTime.equals(noDataTime) && newDate != null) {
+    private Boolean onFilterDataTableByDate(String newUsername, String newTime, Integer newDateOfWeek) {
+        if (newUsername == null || newUsername.isEmpty() && newTime.equals(noDataTime) && newDateOfWeek != null) {
             logger.info("Filtering all by date");
-            List<UserDTO> usersToShow = userViewModel.getAllByDate(newDate);
+            List<UserDTO> usersToShow = userViewModel.getAllByDate(newDateOfWeek);
 
             setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
@@ -515,48 +555,34 @@ public class MainViewController {
     }
 
     private void setTopicUsers(List<UserDTO> usersToShow) {
-        int mostTotalBets = 0;
-        double mostPercentSuccess = 0.0;
-        UserDTO topicUser = null;
+        List<UserDTO> usersFiltered = usersToShow.stream()
+                .filter(user -> user.getPercentReliable() > 65.00)
+                .sorted(Comparator.comparing(UserDTO::getTotalBets).reversed()) // Ordena por totalBets en orden descendente, buscando los datos más
+                //.sorted(Comparator.comparing(UserDTO::getPercentReliable).reversed()) // Ordena por percentReliable en orden descendente, en caso de quererlo
+                .limit(1)
+                .collect(Collectors.toList());
 
-        for (UserDTO user : usersToShow) {
-            int totalBets = user.getTotalBets();
-            double percentSuccess = user.getPercentReliable();
-
-            if (totalBets > mostTotalBets || (totalBets == mostTotalBets && percentSuccess > mostPercentSuccess)) {
-                mostTotalBets = totalBets;
-                mostPercentSuccess = percentSuccess;
-                topicUser = user;
-            }
-        }
-/*
-        List<UserDTO> usersTopic = new ArrayList<>();
-        for (UserDTO user : usersToShow) {
-            int totalBets = Integer.parseInt(user.getTotalBets());
-            double percentSuccess = user.getPercentReliable();
-
-            if (totalBets == mostTotalBets && percentSuccess == mostPercentSuccess) {
-                usersTopic.add(user);
-            }
+        if (usersFiltered.isEmpty()) {
+            //Filtramos por naranjas
+            usersFiltered = usersToShow.stream()
+                    .filter(user -> user.getPercentReliable() > 49.00)
+                    .sorted(Comparator.comparing(UserDTO::getTotalBets).reversed()) // Ordena por totalBets en orden descendente, buscando los datos más
+                    //.sorted(Comparator.comparing(UserDTO::getPercentReliable).reversed()) // Ordena por percentReliable en orden descendente, en caso de quererlo
+                    .limit(1)
+                    .collect(Collectors.toList());
         }
 
-        for (UserDTO user : usersTopic) {
-            if (user != null) {
-                user.setUsername("⭐ " + topicUser.getUsername());
+        if (!usersFiltered.isEmpty()) {
+            for (UserDTO user : usersFiltered) {
+                // Lo ponemos el primero de la lista
+                usersToShow.remove(user);
+                user.setUsername(user.getUsername() + " ⭐");
+                usersToShow.add(0, user);
             }
-
-            usersToShow.remove(user); // Elimina al usuario de la lista original
-            usersToShow.add(user); // Agrega al usuario destacado en la posición 0
-        }*/
-
-        if (topicUser != null) {
-            usersToShow.remove(topicUser); // Elimina al usuario de la lista original
-            topicUser.setUsername(topicUser.getUsername() + " ⭐"); // Agrega al usuario destacado en la posición 0
-            usersToShow.add(topicUser);
         }
     }
 
-    private Boolean onFilterDataTableByTime(String newUsername, String newTime, LocalDate newDate) {
+    private Boolean onFilterDataTableByTime(String newUsername, String newTime, Integer newDate) {
         if (newUsername == null || newUsername.isEmpty() && !newTime.equals(noDataTime) && newDate == null) {
             logger.info("Filtering all by time");
             List<UserDTO> usersToShow = userViewModel.getAllByTime(newTime);
@@ -572,7 +598,7 @@ public class MainViewController {
         return false;
     }
 
-    private Boolean onFilterDataTableByDateTime(String newUsername, String newTime, LocalDate newDate) {
+    private Boolean onFilterDataTableByDateTime(String newUsername, String newTime, Integer newDate) {
         if (newUsername == null || newUsername.isEmpty() && !newTime.equals(noDataTime) && newDate != null) {
             logger.info("Filtering all by date time");
 
@@ -595,7 +621,7 @@ public class MainViewController {
         String regex = "^" + newUsername + ".*";
 
         for (UserDTO user : users) {
-            if (user.getUsername().toUpperCase().matches(regex)) {
+            if (user.getUsername().toUpperCase().matches(regex) || user.getUsername().equalsIgnoreCase(newUsername)) {
                 filteredUsers.add(user);
             }
         }
@@ -603,7 +629,7 @@ public class MainViewController {
         return filteredUsers;
     }
 
-    private Boolean onFilterDataTableByUserDate(String newUsername, String newTime, LocalDate newDate) {
+    private Boolean onFilterDataTableByUserDate(String newUsername, String newTime, Integer newDate) {
         if (newUsername != null && !newUsername.isEmpty() && newTime.equals(noDataTime) && newDate != null) {
             logger.info("Filtering all by user & date");
             List<UserDTO> usersToShow = userViewModel.getAllByDate(newDate);
@@ -624,7 +650,7 @@ public class MainViewController {
         return false;
     }
 
-    private Boolean onFilterDataTableByUserTime(String newUsername, String newTime, LocalDate newDate) {
+    private Boolean onFilterDataTableByUserTime(String newUsername, String newTime, Integer newDate) {
         if (newUsername != null && !newUsername.isEmpty() && !newTime.equals(noDataTime) && newDate == null) {
             logger.info("Filtering by user & time");
 
@@ -644,7 +670,7 @@ public class MainViewController {
         return false;
     }
 
-    private Boolean onFilterDataTableByUserDateTime(String newUsername, String newTime, LocalDate newDate) {
+    private Boolean onFilterDataTableByUserDateTime(String newUsername, String newTime, Integer newDate) {
         if (newUsername != null && !newUsername.isEmpty() && !newTime.equals(noDataTime) && newDate != null) {
             logger.info("Filtering by user & date time");
 
@@ -725,7 +751,7 @@ public class MainViewController {
         // User is valid, continue saving the user
         logger.info("Saving user");
 
-        userViewModel.saveUser(new UserEntity(textFieldUser.getText().toUpperCase(), datePicker.getValue(), comboTime.getValue(), radioButtonGood.isSelected()));
+        userViewModel.saveUser(new UserEntity(textFieldUser.getText().trim().toUpperCase(), datePicker.getValue(), comboTime.getValue(), radioButtonGood.isSelected()));
 
         // Clean fields
         datePicker.setValue(null);
@@ -733,6 +759,6 @@ public class MainViewController {
         radioButtonGood.setSelected(false);
         radioButtonBad.setSelected(false);
 
-        onFilterDataTable();
+        updateAllTables();
     }
 }
