@@ -621,7 +621,7 @@ public class MainViewController {
         String regex = "^" + newUsername + ".*";
 
         for (UserDTO user : users) {
-            if (user.getUsername().toUpperCase().matches(regex)) {
+            if (user.getUsername().toUpperCase().matches(regex) || user.getUsername().equalsIgnoreCase(newUsername)) {
                 filteredUsers.add(user);
             }
         }

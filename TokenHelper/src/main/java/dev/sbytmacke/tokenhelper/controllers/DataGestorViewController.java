@@ -474,7 +474,7 @@ public class DataGestorViewController {
         String regex = "^" + newUsername + ".*";
 
         for (UserEntity user : users) {
-            if (user.getUsername().toUpperCase().matches(regex)) {
+            if (user.getUsername().toUpperCase().matches(regex) || user.getUsername().equalsIgnoreCase(newUsername)) {
                 filteredUsers.add(user);
             }
         }
