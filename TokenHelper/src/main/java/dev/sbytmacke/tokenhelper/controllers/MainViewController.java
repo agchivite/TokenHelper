@@ -30,10 +30,17 @@ public class MainViewController {
     // Almacenar la fecha actual y la fecha anterior
     LocalDate savedDate = null;
     private UserViewModel userViewModel;
+
+    @FXML
+    private Button buttonMainMiniView;
     // Menu
     @FXML
     private MenuItem menuDeleteData;
+    @FXML
+    private MenuItem menuLeyenda;
     /* Create user */
+    @FXML
+    private Button buttonCleanSaveUsername;
     @FXML
     private TextField textFieldUser;
     private ContextMenu contextMenu;
@@ -76,8 +83,6 @@ public class MainViewController {
     private RadioButton radioButtonSaturday;
     @FXML
     private RadioButton radioButtonSunday;
-
-
     /* Table General */
     @FXML
     private TableView<UserDTO> tableUsers;
@@ -110,13 +115,15 @@ public class MainViewController {
     public void init(UserViewModel userViewModel) {
         logger.info("Initializing MainViewController");
         this.userViewModel = userViewModel;
-        initEvents();
         initBindings();
         initDetails();
+        initEvents();
     }
 
     private void initEvents() {
         logger.info("Initializing Events");
+
+        buttonCleanSaveUsername.setOnAction(event -> textFieldUser.setText(null));
 
         buttonClearFilters.setOnAction(event -> {
             textSearchUserFilter.setText("");
@@ -136,7 +143,8 @@ public class MainViewController {
 
         DateFormatterUtils dateFormatterUtils = new DateFormatterUtils();
 
-        menuDeleteData.setOnAction(event -> onDeleteMenuAction());
+        menuDeleteData.setOnAction(event -> onDataGestorMenuAction());
+        menuLeyenda.setOnAction(event -> onLeyendaMenuAction());
 
         buttonCreateUser.setOnAction(event -> {
             saveUser();
@@ -220,6 +228,13 @@ public class MainViewController {
             }
             contextMenu.hide();
         });
+
+        // Al final para que se actualice la tabla principal
+        buttonMainMiniView.setOnAction(event -> {
+            logger.info("Initializing MainMiniView");
+            RoutesManager routesManager = new RoutesManager();
+            routesManager.initMainMiniView(tableUsers);
+        });
     }
 
     private void initBindings() {
@@ -271,6 +286,7 @@ public class MainViewController {
     }
 
     private void initDetails() {
+        radioButtonNone.setSelected(true);
         centerAndFontTextTable();
         setColorsTable();
 
@@ -328,6 +344,8 @@ public class MainViewController {
         for (int i = 0; i < tableUsers.getColumns().size(); i++) {
             tableUsers.getColumns().get(i).setStyle("-fx-alignment: CENTER; -fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 14px;");
         }
+        tableUsers.getColumns().get(0).setStyle("-fx-alignment: CENTER; -fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 15px; ");
+
         for (int i = 0; i < tableUsersRanking.getColumns().size(); i++) {
             tableUsersRanking.getColumns().get(i).setStyle("-fx-alignment: CENTER;");
         }
@@ -504,8 +522,14 @@ public class MainViewController {
         textFinalResultDate.setTextFill(Color.WHITE);
     }
 
-    private void onDeleteMenuAction() {
-        logger.info("Initializing windows delete view");
+    private void onLeyendaMenuAction() {
+        logger.info("Initializing leyenda view");
+        RoutesManager routesManager = new RoutesManager();
+        routesManager.initLeyendaView();
+    }
+
+    private void onDataGestorMenuAction() {
+        logger.info("Initializing data gestor view");
         RoutesManager routesManager = new RoutesManager();
         try {
             routesManager.intiDataGestorView(this);

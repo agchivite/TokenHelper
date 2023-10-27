@@ -41,6 +41,8 @@ dependencies {
 
     // MongoDb
     implementation("org.mongodb:mongodb-driver-sync:4.10.2")
+    //implementation('org.mongodb:bson:4.9.0')
+    //implementation("org.mongodb:mongodb-driver-core:4.10.2")
 
     // Logback
     implementation("ch.qos.logback:logback-classic:1.4.7")
@@ -59,8 +61,6 @@ jlink {
     launcher {
         name = 'app'
     }
-
-
 }
 
 /*jpackage {
@@ -68,7 +68,6 @@ jlink {
         icon = 'src/main/resources/icons/main_icon.png'
     }
 }*/
-
 
 jlinkZip {
     group = 'distribution'
@@ -89,4 +88,7 @@ jar {
     from fileTree(buildDir).matching { include 'META-INF/services/*' }
 }
 
-//java --module-path C:\Program Files\javafx-sdk-17.0.8\lib --add-modules javafx.controls,javafx.fxml -jar TokenHelper.jar
+// cd C:'\\Program Files\'\javafx-sdk-17.0.8\lib
+// java --module-path . --add-modules javafx.controls,javafx.fxml -cp ".\mongodb-driver-sync-4.10.2.jar;.\bson-4.10.2.jar" -jar C:\Users\chivi\Desktop\git-ephemeral\TokenHelper\TokenHelper\build\libs\TokenHelper.jar
+
+//java --module-path C:'\\Program Files\'\javafx-sdk-17.0.8\lib --add-modules javafx.controls,javafx.fxml -jar TokenHelper.jar

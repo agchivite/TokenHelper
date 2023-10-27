@@ -4,28 +4,28 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" prefHeight="785.0" prefWidth="1340.0"
-      style="-fx-background-color: #1e1f22;" xmlns="http://javafx.com/javafx/17.0.2-ea"
-      fx:controller="dev.sbytmacke.tokenhelper.controllers.MainViewController">
+<VBox xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" style="-fx-background-color: #1e1f22;"
+      xmlns="http://javafx.com/javafx/17.0.2-ea" fx:controller="dev.sbytmacke.tokenhelper.controllers.MainViewController">
 	<MenuBar style="-fx-background-color: #8f99a4;">
 		<menus>
 			<Menu mnemonicParsing="false" text="Menú">
 				<items>
 					<MenuItem fx:id="menuRanking" mnemonicParsing="false" text="Rankings"/>
 					<MenuItem fx:id="menuDeleteData" mnemonicParsing="false" text="Visualizador de datos"/>
+					<MenuItem fx:id="menuLeyenda" mnemonicParsing="false" text="Leyenda"/>
 				</items>
 			</Menu>
 		</menus>
 	</MenuBar>
-	<Label fx:id="labelTitle" alignment="CENTER" contentDisplay="CENTER" minWidth="-Infinity" prefHeight="96.0"
+	<Label fx:id="labelTitle" alignment="CENTER" contentDisplay="CENTER" prefHeight="96.0"
 	       style="-fx-background-color: #1e1f22;" text="TokenHelper" textFill="#8f99a4" textOverrun="CLIP">
 		<font>
 			<Font name="Arial Rounded MT Bold" size="63.0"/>
 		</font>
 	</Label>
-	<Separator prefWidth="200.0"/>
-	<AnchorPane prefHeight="655.0" prefWidth="1340.0" style="-fx-background-color: #8f99a4;" VBox.vgrow="ALWAYS">
-		<VBox alignment="TOP_CENTER" layoutX="952.0" prefHeight="413.0" prefWidth="388.0"
+	<Separator/>
+	<AnchorPane style="-fx-background-color: #8f99a4;" VBox.vgrow="ALWAYS">
+		<VBox alignment="TOP_CENTER" layoutX="644.0" layoutY="-3.0" prefHeight="413.0"
 		      style="-fx-background-color: #313338;">
 			<children>
 				<VBox alignment="CENTER" prefHeight="75.0" prefWidth="388.0">
@@ -84,10 +84,10 @@
 								<Font size="14.0"/>
 							</font>
 						</Label>
-						<DatePicker fx:id="datePicker" prefHeight="25.0" prefWidth="160.0"
+						<DatePicker fx:id="datePicker" prefHeight="25.0" prefWidth="151.0"
 						            style="-fx-control-inner-background: #1e1f22; -fx-background-color: #1e1f22;"
 						            GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-						<ComboBox fx:id="comboTime" prefHeight="25.0" prefWidth="160.0"
+						<ComboBox fx:id="comboTime" prefHeight="25.0" prefWidth="149.0"
 						          style="-fx-background-color: #1e1f22; -fx-control-inner-background: #1e1f22;"
 						          GridPane.columnIndex="1" GridPane.rowIndex="2"/>
 						<HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1"
@@ -109,14 +109,23 @@
 								<VBox alignment="CENTER_LEFT" prefHeight="63.0" prefWidth="160.0">
 									<children>
 										<TextField fx:id="textFieldUser" maxHeight="29.0" maxWidth="160.0"
-										           prefHeight="29.0" prefWidth="149.0"
+										           prefHeight="29.0" prefWidth="146.0"
 										           style="-fx-background-color: #1e1f22; -fx-text-fill: #ffffff;">
 											<font>
 												<Font size="14.0"/>
 											</font>
+											<VBox.margin>
+												<Insets right="10.0"/>
+											</VBox.margin>
 										</TextField>
 									</children>
 								</VBox>
+								<Button fx:id="buttonCleanSaveUsername" mnemonicParsing="false" prefHeight="25.0"
+								        prefWidth="33.0" text="🌀">
+									<font>
+										<Font name="Segoe UI Emoji" size="12.0"/>
+									</font>
+								</Button>
 							</children>
 						</HBox>
 					</children>
@@ -133,18 +142,18 @@
 				</Label>
 			</children>
 		</VBox>
-		<TableView fx:id="tableUsers" layoutX="306.0" layoutY="170.0" prefHeight="364.0" prefWidth="646.0"
+		<TableView fx:id="tableUsers" layoutX="-3.0" layoutY="173.0" prefHeight="357.0" prefWidth="649.0"
 		           style="-fx-background-color: #1e1f22;">
 			<columns>
 				<TableColumn fx:id="columnUsername" editable="false" prefWidth="392.0" resizable="false"
-				             text="Usuario"/>
+				             style="-fx-font-weight: bold;" text="Usuario"/>
 				<TableColumn fx:id="columnSuccess" editable="false" minWidth="0.0" prefWidth="123.0" resizable="false"
 				             sortType="DESCENDING" text="\% Aciertos"/>
 				<TableColumn fx:id="columnTotalBets" editable="false" minWidth="0.0" prefWidth="124.0" resizable="false"
 				             text="Total Apuestas"/>
 			</columns>
 		</TableView>
-		<HBox alignment="CENTER" layoutX="306.0" layoutY="532.0" prefHeight="138.0" prefWidth="646.0"
+		<HBox alignment="CENTER" layoutX="-14.0" layoutY="530.0" prefHeight="138.0" prefWidth="660.0"
 		      style="-fx-background-color: #313338;">
 			<padding>
 				<Insets bottom="5.0" top="5.0"/>
@@ -252,143 +261,8 @@
 				</VBox>
 			</children>
 		</HBox>
-		<Separator layoutX="949.0" orientation="VERTICAL" prefHeight="669.0" prefWidth="6.0"/>
-		<Separator layoutX="303.0" orientation="VERTICAL" prefHeight="669.0" prefWidth="6.0"/>
-		<GridPane alignment="TOP_CENTER" layoutX="-3.0" prefHeight="669.0" prefWidth="306.0"
-		          style="-fx-background-color: #1e1f22;">
-			<columnConstraints>
-				<ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308"/>
-				<ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308"/>
-				<ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308"/>
-			</columnConstraints>
-			<rowConstraints>
-				<RowConstraints maxHeight="206.33333333333334" minHeight="0.0" prefHeight="146.0" vgrow="SOMETIMES"/>
-				<RowConstraints maxHeight="234.33333333333337" minHeight="10.0" prefHeight="171.33333333333337"
-				                vgrow="SOMETIMES"/>
-				<RowConstraints maxHeight="226.0" minHeight="10.0" prefHeight="185.33333333333337" vgrow="SOMETIMES"/>
-				<RowConstraints maxHeight="177.9999389648437" minHeight="10.0" prefHeight="139.0" vgrow="SOMETIMES"/>
-				<RowConstraints maxHeight="0.0" minHeight="0.0" prefHeight="0.0"/>
-			</rowConstraints>
-			<children>
-				<VBox alignment="TOP_CENTER" prefHeight="186.0" prefWidth="306.0" GridPane.rowIndex="2">
-					<children>
-						<Label alignment="CENTER" contentDisplay="CENTER" text="¿Quién es más fiable?"
-						       textFill="#cfd0d1" underline="true">
-							<font>
-								<Font size="14.0"/>
-							</font>
-						</Label>
-						<VBox alignment="TOP_CENTER">
-							<children>
-								<Label alignment="CENTER" contentDisplay="CENTER" prefHeight="45.0" prefWidth="271.0"
-								       text="Si tiene menos apuestas hechas y más aciertos, el usuario sabe donde apostar."
-								       textAlignment="CENTER" textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
-									<font>
-										<Font size="13.0"/>
-									</font>
-								</Label>
-								<Label alignment="CENTER" contentDisplay="CENTER" prefHeight="42.0" prefWidth="290.0"
-								       text="⭐ Más apuestas hechas (es + fiable)." textAlignment="CENTER"
-								       textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
-									<VBox.margin>
-										<Insets bottom="10.0"/>
-									</VBox.margin>
-									<font>
-										<Font name="Segoe UI Emoji" size="13.0"/>
-									</font>
-								</Label>
-							</children>
-							<VBox.margin>
-								<Insets top="10.0"/>
-							</VBox.margin>
-						</VBox>
-					</children>
-				</VBox>
-				<Label alignment="CENTER" contentDisplay="CENTER" prefHeight="81.0" prefWidth="306.0"
-				       style="-fx-background-color: #1e1f22;" text="Leyenda:" textFill="#8f99a4" textOverrun="CLIP">
-					<font>
-						<Font name="Arial Rounded MT Bold" size="40.0"/>
-					</font>
-				</Label>
-				<VBox alignment="TOP_CENTER" prefHeight="132.0" prefWidth="306.0" GridPane.rowIndex="3">
-					<children>
-						<Label alignment="CENTER" contentDisplay="CENTER" text="¿Qué son los datos globales?"
-						       textFill="#cfd0d1" underline="true">
-							<font>
-								<Font size="14.0"/>
-							</font>
-						</Label>
-						<VBox alignment="TOP_CENTER">
-							<children>
-								<Label alignment="CENTER" contentDisplay="CENTER" prefHeight="29.0" prefWidth="271.0"
-								       text="Recoge todos los datos de todos los usuarios." textAlignment="CENTER"
-								       textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
-									<font>
-										<Font size="13.0"/>
-									</font>
-								</Label>
-								<Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="271.0"
-								       text="1. Para la hora filtrada." textAlignment="CENTER" textFill="#cfd0d1"
-								       textOverrun="CLIP" wrapText="true">
-									<font>
-										<Font size="13.0"/>
-									</font>
-								</Label>
-								<Label alignment="CENTER" contentDisplay="CENTER" prefHeight="25.0" prefWidth="290.0"
-								       text="2. Para la hora y fecha filtrada." textAlignment="CENTER"
-								       textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
-									<VBox.margin>
-										<Insets bottom="10.0"/>
-									</VBox.margin>
-									<font>
-										<Font size="13.0"/>
-									</font>
-								</Label>
-							</children>
-							<VBox.margin>
-								<Insets top="10.0"/>
-							</VBox.margin>
-						</VBox>
-					</children>
-				</VBox>
-				<VBox alignment="TOP_CENTER" layoutX="10.0" layoutY="330.0" prefHeight="169.0" prefWidth="306.0"
-				      GridPane.rowIndex="1">
-					<children>
-						<Label alignment="CENTER" contentDisplay="CENTER" text="¿Como funcionan los filtros?"
-						       textFill="#cfd0d1" underline="true">
-							<font>
-								<Font size="14.0"/>
-							</font>
-						</Label>
-						<VBox alignment="TOP_CENTER">
-							<children>
-								<Label alignment="CENTER" contentDisplay="CENTER" prefHeight="31.0" prefWidth="273.0"
-								       text="- La hora y la fecha calculan los datos globales." textAlignment="CENTER"
-								       textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
-									<font>
-										<Font size="13.0"/>
-									</font>
-								</Label>
-								<Label alignment="CENTER" contentDisplay="CENTER" prefHeight="51.0" prefWidth="244.0"
-								       text="- El usuario y la ocultación no influyen en los datos globales."
-								       textAlignment="CENTER" textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
-									<VBox.margin>
-										<Insets bottom="10.0"/>
-									</VBox.margin>
-									<font>
-										<Font size="13.0"/>
-									</font>
-								</Label>
-							</children>
-							<VBox.margin>
-								<Insets top="10.0"/>
-							</VBox.margin>
-						</VBox>
-					</children>
-				</VBox>
-			</children>
-		</GridPane>
-		<VBox alignment="TOP_CENTER" layoutX="952.0" layoutY="413.0" prefHeight="256.0" prefWidth="388.0"
+		<Separator layoutX="643.0" layoutY="-1.0" orientation="VERTICAL" prefHeight="669.0" prefWidth="6.0"/>
+		<VBox alignment="TOP_CENTER" layoutX="647.0" layoutY="408.0" prefHeight="261.0" prefWidth="386.0"
 		      style="-fx-background-color: #1e1f22;">
 			<children>
 				<Label alignment="TOP_CENTER" prefHeight="51.0" prefWidth="269.0" text="Ranking global"
@@ -414,11 +288,17 @@
 				</TableView>
 			</children>
 		</VBox>
-		<VBox alignment="CENTER" layoutX="304.0" prefHeight="173.0" prefWidth="646.0"
+		<VBox alignment="CENTER" layoutX="-1.0" layoutY="-1.0" prefHeight="173.0" prefWidth="646.0"
 		      style="-fx-background-color: #313338;">
 			<children>
 				<HBox alignment="CENTER_RIGHT" prefHeight="59.0" prefWidth="646.0">
 					<children>
+						<Button fx:id="buttonMainMiniView" mnemonicParsing="false" prefHeight="26.0" prefWidth="41.0"
+						        text="✂">
+							<font>
+								<Font name="Segoe UI Emoji" size="14.0"/>
+							</font>
+						</Button>
 						<Label alignment="CENTER" contentDisplay="CENTER" prefHeight="61.0" prefWidth="139.0"
 						       style="-fx-background-color: #313338;" text="Filtros" textFill="#8f99a4"
 						       textOverrun="CLIP">
@@ -523,10 +403,13 @@
 						      GridPane.rowIndex="1">
 							<children>
 								<RadioButton fx:id="radioButtonNone" layoutX="10.0" layoutY="26.0"
-								             mnemonicParsing="false" text="💤" textFill="WHITE">
+								             mnemonicParsing="false" text="🔗" textFill="#ffc85a">
 									<padding>
 										<Insets left="5.0" right="10.0"/>
 									</padding>
+									<font>
+										<Font name="Segoe UI Emoji" size="12.0"/>
+									</font>
 								</RadioButton>
 								<RadioButton fx:id="radioButtonMonday" mnemonicParsing="false" text="L"
 								             textFill="WHITE">
