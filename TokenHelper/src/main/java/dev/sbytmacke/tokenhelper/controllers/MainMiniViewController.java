@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class MainMiniViewController {
     private final String noDataTime = "--:--";
@@ -182,6 +183,7 @@ public class MainMiniViewController {
 
         Boolean onFilterByDate = onFilterDataTableByDate(newTime, newDateOfWeek);
         Boolean onFilterByTime = onFilterDataTableByTime(newTime, newDateOfWeek);
+        Boolean onFilterByDateTime = onFilterDataTableByDateTime(newTime, newDateOfWeek);
 
 
         // Ordena la tabla por 'percentSucces'
@@ -199,9 +201,26 @@ public class MainMiniViewController {
         };
         tableUsers.getItems().sort(customComparator); // Aplicamos el comparador personalizado
 
-        if (!onFilterByDate && !onFilterByTime) {
+        if (!onFilterByDateTime && !onFilterByDate && !onFilterByTime) {
             tableUsers.getItems().clear();
         }
+    }
+
+    private Boolean onFilterDataTableByDateTime(String newTime, Integer newDate) {
+        if (!newTime.equals(noDataTime) && newDate != null) {
+            List<UserDTO> usersToShow = userViewModel.getAllByDateTime(newTime, newDate);
+
+            // Eliminamos los rojos
+            usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
+
+            setTopicUsers(usersToShow);
+
+            tableUsers.setSelectionModel(null);
+            tableUsers.getItems().clear();
+            tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
+            return true;
+        }
+        return false;
     }
 
     private Boolean onFilterDataTableByTime(String newTime, Integer newDate) {
@@ -210,6 +229,8 @@ public class MainMiniViewController {
 
             // Eliminamos los rojos
             usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
+
+            setTopicUsers(usersToShow);
 
             tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
@@ -226,6 +247,8 @@ public class MainMiniViewController {
 
             // Eliminamos los rojos
             usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
+
+            setTopicUsers(usersToShow);
 
             tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
@@ -263,6 +286,33 @@ public class MainMiniViewController {
         return newDateOfWeek;
     }
 
+    private void setTopicUsers(List<UserDTO> usersToShow) {
+        List<UserDTO> usersFiltered = usersToShow.stream()
+                .filter(user -> user.getPercentReliable() > 65.00)
+                .sorted(Comparator.comparing(UserDTO::getTotalBets).reversed()) // Ordena por totalBets en orden descendente, buscando los datos más
+                //.sorted(Comparator.comparing(UserDTO::getPercentReliable).reversed()) // Ordena por percentReliable en orden descendente, en caso de quererlo
+                .limit(1)
+                .collect(Collectors.toList());
+
+        if (usersFiltered.isEmpty()) {
+            //Filtramos por naranjas
+            usersFiltered = usersToShow.stream()
+                    .filter(user -> user.getPercentReliable() > 49.00)
+                    .sorted(Comparator.comparing(UserDTO::getTotalBets).reversed()) // Ordena por totalBets en orden descendente, buscando los datos más
+                    //.sorted(Comparator.comparing(UserDTO::getPercentReliable).reversed()) // Ordena por percentReliable en orden descendente, en caso de quererlo
+                    .limit(1)
+                    .collect(Collectors.toList());
+        }
+
+        if (!usersFiltered.isEmpty()) {
+            for (UserDTO user : usersFiltered) {
+                // Lo ponemos el primero de la lista
+                usersToShow.remove(user);
+                user.setUsername(user.getUsername() + " ⭐");
+                usersToShow.add(0, user);
+            }
+        }
+    }
 
 }
 
