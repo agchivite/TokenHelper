@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="TOP_CENTER" style="-fx-background-color: #1e1f22;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dev.sbytmacke.tokenhelper.controllers.MainViewController">
+	<AnchorPane style="-fx-background-color: #8f99a4;" VBox.vgrow="ALWAYS">
+      <children>
+         <GridPane alignment="TOP_CENTER" prefHeight="669.0" prefWidth="306.0" style="-fx-background-color: #1e1f22;">
+            <columnConstraints>
+               <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
+               <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
+               <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
+            </columnConstraints>
+            <rowConstraints>
+               <RowConstraints maxHeight="206.33333333333334" minHeight="0.0" prefHeight="146.0" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="234.33333333333337" minHeight="10.0" prefHeight="171.33333333333337" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="226.0" minHeight="10.0" prefHeight="185.33333333333337" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="177.9999389648437" minHeight="10.0" prefHeight="139.0" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="0.0" minHeight="0.0" prefHeight="0.0" />
+            </rowConstraints>
+            <children>
+               <VBox alignment="TOP_CENTER" prefHeight="186.0" prefWidth="306.0" GridPane.rowIndex="2">
+                  <children>
+                     <Label alignment="CENTER" contentDisplay="CENTER" text="¿Quién es más fiable?" textFill="#cfd0d1" underline="true">
+                        <font>
+                           <Font size="14.0" />
+                        </font>
+                     </Label>
+                     <VBox alignment="TOP_CENTER">
+                        <children>
+                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="45.0" prefWidth="271.0" text="Si tiene menos apuestas hechas y más aciertos, el usuario sabe donde apostar." textAlignment="CENTER" textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
+                              <font>
+                                 <Font size="13.0" />
+                              </font>
+                           </Label>
+                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="42.0" prefWidth="290.0" text="⭐ Más apuestas hechas (es + fiable)." textAlignment="CENTER" textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
+                              <VBox.margin>
+                                 <Insets bottom="10.0" />
+                              </VBox.margin>
+                              <font>
+                                 <Font name="Segoe UI Emoji" size="13.0" />
+                              </font>
+                           </Label>
+                        </children>
+                        <VBox.margin>
+                           <Insets top="10.0" />
+                        </VBox.margin>
+                     </VBox>
+                  </children>
+               </VBox>
+               <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="81.0" prefWidth="306.0" style="-fx-background-color: #1e1f22;" text="Leyenda:" textFill="#8f99a4" textOverrun="CLIP">
+                  <font>
+                     <Font name="Arial Rounded MT Bold" size="40.0" />
+                  </font>
+               </Label>
+               <VBox alignment="TOP_CENTER" prefHeight="132.0" prefWidth="306.0" GridPane.rowIndex="3">
+                  <children>
+                     <Label alignment="CENTER" contentDisplay="CENTER" text="¿Qué son los datos globales?" textFill="#cfd0d1" underline="true">
+                        <font>
+                           <Font size="14.0" />
+                        </font>
+                     </Label>
+                     <VBox alignment="TOP_CENTER">
+                        <children>
+                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="29.0" prefWidth="271.0" text="Recoge todos los datos de todos los usuarios." textAlignment="CENTER" textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
+                              <font>
+                                 <Font size="13.0" />
+                              </font>
+                           </Label>
+                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="271.0" text="1. Para la hora filtrada." textAlignment="CENTER" textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
+                              <font>
+                                 <Font size="13.0" />
+                              </font>
+                           </Label>
+                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="25.0" prefWidth="290.0" text="2. Para la hora y fecha filtrada." textAlignment="CENTER" textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
+                              <VBox.margin>
+                                 <Insets bottom="10.0" />
+                              </VBox.margin>
+                              <font>
+                                 <Font size="13.0" />
+                              </font>
+                           </Label>
+                        </children>
+                        <VBox.margin>
+                           <Insets top="10.0" />
+                        </VBox.margin>
+                     </VBox>
+                  </children>
+               </VBox>
+               <VBox alignment="TOP_CENTER" layoutX="10.0" layoutY="330.0" prefHeight="169.0" prefWidth="306.0" GridPane.rowIndex="1">
+                  <children>
+                     <Label alignment="CENTER" contentDisplay="CENTER" text="¿Como funcionan los filtros?" textFill="#cfd0d1" underline="true">
+                        <font>
+                           <Font size="14.0" />
+                        </font>
+                     </Label>
+                     <VBox alignment="TOP_CENTER">
+                        <children>
+                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="31.0" prefWidth="273.0" text="- La hora y la fecha calculan los datos globales." textAlignment="CENTER" textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
+                              <font>
+                                 <Font size="13.0" />
+                              </font>
+                           </Label>
+                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="51.0" prefWidth="244.0" text="- El usuario y la ocultación no influyen en los datos globales." textAlignment="CENTER" textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
+                              <VBox.margin>
+                                 <Insets bottom="10.0" />
+                              </VBox.margin>
+                              <font>
+                                 <Font size="13.0" />
+                              </font>
+                           </Label>
+                        </children>
+                        <VBox.margin>
+                           <Insets top="10.0" />
+                        </VBox.margin>
+                     </VBox>
+                  </children>
+               </VBox>
+            </children>
+         </GridPane>
+      </children>
+	</AnchorPane>
+</VBox>

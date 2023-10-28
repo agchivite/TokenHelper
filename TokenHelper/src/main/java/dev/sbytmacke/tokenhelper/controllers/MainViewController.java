@@ -112,6 +112,10 @@ public class MainViewController {
     @FXML
     private Label textFinalResultTotalBets;
 
+    public TableView<UserDTO> getTableUsers() {
+        return tableUsers;
+    }
+
     public void init(UserViewModel userViewModel) {
         logger.info("Initializing MainViewController");
         this.userViewModel = userViewModel;
@@ -233,7 +237,7 @@ public class MainViewController {
         buttonMainMiniView.setOnAction(event -> {
             logger.info("Initializing MainMiniView");
             RoutesManager routesManager = new RoutesManager();
-            routesManager.initMainMiniView(tableUsers);
+            routesManager.initMainMiniView(this);
         });
     }
 
@@ -287,6 +291,9 @@ public class MainViewController {
 
     private void initDetails() {
         radioButtonNone.setSelected(true);
+        tableUsers.setSelectionModel(null);
+        tableUsersRanking.setSelectionModel(null);
+
         centerAndFontTextTable();
         setColorsTable();
 
@@ -784,5 +791,9 @@ public class MainViewController {
         radioButtonBad.setSelected(false);
 
         updateAllTables();
+    }
+
+    public UserViewModel getUserViewModel() {
+        return userViewModel;
     }
 }

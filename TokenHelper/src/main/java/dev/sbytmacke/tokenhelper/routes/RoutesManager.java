@@ -4,7 +4,6 @@ import dev.sbytmacke.tokenhelper.AppMain;
 import dev.sbytmacke.tokenhelper.controllers.DataGestorViewController;
 import dev.sbytmacke.tokenhelper.controllers.MainMiniViewController;
 import dev.sbytmacke.tokenhelper.controllers.MainViewController;
-import dev.sbytmacke.tokenhelper.dto.UserDTO;
 import dev.sbytmacke.tokenhelper.repositories.UserRepositoryImpl;
 import dev.sbytmacke.tokenhelper.services.database.DatabaseManagerImpl;
 import dev.sbytmacke.tokenhelper.viewmodel.UserViewModel;
@@ -12,7 +11,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Control;
-import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -102,7 +100,7 @@ public class RoutesManager {
         stage.show();
     }
 
-    public void initMainMiniView(TableView<UserDTO> tableUsers) {
+    public void initMainMiniView(MainViewController mainViewController) {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("main-mini-view.fxml"));
         Scene scene = null;
         try {
@@ -112,7 +110,7 @@ public class RoutesManager {
         }
 
         MainMiniViewController controller = fxmlLoader.getController(); // Obtenemos el controlador
-        controller.init(tableUsers);
+        controller.init(mainViewController);
 
         Stage stage = new Stage();
         stage.setTitle("Mini-view");
