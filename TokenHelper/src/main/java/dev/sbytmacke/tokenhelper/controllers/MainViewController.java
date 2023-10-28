@@ -413,7 +413,7 @@ public class MainViewController {
         tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable(5)));
     }
 
-    private Integer getNewDateOfWeek() {
+    public Integer getNewDateOfWeek() {
         Integer newDateOfWeek = null;
 
         if (radioButtonMonday.isSelected()) {
@@ -795,5 +795,9 @@ public class MainViewController {
 
     public UserViewModel getUserViewModel() {
         return userViewModel;
+    }
+
+    public Integer getIndexComboTimeFilter() {
+        return comboTimeFilter.getSelectionModel().getSelectedIndex();
     }
 }

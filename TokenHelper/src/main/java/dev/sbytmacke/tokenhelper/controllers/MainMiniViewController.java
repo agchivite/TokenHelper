@@ -18,6 +18,7 @@ public class MainMiniViewController {
     private final String noDataTime = "--:--";
     private final List<UserDTO> copyListFromMainView = new ArrayList<>();
     private UserViewModel userViewModel;
+    private MainViewController mainViewController;
     private TableView<UserDTO> tableUsersMainView;
     @FXML
     private TableView<UserDTO> tableUsers;
@@ -47,6 +48,7 @@ public class MainMiniViewController {
     private RadioButton radioButtonSunday;
 
     public void init(MainViewController mainViewController) {
+        this.mainViewController = mainViewController;
         this.userViewModel = mainViewController.getUserViewModel();
         this.tableUsersMainView = mainViewController.getTableUsers();
         initBindings();
@@ -110,7 +112,7 @@ public class MainMiniViewController {
     private void initBindings() {
 
         comboTimeFilter.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
-        comboTimeFilter.getSelectionModel().select(0);
+        comboTimeFilter.getSelectionModel().select(mainViewController.getIndexComboTimeFilter());
 
         // Radio button group
         ToggleGroup toggleGroup = new ToggleGroup();
@@ -122,6 +124,30 @@ public class MainMiniViewController {
         radioButtonFriday.setToggleGroup(toggleGroup);
         radioButtonSaturday.setToggleGroup(toggleGroup);
         radioButtonSunday.setToggleGroup(toggleGroup);
+        if (mainViewController.getNewDateOfWeek() == null) {
+            radioButtonNone.setSelected(true);
+        }
+        if (mainViewController.getNewDateOfWeek() == 1) {
+            radioButtonMonday.setSelected(true);
+        }
+        if (mainViewController.getNewDateOfWeek() == 2) {
+            radioButtonTuesday.setSelected(true);
+        }
+        if (mainViewController.getNewDateOfWeek() == 3) {
+            radioButtonWednesday.setSelected(true);
+        }
+        if (mainViewController.getNewDateOfWeek() == 4) {
+            radioButtonThursday.setSelected(true);
+        }
+        if (mainViewController.getNewDateOfWeek() == 5) {
+            radioButtonFriday.setSelected(true);
+        }
+        if (mainViewController.getNewDateOfWeek() == 6) {
+            radioButtonSaturday.setSelected(true);
+        }
+        if (mainViewController.getNewDateOfWeek() == 7) {
+            radioButtonSunday.setSelected(true);
+        }
 
         columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         columnSuccess.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));

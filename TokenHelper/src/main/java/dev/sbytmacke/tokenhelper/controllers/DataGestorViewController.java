@@ -43,6 +43,8 @@ public class DataGestorViewController {
     private RadioButton radioButtonReliableFilter;
     @FXML
     private RadioButton radioButtonNoReliableFilter;
+    @FXML
+    private Button buttonClearFilters;
 
     /* Table */
     @FXML
@@ -71,6 +73,17 @@ public class DataGestorViewController {
     }
 
     private void initEvents() {
+
+        buttonClearFilters.setOnAction(event -> {
+            textSearchUserFilter.setText("");
+            datePickerFilter.setValue(null);
+            comboTimeFilter.getSelectionModel().select(0);
+            radioButtonReliableFilter.setSelected(false);
+            radioButtonNoReliableFilter.setSelected(false);
+
+            updateAllTables();
+        });
+
         // Filters
         textSearchUserFilter.setOnKeyReleased(event -> updateAllTables());
         comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> updateAllTables());
