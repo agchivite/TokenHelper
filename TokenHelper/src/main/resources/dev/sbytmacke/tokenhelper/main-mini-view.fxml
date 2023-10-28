@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
@@ -100,7 +101,6 @@
                </HBox>
             </children>
          </VBox>
-         <ComboBox fx:id="comboTimeFilter" prefHeight="25.0" prefWidth="146.0" style="-fx-background-color: #1e1f22; -fx-control-inner-background: #1e1f22;" GridPane.columnIndex="1" />
          <HBox alignment="CENTER_LEFT" prefHeight="61.0" prefWidth="104.0">
             <children>
                <Label text="Hora (hh:mm):" textFill="#cfd0d1">
@@ -115,6 +115,20 @@
                <Insets left="10.0" />
             </GridPane.margin>
          </Label>
+         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1">
+            <children>
+               <ComboBox fx:id="comboTimeFilter" prefHeight="25.0" prefWidth="117.0" style="-fx-background-color: #1e1f22; -fx-control-inner-background: #1e1f22;">
+                  <HBox.margin>
+                     <Insets right="10.0" />
+                  </HBox.margin>
+               </ComboBox>
+               <Button fx:id="buttonClearFilters" mnemonicParsing="false" prefHeight="26.0" prefWidth="41.0" text="🌀">
+                  <font>
+                     <Font name="Segoe UI Emoji" size="14.0" />
+                  </font>
+               </Button>
+            </children>
+         </HBox>
       </children>
       <VBox.margin>
          <Insets top="10.0" />
