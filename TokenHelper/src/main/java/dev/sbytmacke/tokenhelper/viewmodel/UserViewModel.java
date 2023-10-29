@@ -145,4 +145,9 @@ public class UserViewModel {
         logger.info("deleteUser");
         repository.deleteItem(user);
     }
+
+    public void updateUsername(String oldUsername, String newUsername) {
+        logger.info("updateUsername");
+        repository.updateUsername(oldUsername, newUsername);
+    }
 }

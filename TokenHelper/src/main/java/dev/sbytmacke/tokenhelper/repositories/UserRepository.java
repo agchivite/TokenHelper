@@ -31,5 +31,7 @@ public interface UserRepository<U, N> extends Repository<U, N> {
     List<N> getAllUsernamesWithoutRepeat();
 
     void deleteItem(U user);
+
+    void updateUsername(N oldUsername, N newUsername);
 }
 

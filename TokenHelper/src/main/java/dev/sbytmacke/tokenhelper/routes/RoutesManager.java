@@ -4,6 +4,7 @@ import dev.sbytmacke.tokenhelper.AppMain;
 import dev.sbytmacke.tokenhelper.controllers.DataGestorViewController;
 import dev.sbytmacke.tokenhelper.controllers.MainMiniViewController;
 import dev.sbytmacke.tokenhelper.controllers.MainViewController;
+import dev.sbytmacke.tokenhelper.controllers.UpdateViewController;
 import dev.sbytmacke.tokenhelper.repositories.UserRepositoryImpl;
 import dev.sbytmacke.tokenhelper.services.database.DatabaseManagerImpl;
 import dev.sbytmacke.tokenhelper.viewmodel.UserViewModel;
@@ -16,7 +17,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.Locale;
 
 public class RoutesManager {
 
@@ -25,8 +25,8 @@ public class RoutesManager {
     private static Scene _activeScene;
     UserViewModel userViewModel = new UserViewModel(new UserRepositoryImpl(new DatabaseManagerImpl())); // Acoplamiento
 
-    public static Locale getScene() {
-        return null;
+    public static Stage getMainStage() {
+        return _mainStage;
     }
 
     public void initMainView(Stage stage) throws IOException {
@@ -66,27 +66,18 @@ public class RoutesManager {
 
         stage.setScene(scene);
         stage.initOwner(_mainStage);
-        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initModality(Modality.NONE); // Para poder interactuar con la pantalla principal
 
         stage.show();
-    }
-
-    public Stage getMainStage() {
-        return _mainStage;
     }
 
     public Stage getActiveStage() {
         return _activeStage;
     }
 
-    public void initLeyendaView() {
+    public void initLeyendaView() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("leyenda-view.fxml"));
-        Scene scene = null;
-        try {
-            scene = new Scene(fxmlLoader.load());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Scene scene = new Scene(fxmlLoader.load());
 
         Stage stage = new Stage();
         stage.setTitle("Leyenda");
@@ -95,19 +86,14 @@ public class RoutesManager {
 
         stage.setScene(scene);
         stage.initOwner(_mainStage);
-        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initModality(Modality.NONE); // Para poder interactuar con la pantalla principal
 
         stage.show();
     }
 
-    public void initMainMiniView(MainViewController mainViewController) {
+    public void initMainMiniView(MainViewController mainViewController) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("main-mini-view.fxml"));
-        Scene scene = null;
-        try {
-            scene = new Scene(fxmlLoader.load());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Scene scene = new Scene(fxmlLoader.load());
 
         MainMiniViewController controller = fxmlLoader.getController(); // Obtenemos el controlador
         controller.init(mainViewController);
@@ -126,6 +112,26 @@ public class RoutesManager {
         stage.initOwner(_mainStage);
 
         _mainStage.hide();
+        stage.show();
+    }
+
+    public void initUpdateView(MainViewController mainViewController) throws IOException {
+
+        FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("update-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+
+        UpdateViewController controller = fxmlLoader.getController();
+        controller.init(mainViewController);
+
+        Stage stage = new Stage();
+        stage.setTitle("Actualizar datos");
+        stage.setResizable(false);
+        stage.getIcons().add(new Image("/dev/sbytmacke/tokenhelper/icons/main_icon.png"));
+
+        stage.setScene(scene);
+        stage.initOwner(_mainStage);
+        stage.initModality(Modality.WINDOW_MODAL);
+
         stage.show();
     }
 }

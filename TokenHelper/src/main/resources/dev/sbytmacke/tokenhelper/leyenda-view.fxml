@@ -40,7 +40,7 @@
                                  <Font size="13.0" />
                               </font>
                            </Label>
-                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="42.0" prefWidth="290.0" text="⭐ Más apuestas hechas (es + fiable)." textAlignment="CENTER" textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
+                           <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="42.0" prefWidth="290.0" text="⭐ Más apuestas y aciertos (es + fiable)." textAlignment="CENTER" textFill="#cfd0d1" textOverrun="CLIP" wrapText="true">
                               <VBox.margin>
                                  <Insets bottom="10.0" />
                               </VBox.margin>

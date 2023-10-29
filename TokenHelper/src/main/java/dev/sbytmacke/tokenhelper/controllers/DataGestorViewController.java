@@ -1,6 +1,7 @@
 package dev.sbytmacke.tokenhelper.controllers;
 
 import dev.sbytmacke.tokenhelper.models.UserEntity;
+import dev.sbytmacke.tokenhelper.routes.RoutesManager;
 import dev.sbytmacke.tokenhelper.utils.DateFormatterUtils;
 import dev.sbytmacke.tokenhelper.utils.TimeUtils;
 import dev.sbytmacke.tokenhelper.viewmodel.UserViewModel;
@@ -15,6 +16,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -266,10 +268,10 @@ public class DataGestorViewController {
                     UserEntity user = getTableView().getItems().get(getIndex());
 
                     // Crear una imagen y agregarla al diálogo
-                    Image image = new Image(getClass().getResource("/dev/sbytmacke/tokenhelper/icons/borrar.png").toExternalForm()); // Reemplaza con la ruta de tu imagen
+                    Image image = new Image(getClass().getResource("/dev/sbytmacke/tokenhelper/icons/borrar.png").toExternalForm());
                     ImageView imageView = new ImageView(image);
-                    imageView.setFitHeight(100); // Ajusta el alto de la imagen según tus necesidades
-                    imageView.setFitWidth(100); // Ajusta el ancho de la imagen según tus necesidades
+                    imageView.setFitHeight(100);
+                    imageView.setFitWidth(100);
 
                     Dialog dialog = new Dialog();
                     dialog.setGraphic(imageView);
@@ -286,6 +288,10 @@ public class DataGestorViewController {
                     // Establecer el ancho del diálogo
                     dialog.getDialogPane().setMinWidth(300); // Establece el ancho mínimo
                     dialog.getDialogPane().setPrefWidth(300); // Establece el ancho preferido
+
+                    // Heredar el ícono de la ventana principal
+                    Stage dialogStage = (Stage) dialog.getDialogPane().getScene().getWindow();
+                    dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
 
                     dialog.showAndWait().ifPresent(response -> {
                         if (response == ButtonType.OK) {
