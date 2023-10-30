@@ -4,7 +4,9 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import dev.sbytmacke.tokenhelper.dto.UserDTO;
 import dev.sbytmacke.tokenhelper.mappers.UserMapper;
 import dev.sbytmacke.tokenhelper.models.UserEntity;
@@ -426,4 +428,29 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
         databaseManager.closeDatabase();
     }
 
+    @Override
+    public void updateUsername(String oldUsername, String newUsername) {
+        logger.info("updateUsername " + oldUsername + " to " + newUsername);
+
+        databaseManager.connectDatabase();
+
+        MongoCollection<Document> collection = databaseManager.getDatabase().getCollection(COLLECTION_NAME);
+
+        // Crear un filtro para encontrar los documentos con el nombre de usuario antiguo
+        Bson filter = Filters.eq(FIELD_USERNAME, oldUsername);
+
+        // Crear una actualización para cambiar el valor del nombre de usuario
+        Bson update = Updates.set(FIELD_USERNAME, newUsername);
+
+        // Ejecutar la actualización en todos los documentos que coincidan con el filtro
+        UpdateResult updateResult = collection.updateMany(filter, update);
+
+        if (updateResult.getModifiedCount() > 0) {
+            logger.info("Usuarios actualizados con éxito: " + updateResult.getModifiedCount());
+        } else {
+            logger.info("No se encontraron usuarios para actualizar con el nombre de usuario antiguo: " + oldUsername);
+        }
+
+        databaseManager.closeDatabase();
+    }
 }

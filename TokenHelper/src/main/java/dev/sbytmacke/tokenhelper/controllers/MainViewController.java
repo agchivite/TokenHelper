@@ -25,15 +25,26 @@ import java.util.stream.Collectors;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
 public class MainViewController {
+    private static final int NUM_USERS_TO_SHOW_RANKING = 6;
     private final String noDataTime = "--:--";
     Logger logger = LoggerFactory.getLogger(getClass());
     // Almacenar la fecha actual y la fecha anterior
     LocalDate savedDate = null;
     private UserViewModel userViewModel;
+
+    @FXML
+    private Button buttonMainMiniView;
     // Menu
     @FXML
     private MenuItem menuDeleteData;
+    @FXML
+    private MenuItem menuLeyenda;
+    @FXML
+    private MenuItem menuUpdateData;
+
     /* Create user */
+    @FXML
+    private Button buttonCleanSaveUsername;
     @FXML
     private TextField textFieldUser;
     private ContextMenu contextMenu;
@@ -76,8 +87,6 @@ public class MainViewController {
     private RadioButton radioButtonSaturday;
     @FXML
     private RadioButton radioButtonSunday;
-
-
     /* Table General */
     @FXML
     private TableView<UserDTO> tableUsers;
@@ -107,16 +116,30 @@ public class MainViewController {
     @FXML
     private Label textFinalResultTotalBets;
 
+    public TableView<UserDTO> getTableUsers() {
+        return tableUsers;
+    }
+
     public void init(UserViewModel userViewModel) {
         logger.info("Initializing MainViewController");
         this.userViewModel = userViewModel;
-        initEvents();
         initBindings();
         initDetails();
+        initEvents();
     }
 
     private void initEvents() {
         logger.info("Initializing Events");
+
+        tableUsers.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) { // Doble clic
+                UserDTO user = tableUsers.getSelectionModel().getSelectedItem();
+                if (user != null) {
+                    System.out.println("Doble clic en: " + user.getUsername());
+                }
+            }
+        });
+        buttonCleanSaveUsername.setOnAction(event -> textFieldUser.setText(null));
 
         buttonClearFilters.setOnAction(event -> {
             textSearchUserFilter.setText("");
@@ -136,7 +159,21 @@ public class MainViewController {
 
         DateFormatterUtils dateFormatterUtils = new DateFormatterUtils();
 
-        menuDeleteData.setOnAction(event -> onDeleteMenuAction());
+        menuDeleteData.setOnAction(event -> onDataGestorMenuAction());
+        menuLeyenda.setOnAction(event -> {
+            try {
+                onLeyendaMenuAction();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        menuUpdateData.setOnAction(event -> {
+            try {
+                onUpdateMenuAction();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         buttonCreateUser.setOnAction(event -> {
             saveUser();
@@ -220,13 +257,30 @@ public class MainViewController {
             }
             contextMenu.hide();
         });
+
+        // Al final para que se actualice la tabla principal
+        buttonMainMiniView.setOnAction(event -> {
+            logger.info("Initializing MainMiniView");
+            RoutesManager routesManager = new RoutesManager();
+            try {
+                routesManager.initMainMiniView(this);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    private void onUpdateMenuAction() throws IOException {
+        logger.info("Initializing Update View");
+        RoutesManager routesManager = new RoutesManager();
+        routesManager.initUpdateView(this);
     }
 
     private void initBindings() {
         logger.info("Initializing Bindings");
 
         // Table Ranking Global
-        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable(5)));
+        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable(NUM_USERS_TO_SHOW_RANKING)));
 
         columnUsernameRanking.setCellValueFactory(new PropertyValueFactory<>("username"));
         columnSuccessRanking.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
@@ -271,6 +325,9 @@ public class MainViewController {
     }
 
     private void initDetails() {
+        radioButtonNone.setSelected(true);
+        tableUsersRanking.setSelectionModel(null);
+
         centerAndFontTextTable();
         setColorsTable();
 
@@ -328,6 +385,8 @@ public class MainViewController {
         for (int i = 0; i < tableUsers.getColumns().size(); i++) {
             tableUsers.getColumns().get(i).setStyle("-fx-alignment: CENTER; -fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 14px;");
         }
+        tableUsers.getColumns().get(0).setStyle("-fx-alignment: CENTER; -fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 15px; ");
+
         for (int i = 0; i < tableUsersRanking.getColumns().size(); i++) {
             tableUsersRanking.getColumns().get(i).setStyle("-fx-alignment: CENTER;");
         }
@@ -380,15 +439,14 @@ public class MainViewController {
         tableUsers.getItems().sort(customComparator); // Aplicamos el comparador personalizado
 
         if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
         }
 
         // Actualizamos el ranking general
-        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable(5)));
+        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable(NUM_USERS_TO_SHOW_RANKING)));
     }
 
-    private Integer getNewDateOfWeek() {
+    public Integer getNewDateOfWeek() {
         Integer newDateOfWeek = null;
 
         if (radioButtonMonday.isSelected()) {
@@ -504,8 +562,14 @@ public class MainViewController {
         textFinalResultDate.setTextFill(Color.WHITE);
     }
 
-    private void onDeleteMenuAction() {
-        logger.info("Initializing windows delete view");
+    private void onLeyendaMenuAction() throws IOException {
+        logger.info("Initializing leyenda view");
+        RoutesManager routesManager = new RoutesManager();
+        routesManager.initLeyendaView();
+    }
+
+    private void onDataGestorMenuAction() {
+        logger.info("Initializing data gestor view");
         RoutesManager routesManager = new RoutesManager();
         try {
             routesManager.intiDataGestorView(this);
@@ -545,7 +609,6 @@ public class MainViewController {
             setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
@@ -590,7 +653,6 @@ public class MainViewController {
             setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -607,7 +669,6 @@ public class MainViewController {
             setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -640,7 +701,6 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
@@ -662,7 +722,6 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -682,7 +741,6 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -760,5 +818,13 @@ public class MainViewController {
         radioButtonBad.setSelected(false);
 
         updateAllTables();
+    }
+
+    public UserViewModel getUserViewModel() {
+        return userViewModel;
+    }
+
+    public Integer getIndexComboTimeFilter() {
+        return comboTimeFilter.getSelectionModel().getSelectedIndex();
     }
 }
