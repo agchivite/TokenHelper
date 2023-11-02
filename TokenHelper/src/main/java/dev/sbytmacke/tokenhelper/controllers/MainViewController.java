@@ -25,7 +25,9 @@ import java.util.stream.Collectors;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
 public class MainViewController {
-    private static final int NUM_USERS_TO_SHOW_RANKING = 6;
+    private static final int NUM_USERS_TO_SHOW_RANKING = 20;
+    private static final double PERCENT_SUCCESS_RANKING_TO_SHOW = 51.0;
+
     private final String noDataTime = "--:--";
     Logger logger = LoggerFactory.getLogger(getClass());
     // Almacenar la fecha actual y la fecha anterior
@@ -128,17 +130,61 @@ public class MainViewController {
         initEvents();
     }
 
+    private void initBindings() {
+        logger.info("Initializing Bindings");
+
+        // Table Ranking Global
+        List<UserDTO> filterTopUsersReliable = filterTopUsersReliable();
+        List<UserDTO> listedUsers = listUsers(filterTopUsersReliable);
+        tableUsersRanking.setItems(FXCollections.observableArrayList(listedUsers));
+        orderByTotalBetsAndSuccesRanking();
+
+        columnUsernameRanking.setCellValueFactory(new PropertyValueFactory<>("username"));
+        columnSuccessRanking.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
+        columnTotalBetsRanking.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
+
+        // ComboTime
+        comboTime.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
+        comboTime.getSelectionModel().select(0);
+
+        // ComboTimeFilter
+        comboTimeFilter.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
+        comboTimeFilter.getSelectionModel().select(0);
+
+        columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
+        columnSuccess.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
+        columnTotalBets.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
+
+        ToggleGroup toggleGroup = new ToggleGroup();
+        radioButtonGood.setToggleGroup(toggleGroup);
+        radioButtonBad.setToggleGroup(toggleGroup);
+
+        ToggleGroup toggleGroupDaysOfWeek = new ToggleGroup();
+        radioButtonNone.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonMonday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonTuesday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonWednesday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonThursday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonFriday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonSaturday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonSunday.setToggleGroup(toggleGroupDaysOfWeek);
+    }
+
+    private void initDetails() {
+        radioButtonNone.setSelected(true);
+        tableUsers.setSelectionModel(null);
+        tableUsersRanking.setSelectionModel(null);
+
+        centerAndFontTextTable();
+        setColorsTable();
+
+        comboTimeFilter.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
+        comboTime.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
+    }
+
     private void initEvents() {
         logger.info("Initializing Events");
 
-        tableUsers.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) { // Doble clic
-                UserDTO user = tableUsers.getSelectionModel().getSelectedItem();
-                if (user != null) {
-                    System.out.println("Doble clic en: " + user.getUsername());
-                }
-            }
-        });
         buttonCleanSaveUsername.setOnAction(event -> textFieldUser.setText(null));
 
         buttonClearFilters.setOnAction(event -> {
@@ -276,63 +322,24 @@ public class MainViewController {
         routesManager.initUpdateView(this);
     }
 
-    private void initBindings() {
-        logger.info("Initializing Bindings");
-
-        // Table Ranking Global
-        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable(NUM_USERS_TO_SHOW_RANKING)));
-
-        columnUsernameRanking.setCellValueFactory(new PropertyValueFactory<>("username"));
-        columnSuccessRanking.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
-        columnTotalBetsRanking.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
-
-        // ComboTime
-        comboTime.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
-        comboTime.getSelectionModel().select(0);
-
-        // ComboTimeFilter
-        comboTimeFilter.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
-        comboTimeFilter.getSelectionModel().select(0);
-
-        columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
-        columnSuccess.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
-        columnTotalBets.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
-
-        ToggleGroup toggleGroup = new ToggleGroup();
-        radioButtonGood.setToggleGroup(toggleGroup);
-        radioButtonBad.setToggleGroup(toggleGroup);
-
-        ToggleGroup toggleGroupDaysOfWeek = new ToggleGroup();
-        radioButtonNone.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonMonday.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonTuesday.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonWednesday.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonThursday.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonFriday.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonSaturday.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonSunday.setToggleGroup(toggleGroupDaysOfWeek);
+    private List<UserDTO> listUsers(List<UserDTO> filterTopUsersReliable) {
+        // Asigna al nombre de los usuarios su posición en el ranking
+        for (int i = 0; i < filterTopUsersReliable.size(); i++) {
+            UserDTO user = filterTopUsersReliable.get(i);
+            user.setUsername(" " + (i + 1) + ".  " + user.getUsername());
+        }
+        return filterTopUsersReliable;
     }
 
-    private List<UserDTO> filterTopUsersReliable(int numberUsersToShow) {
+    private List<UserDTO> filterTopUsersReliable() {
         List<UserDTO> usersToFilter = userViewModel.getAll();
 
         return usersToFilter.stream()
-                .filter(user -> user.getPercentReliable() > 49.00) // Filtra usuarios fiables
+                .filter(user -> user.getPercentReliable() >= PERCENT_SUCCESS_RANKING_TO_SHOW) // Filtra usuarios fiables
                 .sorted(Comparator.comparing(UserDTO::getTotalBets).reversed()) // Ordena por totalBets en orden descendente, buscando los datos más reales
-                .limit(numberUsersToShow)
+                .limit(NUM_USERS_TO_SHOW_RANKING)
                 //.sorted(Comparator.comparing(UserDTO::getPercentReliable).reversed()) // Ordena por percentReliable en orden descendente, en caso de quererlo
                 .collect(Collectors.toList());
-    }
-
-    private void initDetails() {
-        radioButtonNone.setSelected(true);
-        tableUsersRanking.setSelectionModel(null);
-
-        centerAndFontTextTable();
-        setColorsTable();
-
-        comboTimeFilter.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
-        comboTime.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
     }
 
     private void setColorsTable() {
@@ -387,9 +394,9 @@ public class MainViewController {
         }
         tableUsers.getColumns().get(0).setStyle("-fx-alignment: CENTER; -fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 15px; ");
 
-        for (int i = 0; i < tableUsersRanking.getColumns().size(); i++) {
-            tableUsersRanking.getColumns().get(i).setStyle("-fx-alignment: CENTER;");
-        }
+        tableUsersRanking.getColumns().get(0).setStyle("-fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 15px; ");
+        tableUsersRanking.getColumns().get(1).setStyle("-fx-alignment: CENTER;");
+        tableUsersRanking.getColumns().get(2).setStyle("-fx-alignment: CENTER;");
     }
 
     private List<String> filterSuggestionsList(String input) {
@@ -436,14 +443,37 @@ public class MainViewController {
                 return Integer.compare(user2.getTotalBets(), user1.getTotalBets());
             }
         };
+
         tableUsers.getItems().sort(customComparator); // Aplicamos el comparador personalizado
 
         if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
         }
 
         // Actualizamos el ranking general
-        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable(NUM_USERS_TO_SHOW_RANKING)));
+        List<UserDTO> filterTopUsersReliable = filterTopUsersReliable();
+        List<UserDTO> listedUsers = listUsers(filterTopUsersReliable);
+        tableUsersRanking.setItems(FXCollections.observableArrayList(listedUsers));
+        orderByTotalBetsAndSuccesRanking();
+    }
+
+    private void orderByTotalBetsAndSuccesRanking() {
+        // Ordena la tabla por 'totalBets'
+        tableUsersRanking.getSortOrder().setAll(columnTotalBetsRanking);
+
+        // Y para aquellos que tengan el mismo totalBets, ordena por 'percentSuccess'
+        Comparator<UserDTO> customComparatorRanking = (user1, user2) -> {
+            if (user1.getTotalBets() == user2.getTotalBets()) {
+                // Si los totalBets son iguales, ordénalos por percentSuccess
+                return Double.compare(user2.getPercentReliable(), user1.getPercentReliable());
+            } else {
+                // Si los totalBets no son iguales, ordénalos por totalBets
+                return Integer.compare(user2.getTotalBets(), user1.getTotalBets());
+            }
+        };
+
+        tableUsersRanking.getItems().sort(customComparatorRanking); // Aplicamos el comparador personalizado
     }
 
     public Integer getNewDateOfWeek() {
@@ -609,6 +639,7 @@ public class MainViewController {
             setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
@@ -653,6 +684,7 @@ public class MainViewController {
             setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -669,6 +701,7 @@ public class MainViewController {
             setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -701,6 +734,7 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
@@ -722,6 +756,7 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -741,6 +776,7 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;

@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" alignment="TOP_CENTER" style="-fx-background-color: #1e1f22;"
-	  xmlns="http://javafx.com/javafx/17.0.2-ea" fx:controller="dev.sbytmacke.tokenhelper.controllers.MainViewController">
+      xmlns="http://javafx.com/javafx/17.0.2-ea" fx:controller="dev.sbytmacke.tokenhelper.controllers.MainViewController">
     <MenuBar style="-fx-background-color: #8f99a4;">
         <menus>
             <Menu mnemonicParsing="false" text="Menú">
@@ -280,7 +280,7 @@
                         <Insets top="15.0"/>
                     </VBox.margin>
                 </Label>
-                <TableView fx:id="tableUsersRanking" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="173.0"
+                <TableView fx:id="tableUsersRanking" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="180.0"
                            prefWidth="356.0" style="-fx-background-color: #1e1f22;">
                     <columns>
                         <TableColumn fx:id="columnUsernameRanking" editable="false" prefWidth="113.6666259765625"
