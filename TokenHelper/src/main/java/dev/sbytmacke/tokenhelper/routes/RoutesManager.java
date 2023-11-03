@@ -26,6 +26,7 @@ public class RoutesManager {
     private static Stage _mainStage;
     private static Stage _activeStage;
     private static Scene _activeScene;
+    private final String pathMainPng = "/dev/sbytmacke/tokenhelper/icons/main_icon.png";
     Logger logger = LoggerFactory.getLogger(getClass());
     UserViewModel userViewModel = new UserViewModel(new UserRepositoryImpl(new DatabaseManagerImpl())); // Acoplamiento
 
@@ -40,11 +41,11 @@ public class RoutesManager {
         MainViewController controller = fxmlLoader.getController(); // Obtenemos el controlador
         controller.init(userViewModel); // Inyección de dependencias desde el DatabaseManager hasta el Controller
 
-        Scene scene = new Scene(root, Control.USE_COMPUTED_SIZE, 810);
+        Scene scene = new Scene(root, Control.USE_COMPUTED_SIZE, 500); //810
         stage.setResizable(false);
         stage.setTitle("TokenHelper");
         // Agregar un icono a la ventana
-        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm()));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource(pathMainPng)).toExternalForm()));
 
         _mainStage = stage;
         _activeStage = stage;
@@ -66,7 +67,7 @@ public class RoutesManager {
         Stage stage = new Stage();
         stage.setTitle("Visualizador de datos");
         stage.setResizable(false);
-        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm()));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource(pathMainPng)).toExternalForm()));
 
         stage.setScene(scene);
         stage.initOwner(_mainStage);
@@ -86,7 +87,7 @@ public class RoutesManager {
         Stage stage = new Stage();
         stage.setTitle("Leyenda");
         stage.setResizable(false);
-        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm()));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource(pathMainPng)).toExternalForm()));
 
         stage.setScene(scene);
         stage.initOwner(_mainStage);
@@ -105,7 +106,7 @@ public class RoutesManager {
         Stage stage = new Stage();
         stage.setTitle("Mini-view");
         stage.setResizable(true);
-        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm()));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource(pathMainPng)).toExternalForm()));
 
         // EventHandler para el evento de cierre de la ventana
         stage.setOnCloseRequest(event -> {
@@ -130,7 +131,7 @@ public class RoutesManager {
         Stage stage = new Stage();
         stage.setTitle("Actualizar datos");
         stage.setResizable(false);
-        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm()));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource(pathMainPng)).toExternalForm()));
 
         stage.setScene(scene);
         stage.initOwner(_mainStage);
