@@ -15,14 +15,18 @@ import javafx.scene.control.Control;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class RoutesManager {
 
     private static Stage _mainStage;
     private static Stage _activeStage;
     private static Scene _activeScene;
+    Logger logger = LoggerFactory.getLogger(getClass());
     UserViewModel userViewModel = new UserViewModel(new UserRepositoryImpl(new DatabaseManagerImpl())); // Acoplamiento
 
     public static Stage getMainStage() {
@@ -40,7 +44,7 @@ public class RoutesManager {
         stage.setResizable(false);
         stage.setTitle("TokenHelper");
         // Agregar un icono a la ventana
-        stage.getIcons().add(new Image("/dev/sbytmacke/tokenhelper/icons/main_icon.png"));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm()));
 
         _mainStage = stage;
         _activeStage = stage;
@@ -62,7 +66,7 @@ public class RoutesManager {
         Stage stage = new Stage();
         stage.setTitle("Visualizador de datos");
         stage.setResizable(false);
-        stage.getIcons().add(new Image("/dev/sbytmacke/tokenhelper/icons/main_icon.png"));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm()));
 
         stage.setScene(scene);
         stage.initOwner(_mainStage);
@@ -82,7 +86,7 @@ public class RoutesManager {
         Stage stage = new Stage();
         stage.setTitle("Leyenda");
         stage.setResizable(false);
-        stage.getIcons().add(new Image("/dev/sbytmacke/tokenhelper/icons/main_icon.png"));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm()));
 
         stage.setScene(scene);
         stage.initOwner(_mainStage);
@@ -101,7 +105,7 @@ public class RoutesManager {
         Stage stage = new Stage();
         stage.setTitle("Mini-view");
         stage.setResizable(true);
-        stage.getIcons().add(new Image("/dev/sbytmacke/tokenhelper/icons/main_icon.png"));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm()));
 
         // EventHandler para el evento de cierre de la ventana
         stage.setOnCloseRequest(event -> {
@@ -126,7 +130,7 @@ public class RoutesManager {
         Stage stage = new Stage();
         stage.setTitle("Actualizar datos");
         stage.setResizable(false);
-        stage.getIcons().add(new Image("/dev/sbytmacke/tokenhelper/icons/main_icon.png"));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm()));
 
         stage.setScene(scene);
         stage.initOwner(_mainStage);

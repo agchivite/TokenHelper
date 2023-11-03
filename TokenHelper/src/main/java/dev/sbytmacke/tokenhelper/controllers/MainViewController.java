@@ -326,7 +326,7 @@ public class MainViewController {
         // Asigna al nombre de los usuarios su posición en el ranking
         for (int i = 0; i < filterTopUsersReliable.size(); i++) {
             UserDTO user = filterTopUsersReliable.get(i);
-            user.setUsername(" " + (i + 1) + ".  " + user.getUsername());
+            user.setUsername("        " + (i + 1) + ".  " + user.getUsername());
         }
         return filterTopUsersReliable;
     }
@@ -394,7 +394,7 @@ public class MainViewController {
         }
         tableUsers.getColumns().get(0).setStyle("-fx-alignment: CENTER; -fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 15px; ");
 
-        tableUsersRanking.getColumns().get(0).setStyle("-fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 15px; ");
+        tableUsersRanking.getColumns().get(0).setStyle("-fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 14px; ");
         tableUsersRanking.getColumns().get(1).setStyle("-fx-alignment: CENTER;");
         tableUsersRanking.getColumns().get(2).setStyle("-fx-alignment: CENTER;");
     }

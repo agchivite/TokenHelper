@@ -283,13 +283,12 @@
                 <TableView fx:id="tableUsersRanking" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="180.0"
                            prefWidth="356.0" style="-fx-background-color: #1e1f22;">
                     <columns>
-                        <TableColumn fx:id="columnUsernameRanking" editable="false" prefWidth="113.6666259765625"
-                                     resizable="false" sortable="false" text="Usuario"/>
-                        <TableColumn fx:id="columnSuccessRanking" editable="false" minWidth="0.0"
-                                     prefWidth="112.6666259765625" resizable="false" sortType="DESCENDING"
-                                     sortable="false" text="\% Aciertos "/>
-                        <TableColumn fx:id="columnTotalBetsRanking" editable="false" minWidth="0.0" prefWidth="126.0"
-                                     resizable="false" sortable="false" text="Total Apuestas"/>
+                        <TableColumn fx:id="columnUsernameRanking" editable="false" prefWidth="187.0" sortable="false"
+                                     text="Usuario"/>
+                        <TableColumn fx:id="columnSuccessRanking" editable="false" minWidth="0.0" prefWidth="79.0"
+                                     sortType="DESCENDING" sortable="false" text="\% Aciertos "/>
+                        <TableColumn fx:id="columnTotalBetsRanking" editable="false" minWidth="0.0" prefWidth="75.0"
+                                     sortable="false" text="Apuestas"/>
                     </columns>
                 </TableView>
             </children>
