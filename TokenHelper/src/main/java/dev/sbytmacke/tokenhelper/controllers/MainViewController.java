@@ -20,8 +20,7 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -433,34 +432,83 @@ public class MainViewController {
         }
 
         try {
-            // Comando PowerShell y ubicación del script
-            String command = "powershell.exe";
-            String path = Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/scripts/backup.ps1")).toExternalForm();
+            // Obtiene la ruta del script desde el archivo JAR
+            String scriptPathInJar = "/dev/sbytmacke/tokenhelper/scripts/backup.ps1";
+            InputStream scriptInputStream = getClass().getResourceAsStream(scriptPathInJar);
 
-            // Parámetros que deseas pasar al script
-            String param1 = "-ExecutionPolicy";
-            String param2 = "Bypass";
-            String param3 = "-File";
+            // Crea un archivo temporal para almacenar el script
+            File tempScriptFile = File.createTempFile("backup", ".ps1");
+            tempScriptFile.deleteOnExit();
 
-            // Construir el proceso con argumentos
-            ProcessBuilder processBuilder = new ProcessBuilder(command, path);
-            processBuilder.redirectErrorStream(true); // Redirigir la salida de error a la salida estándar
+            // Copia el contenido del script desde el recurso dentro del archivo JAR al archivo temporal
+            try (FileOutputStream fileOutputStream = new FileOutputStream(tempScriptFile)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = scriptInputStream.read(buffer)) != -1) {
+                    fileOutputStream.write(buffer, 0, bytesRead);
+                }
+            }
 
-            Process process = processBuilder.start();
-            process.waitFor();
+            // Obtiene la ruta del archivo temporal
+            String scriptPath = tempScriptFile.getAbsolutePath();
 
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            String command = "powershell.exe -ExecutionPolicy Bypass -File " + scriptPath;
+            Process process = Runtime.getRuntime().exec(command);
 
-            // Heredar el ícono de la ventana principal
-            Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
-            dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
 
-            alert.setTitle("Backup");
-            alert.setHeaderText("Backup ✅");
-            alert.setContentText("Backup realizado correctamente");
-            alert.showAndWait();
+            // Capturar la salida estándar y la de error
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
-            logger.info("Backup correctly done");
+            String outputLine;
+
+            // Leer y mostrar la salida estándar
+            while ((outputLine = stdInput.readLine()) != null) {
+                System.out.println(outputLine);
+            }
+
+            // Leer y mostrar la salida de error
+            while ((outputLine = stdError.readLine()) != null) {
+                System.err.println(outputLine);
+            }
+
+            // Esperar a que termine el proceso
+            int exitCode = process.waitFor();
+
+            // Verificar el código de salida
+            if (exitCode == 0) {
+                System.out.println("El script se ejecutó correctamente.");
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+                // Heredar el ícono de la ventana principal
+                Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
+                dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+
+                alert.setTitle("Backup");
+                alert.setHeaderText("Backup ✅");
+                alert.setContentText("Backup realizado correctamente");
+                alert.showAndWait();
+
+                logger.info("Backup correctly done");
+            } else {
+                System.err.println("El script finalizó con un código de salida: " + exitCode);
+
+                logger.error("Backup failed");
+
+                Alert alert = new Alert(ERROR);
+
+                // Heredar el ícono de la ventana principal
+                Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
+                dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+
+                alert.setTitle("Backup");
+                alert.setHeaderText("Backup");
+                alert.setContentText("Error al realizar el backup");
+                alert.showAndWait();
+                logger.info("Backup fallido");
+            }
+
 
         } catch (Exception e) {
             logger.error("Backup failed");
