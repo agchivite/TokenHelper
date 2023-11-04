@@ -7,6 +7,7 @@ import dev.sbytmacke.tokenhelper.utils.DateFormatterUtils;
 import dev.sbytmacke.tokenhelper.utils.TimeUtils;
 import dev.sbytmacke.tokenhelper.viewmodel.UserViewModel;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
@@ -29,12 +30,9 @@ public class MainViewController {
     private static final double PERCENT_SUCCESS_RANKING_TO_SHOW = 51.0;
     private final String noDataTime = "--:--";
     Logger logger = LoggerFactory.getLogger(getClass());
-    private double chancePlusFailedBets;
     private UserViewModel userViewModel;
     private double medianValueTotalBets;
-    private double medianValueTotalSuccess; // Para poner los colores
-    private double medianValueTotalFailure; // Me sirve para filtrar aquellos que apuestan mucho pero fallan mucho (en los rankings)
-
+    private double medianValueTotalSuccess; // Para poner los colores de la tabla en el futuro!
     @FXML
     private Button buttonMainMiniView;
     // Menu
@@ -44,6 +42,9 @@ public class MainViewController {
     private MenuItem menuLeyenda;
     @FXML
     private MenuItem menuUpdateData;
+    @FXML
+    private MenuItem menuBackup;
+
     /* Create user */
     @FXML
     private Button buttonCleanSaveUsername;
@@ -117,32 +118,6 @@ public class MainViewController {
     @FXML
     private Label textFinalResultTotalBets;
 
-    private void calculateMedianTotalFailure() {
-        List<UserDTO> allUsers = userViewModel.getAll();
-        Integer numUsers = allUsers.size();
-
-        // Ordenamos por los fallos de cada usuario
-        List<UserDTO> sortedAllUsers = allUsers.stream()
-                .sorted(Comparator.comparing(it -> it.getTotalBets() - it.getTotalSuccess()))
-                .collect(Collectors.toList());
-
-        // Calcula la mediana de los valores seleccionados
-        double medianValue;
-        if (numUsers % 2 == 0) {
-            int middle = numUsers / 2;
-            double value1TotalBets = sortedAllUsers.get(middle - 1).getTotalBets();
-            double value2TotalBets = sortedAllUsers.get(middle).getTotalBets();
-            double value1TotalSuccess = sortedAllUsers.get(middle - 1).getTotalSuccess();
-            double value2TotalSuccess = sortedAllUsers.get(middle).getTotalSuccess();
-            double value1TotalFailure = value1TotalBets - value1TotalSuccess;
-            double value2TotalFailure = value2TotalBets - value2TotalSuccess;
-            medianValue = (value1TotalFailure + value2TotalFailure) / 2.0;
-        } else {
-            medianValue = medianValueTotalBets - sortedAllUsers.get(numUsers / 2).getTotalSuccess();
-        }
-        medianValueTotalFailure = medianValue;
-    }
-
     private void calculateMedianTotalBets() {
         List<UserDTO> allUsers = userViewModel.getAll();
         Integer numUsers = allUsers.size();
@@ -194,8 +169,6 @@ public class MainViewController {
         this.userViewModel = userViewModel;
         calculateMedianTotalBets();
         calculateMedianTotalSuccess();
-        calculateMedianTotalFailure();
-        chancePlusFailedBets = medianValueTotalFailure * 2;
         initBindings();
         initDetails();
         initEvents();
@@ -205,7 +178,7 @@ public class MainViewController {
         logger.info("Initializing Bindings");
 
         // Table Ranking Global
-        List<UserDTO> filterTopUsersReliable = filterTopUsersReliable(userViewModel.getAll());
+        List<UserDTO> filterTopUsersReliable = filterRakingUsersReliable(userViewModel.getAll());
         tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable));
         orderByTotalSuccessBets(tableUsersRanking);
         listUsers(tableUsersRanking.getItems());
@@ -255,6 +228,8 @@ public class MainViewController {
 
     private void initEvents() {
         logger.info("Initializing Events");
+
+        menuBackup.setOnAction(event -> onBackupMenuAction());
 
         buttonCleanSaveUsername.setOnAction(event -> textFieldUser.setText(null));
 
@@ -389,6 +364,39 @@ public class MainViewController {
         });
     }
 
+    private void onBackupMenuAction() {
+        logger.info("Initializing Backup View");
+
+/*        if (userViewModel.backupData().isEmpty()) {
+            Alert alert = new Alert(ERROR);
+            alert.setTitle("Backup");
+            alert.setHeaderText("Backup");
+            alert.setContentText("Error al realizar el backup");
+            alert.showAndWait();
+            return;
+        }
+
+        try {
+            userViewModel.backupData().forEach(document -> {
+                logger.error("Backup: " + document.toJson());
+            });
+        } catch (Exception e) {
+            logger.error("Error al realizar el backup");
+            Alert alert = new Alert(ERROR);
+            alert.setTitle("Backup");
+            alert.setHeaderText("Backup");
+            alert.setContentText("Error al realizar el backup");
+            alert.showAndWait();
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Backup");
+        alert.setHeaderText("Backup");
+        alert.setContentText("Backup realizado correctamente");
+        alert.showAndWait();*/
+    }
+
     private void onUpdateMenuAction() throws IOException {
         logger.info("Initializing Update View");
         RoutesManager routesManager = new RoutesManager();
@@ -412,14 +420,14 @@ public class MainViewController {
         return filterTopUsersReliable;
     }
 
-    private List<UserDTO> filterTopUsersReliable(List<UserDTO> usersToFilter) {
+    private List<UserDTO> filterRakingUsersReliable(List<UserDTO> usersToFilter) {
 
         return usersToFilter.stream()
                 .filter(user -> user.getPercentReliable() >= PERCENT_SUCCESS_RANKING_TO_SHOW) // Filtra usuarios fiables
                 // Buscando los datos con más apuestas
                 .filter(user -> user.getTotalBets() >= medianValueTotalBets)
-                // Filtramos aquellos que fallan mucho, en comparación al resto de usuarios
-                .filter(user -> user.getTotalBets() - user.getTotalSuccess() <= chancePlusFailedBets)
+                // Filtramos aquellos que fallan mucho, aquellos que fallan el 50% de las apuestas o menos
+                .filter(user -> (double) user.getTotalBets() / 2 <= (double) user.getTotalSuccess())
                 .limit(NUM_USERS_TO_SHOW_RANKING)
                 .collect(Collectors.toList());
     }
@@ -499,7 +507,6 @@ public class MainViewController {
     public void updateAllTables() {
         calculateMedianTotalBets();
         calculateMedianTotalSuccess();
-        calculateMedianTotalFailure();
 
         String newUsername = textSearchUserFilter.getText().toUpperCase();
         String newTime = comboTimeFilter.getSelectionModel().getSelectedItem();
@@ -515,14 +522,13 @@ public class MainViewController {
         Boolean onFilterByUserDateTime = onFilterDataTableByUserDateTime(newUsername, newTime, newDateOfWeek);
         orderByTotalSuccessBets(tableUsers);
 
-        // Caso 1: Cuando haya muchos datos para fiabilidad según la mediana
-        List<UserDTO> filteredUsers = filterTopUsersReliable(tableUsers.getItems());
-        tableUsers.getItems().remove(filteredUsers.get(0));
-        filteredUsers.get(0).setUsername(filteredUsers.get(0).getUsername() + " ⭐");
-        tableUsers.getItems().add(0, filteredUsers.get(0));
+        List<UserDTO> filteredUsers = filterRakingUsersReliable(tableUsers.getItems());
 
-        // Caso 2: Cuando haya pocos datos y queremos una fiabilidad más presente
-        //tableUsers.getItems().get(0).setUsername(tableUsers.getItems().get(0).getUsername() + " ⭐");
+        for (int i = filteredUsers.size() - 1; i >= 0; i--) {
+            tableUsers.getItems().remove(filteredUsers.get(i));
+            filteredUsers.get(i).setUsername("⭐ " + filteredUsers.get(i).getUsername());
+            tableUsers.getItems().add(i, filteredUsers.get(i));
+        }
 
         if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
             tableUsers.setSelectionModel(null);
@@ -530,11 +536,17 @@ public class MainViewController {
         }
 
         // Actualizamos el ranking general (en caso de modificar datos)
-        List<UserDTO> filterTopUsersReliable = filterTopUsersReliable(userViewModel.getAll());
+        List<UserDTO> filterTopUsersReliable = filterRakingUsersReliable(userViewModel.getAll());
         tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable));
         orderByTotalSuccessBets(tableUsersRanking);
         listUsers(tableUsersRanking.getItems());
     }
+
+    private List<UserDTO> filterStarUsersReliable(ObservableList<UserDTO> items) {
+        // TODO: Cuando se decida exactamente que queremos en un tio STAR
+        return items;
+    }
+
 
     private void orderByTotalSuccessBets(TableView<UserDTO> tableToSort) {
         // Ordenamos por el que tenga más aciertos de cómputo, ya que hemos eliminado aquellos que tienen muchos fallos previamente
