@@ -415,55 +415,18 @@ public class MainViewController {
             }
 
         } catch (Exception e) {
-            logger.error("Backup failed");
-
-            Alert alert = new Alert(ERROR);
-
-            // Heredar el ícono de la ventana principal
-            Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
-            dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
-
-            alert.setTitle("Backup");
-            alert.setHeaderText("Backup");
-            alert.setContentText("Error al realizar el backup");
-            alert.showAndWait();
+            showFailedBackup();
             return;
         }
 
         try {
             // Obtiene la ruta del script desde el archivo JAR
-            String scriptPathInJar = "/dev/sbytmacke/tokenhelper/scripts/backup.ps1";
-            InputStream scriptInputStream = getClass().getResourceAsStream(scriptPathInJar);
+            //String scriptPathInJar = "/dev/sbytmacke/tokenhelper/scripts/backup.ps1";
+            //InputStream scriptInputStream = getClass().getResourceAsStream(scriptPathInJar);
 
             // Crea un archivo temporal para almacenar el script
             File tempScriptFile = File.createTempFile("backup", ".ps1");
             tempScriptFile.deleteOnExit();
-
-            // Copia el contenido del script desde el recurso dentro del archivo JAR al archivo temporal
-            try (FileOutputStream fileOutputStream = new FileOutputStream(tempScriptFile)) {
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = scriptInputStream.read(buffer)) != -1) {
-                    fileOutputStream.write(buffer, 0, bytesRead);
-
-                    // Si contiene la palabra fatal el comando de powershell, se cancela el backup
-                    if (new String(buffer).contains("fatal") || new String(buffer).contains("error")) {
-                        logger.error("Backup failed");
-
-                        Alert alert = new Alert(ERROR);
-
-                        // Heredar el ícono de la ventana principal
-                        Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
-                        dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
-
-                        alert.setTitle("Backup");
-                        alert.setHeaderText("Backup");
-                        alert.setContentText("Error al realizar el backup");
-                        alert.showAndWait();
-                        return;
-                    }
-                }
-            }
 
             // Obtiene la ruta del archivo temporal
             String scriptPath = tempScriptFile.getAbsolutePath();
@@ -471,29 +434,37 @@ public class MainViewController {
             String command = "powershell.exe -ExecutionPolicy Bypass -File " + scriptPath;
             Process process = Runtime.getRuntime().exec(command);
 
-
             // Capturar la salida estándar y la de error
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
             BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
             String outputLine;
+            StringBuilder gitOutput = new StringBuilder();
 
             // Leer y mostrar la salida estándar
             while ((outputLine = stdInput.readLine()) != null) {
                 System.out.println(outputLine);
+                gitOutput.append(outputLine).append("\n");
             }
 
             // Leer y mostrar la salida de error
             while ((outputLine = stdError.readLine()) != null) {
                 System.err.println(outputLine);
+                gitOutput.append(outputLine).append("\n");
             }
 
             // Esperar a que termine el proceso
             int exitCode = process.waitFor();
 
+            // Analizar la salida de Git (gitOutput) para buscar cualquier mensaje de error adicional específico del comando Git
+            if (gitOutput.toString().contains("fatal") || gitOutput.toString().contains("error")) {
+                logger.error("Backup failed");
+                showFailedBackup();
+            }
+
             // Verificar el código de salida
             if (exitCode == 0) {
-                System.out.println("El script se ejecutó correctamente.");
+                logger.info("Backup correctly done");
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
@@ -505,42 +476,26 @@ public class MainViewController {
                 alert.setHeaderText("Backup ✅");
                 alert.setContentText("Backup realizado correctamente");
                 alert.showAndWait();
-
-                logger.info("Backup correctly done");
-            } else {
-                System.err.println("El script finalizó con un código de salida: " + exitCode);
-
-                logger.error("Backup failed");
-
-                Alert alert = new Alert(ERROR);
-
-                // Heredar el ícono de la ventana principal
-                Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
-                dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
-
-                alert.setTitle("Backup");
-                alert.setHeaderText("Backup");
-                alert.setContentText("Error al realizar el backup");
-                alert.showAndWait();
-                logger.info("Backup fallido");
             }
-
-
         } catch (Exception e) {
-            logger.error("Backup failed");
-
-            Alert alert = new Alert(ERROR);
-
-            // Heredar el ícono de la ventana principal
-            Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
-            dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
-
-            alert.setTitle("Backup");
-            alert.setHeaderText("Backup");
-            alert.setContentText("Error al realizar el backup");
-            alert.showAndWait();
             logger.info("Backup fallido");
+            showFailedBackup();
         }
+    }
+
+    private void showFailedBackup() {
+        logger.error("Backup failed");
+
+        Alert alert = new Alert(ERROR);
+
+        // Heredar el ícono de la ventana principal
+        Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+
+        alert.setTitle("Backup");
+        alert.setHeaderText("Backup");
+        alert.setContentText("Error al realizar el backup");
+        alert.showAndWait();
     }
 
     private void onUpdateMenuAction() throws IOException {
