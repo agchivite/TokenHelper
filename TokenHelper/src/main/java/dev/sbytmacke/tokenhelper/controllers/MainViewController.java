@@ -432,10 +432,11 @@ public class MainViewController {
 
         try {
             // Ejecutar el script PowerShell
-            ProcessBuilder processBuilder = new ProcessBuilder("powershell.exe", ".\\resources\\backup.ps1");
+            String command = "powershell.exe -ExecutionPolicy Bypass -File";
+            ProcessBuilder processBuilder = new ProcessBuilder(command, ".\\resources\\backup.ps1");
             Process process = processBuilder.start();
             process.waitFor();
-            
+
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
             // Heredar el ícono de la ventana principal
