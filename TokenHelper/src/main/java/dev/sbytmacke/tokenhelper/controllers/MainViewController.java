@@ -393,7 +393,7 @@ public class MainViewController {
             // Para que quede legible
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-            try (FileWriter fileWriter = new FileWriter("../../../backup.json")) {
+            try (FileWriter fileWriter = new FileWriter("backup.json")) {
                 fileWriter.write("[");
 
                 for (int i = 0; i < documents.size(); i++) {
@@ -445,6 +445,23 @@ public class MainViewController {
                 int bytesRead;
                 while ((bytesRead = scriptInputStream.read(buffer)) != -1) {
                     fileOutputStream.write(buffer, 0, bytesRead);
+
+                    // Si contiene la palabra fatal el comando de powershell, se cancela el backup
+                    if (new String(buffer).contains("fatal") || new String(buffer).contains("error")) {
+                        logger.error("Backup failed");
+
+                        Alert alert = new Alert(ERROR);
+
+                        // Heredar el ícono de la ventana principal
+                        Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
+                        dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+
+                        alert.setTitle("Backup");
+                        alert.setHeaderText("Backup");
+                        alert.setContentText("Error al realizar el backup");
+                        alert.showAndWait();
+                        return;
+                    }
                 }
             }
 
