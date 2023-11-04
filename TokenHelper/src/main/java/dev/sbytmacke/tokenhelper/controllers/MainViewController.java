@@ -1,5 +1,7 @@
 package dev.sbytmacke.tokenhelper.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dev.sbytmacke.tokenhelper.dto.UserDTO;
 import dev.sbytmacke.tokenhelper.models.UserEntity;
 import dev.sbytmacke.tokenhelper.routes.RoutesManager;
@@ -13,9 +15,12 @@ import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -367,8 +372,13 @@ public class MainViewController {
     private void onBackupMenuAction() {
         logger.info("Initializing Backup View");
 
-/*        if (userViewModel.backupData().isEmpty()) {
+        if (userViewModel.backupData().isEmpty()) {
             Alert alert = new Alert(ERROR);
+
+            // Heredar el ícono de la ventana principal
+            Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+
             alert.setTitle("Backup");
             alert.setHeaderText("Backup");
             alert.setContentText("Error al realizar el backup");
@@ -377,12 +387,42 @@ public class MainViewController {
         }
 
         try {
-            userViewModel.backupData().forEach(document -> {
-                logger.error("Backup: " + document.toJson());
-            });
+            List<Document> documents = userViewModel.backupData(); // Obtiene la lista de documentos BSON
+
+            // Para que quede legible
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+
+            try (FileWriter fileWriter = new FileWriter("backup.json")) {
+                fileWriter.write("[");
+
+                for (int i = 0; i < documents.size(); i++) {
+                    Document document = documents.get(i);
+
+                    // Convierte el documento BSON a formato JSON
+                    String json = gson.toJson(document);
+
+                    // Escribe el documento JSON en el archivo
+                    fileWriter.write(json);
+
+                    // Si no es el último documento, agrega una coma
+                    if (i < documents.size() - 1) {
+                        fileWriter.write(",");
+                    }
+                }
+
+                fileWriter.write("]");
+            }
+
         } catch (Exception e) {
             logger.error("Error al realizar el backup");
+
             Alert alert = new Alert(ERROR);
+
+            // Heredar el ícono de la ventana principal
+            Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+
             alert.setTitle("Backup");
             alert.setHeaderText("Backup");
             alert.setContentText("Error al realizar el backup");
@@ -391,10 +431,15 @@ public class MainViewController {
         }
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+        // Heredar el ícono de la ventana principal
+        Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+
         alert.setTitle("Backup");
-        alert.setHeaderText("Backup");
+        alert.setHeaderText("Backup ✅");
         alert.setContentText("Backup realizado correctamente");
-        alert.showAndWait();*/
+        alert.showAndWait();
     }
 
     private void onUpdateMenuAction() throws IOException {

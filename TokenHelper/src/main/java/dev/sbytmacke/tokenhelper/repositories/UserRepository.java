@@ -1,6 +1,7 @@
 package dev.sbytmacke.tokenhelper.repositories;
 
 import dev.sbytmacke.tokenhelper.dto.UserDTO;
+import org.bson.Document;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,5 +34,7 @@ public interface UserRepository<U, N> extends Repository<U, N> {
     void deleteItem(U user);
 
     void updateUsername(N oldUsername, N newUsername);
+
+    List<Document> backupData();
 }
 
