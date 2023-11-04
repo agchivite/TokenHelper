@@ -1,30 +1,39 @@
-#!/bin/bash
-
 # Archivos que deseas respaldar
-JSON_FILE="backup.json"
-#CSV_FILE="backup.csv"
+$JSON_FILE = "backup.json"
+#$CSV_FILE = "backup.csv"
 
 # Rama de respaldo
-BRANCH_NAME="backup"
+$BRANCH_NAME = "backup"
 
 # Directorio temporal fuera del proyecto
-TEMP_DIR="../../temp_backup"
-mkdir -p $TEMP_DIR
-cp $JSON_FILE $TEMP_DIR
-# cp $CSV_FILE $TEMP_DIR
+$TEMP_DIR = "..\..\temp_backup"
 
-# Cambiar a la rama de respaldo (si existe, o crearla si no)
-git checkout $BRANCH_NAME || git checkout -b $BRANCH_NAME
+# Crear el directorio temporal de respaldo
+if (-not (Test-Path -Path $TEMP_DIR)) {
+    New-Item -Path $TEMP_DIR -ItemType Directory
+}
+
+# Copiar el archivo JSON al directorio temporal de respaldo
+Copy-Item -Path $JSON_FILE -Destination $TEMP_DIR
+# Copy-Item -Path $CSV_FILE -Destination $TEMP_DIR
+
+# Verificar si la rama de respaldo existe
+if (-not (git show-ref --verify --quiet "refs/heads/$BRANCH_NAME")) {
+    # La rama no existe, crearla
+    git checkout -b $BRANCH_NAME
+} else {
+    # La rama ya existe, cambiar a ella
+    git checkout $BRANCH_NAME
+}
 
 # Restaurar los archivos desde el directorio temporal
-cp $TEMP_DIR/$JSON_FILE .
-# cp $TEMP_DIR/$CSV_FILE .
+Copy-Item -Path "$TEMP_DIR\$JSON_FILE" -Destination .
 
-# Agregamos los archivos al índice de Git
+# Agregar los archivos al índice de Git
 git add $JSON_FILE
-#git add $CSV_FILE
+# git add $CSV_FILE
 
-COMMIT_MESSAGE="Backup de JSON"
+$COMMIT_MESSAGE = "Backup de JSON"
 git commit -m "$COMMIT_MESSAGE"
 
 git push origin $BRANCH_NAME
@@ -33,4 +42,4 @@ git push origin $BRANCH_NAME
 git checkout -
 
 # Eliminar el directorio temporal
-rm -rf $TEMP_DIR
+Remove-Item -Path $TEMP_DIR -Recurse
