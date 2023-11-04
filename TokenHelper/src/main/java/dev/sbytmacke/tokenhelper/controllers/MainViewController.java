@@ -431,9 +431,19 @@ public class MainViewController {
         }
 
         try {
-            // Ejecutar el script PowerShell
-            String command = "powershell.exe -ExecutionPolicy Bypass -File";
-            ProcessBuilder processBuilder = new ProcessBuilder(command, ".\\resources\\backup.ps1");
+            // Comando PowerShell y ubicación del script
+            String command = "powershell.exe";
+            String path = ".\\resources\\backup.ps1";
+
+            // Parámetros que deseas pasar al script
+            String param1 = "-ExecutionPolicy";
+            String param2 = "Bypass";
+            String param3 = "-File";
+
+            // Construir el proceso con argumentos
+            ProcessBuilder processBuilder = new ProcessBuilder(command, param1, param2, param3, path);
+            processBuilder.redirectErrorStream(true); // Redirigir la salida de error a la salida estándar
+
             Process process = processBuilder.start();
             process.waitFor();
 
