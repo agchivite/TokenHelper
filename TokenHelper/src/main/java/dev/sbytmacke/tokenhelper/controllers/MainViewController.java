@@ -370,7 +370,7 @@ public class MainViewController {
     }
 
     private void onBackupMenuAction() {
-        logger.info("Initializing Backup View");
+        logger.info("Initializing Backup");
 
         if (userViewModel.backupData().isEmpty()) {
             Alert alert = new Alert(ERROR);
@@ -378,6 +378,8 @@ public class MainViewController {
             // Heredar el ícono de la ventana principal
             Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
             dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+
+            logger.error("Backup failed");
 
             alert.setTitle("Backup");
             alert.setHeaderText("Backup");
@@ -415,7 +417,7 @@ public class MainViewController {
             }
 
         } catch (Exception e) {
-            logger.error("Error al realizar el backup");
+            logger.error("Backup failed");
 
             Alert alert = new Alert(ERROR);
 
@@ -457,7 +459,12 @@ public class MainViewController {
             alert.setHeaderText("Backup ✅");
             alert.setContentText("Backup realizado correctamente");
             alert.showAndWait();
+
+            logger.info("Backup correctly done");
+
         } catch (Exception e) {
+            logger.error("Backup failed");
+
             Alert alert = new Alert(ERROR);
 
             // Heredar el ícono de la ventana principal
@@ -468,6 +475,7 @@ public class MainViewController {
             alert.setHeaderText("Backup");
             alert.setContentText("Error al realizar el backup");
             alert.showAndWait();
+            logger.info("Backup fallido");
         }
     }
 
