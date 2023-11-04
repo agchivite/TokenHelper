@@ -25,6 +25,6 @@
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.mongodb:bson-record-codec:4.10.2" level="project" />
   </component>
   <component name="SonarLintModuleSettings">
-    <option name="uniqueId" value="b4fc76b8-1bd9-4ef6-a040-fad8609d6e6f" />
+    <option name="uniqueId" value="008e1f99-ff31-408d-ba47-e6ff30bf572c" />
   </component>
 </module>

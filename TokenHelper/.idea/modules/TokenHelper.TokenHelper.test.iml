@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id="TokenHelper:main" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="dev.sbytmacke" external.system.module.type="sourceSet" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
+<module external.linked.project.id="TokenHelper:test" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="dev.sbytmacke" external.system.module.type="sourceSet" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <output url="file://$MODULE_DIR$/../../build/classes/java/main" />
+    <output-test url="file://$MODULE_DIR$/../../build/classes/java/test" />
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../src/main">
-      <sourceFolder url="file://$MODULE_DIR$/../../src/main/java" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/../../src/main/resources" type="java-resource" />
-    </content>
+    <content url="file://$MODULE_DIR$/../../src/test" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="TokenHelper.TokenHelper.main" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-fxml:win:17.0.6" level="project" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-controls:17.0.6" level="project" />
     <orderEntry type="library" name="Gradle: org.openjfx:javafx-controls:win:17.0.6" level="project" />
@@ -20,11 +18,18 @@
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.10.1" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-simple:2.0.5" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:2.0.5" level="project" />
+    <orderEntry type="library" name="Gradle: org.junit.jupiter:junit-jupiter-api:5.9.2" level="project" />
     <orderEntry type="library" name="Gradle: org.mongodb:mongodb-driver-core:4.10.2" level="project" />
     <orderEntry type="library" name="Gradle: org.mongodb:bson:4.10.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.junit.platform:junit-platform-commons:1.9.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.opentest4j:opentest4j:1.2.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.apiguardian:apiguardian-api:1.1.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.junit.jupiter:junit-jupiter-engine:5.9.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.junit.platform:junit-platform-engine:1.9.2" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.mongodb:bson-record-codec:4.10.2" level="project" />
   </component>
   <component name="SonarLintModuleSettings">
-    <option name="uniqueId" value="b4fc76b8-1bd9-4ef6-a040-fad8609d6e6f" />
+    <option name="uniqueId" value="aafe0bfd-33ba-4526-853e-7e98f7b7914a" />
   </component>
+  <component name="TestModuleProperties" production-module="TokenHelper.main" />
 </module>

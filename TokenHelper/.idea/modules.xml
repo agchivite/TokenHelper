@@ -3,6 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/TokenHelper.iml" filepath="$PROJECT_DIR$/.idea/modules/TokenHelper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TokenHelper.TokenHelper.iml" filepath="$PROJECT_DIR$/.idea/modules/TokenHelper.TokenHelper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TokenHelper.TokenHelper.main.iml" filepath="$PROJECT_DIR$/.idea/modules/TokenHelper.TokenHelper.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TokenHelper.TokenHelper.test.iml" filepath="$PROJECT_DIR$/.idea/modules/TokenHelper.TokenHelper.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/TokenHelper.main.iml" filepath="$PROJECT_DIR$/.idea/modules/TokenHelper.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/TokenHelper.test.iml" filepath="$PROJECT_DIR$/.idea/modules/TokenHelper.test.iml" />
     </modules>
