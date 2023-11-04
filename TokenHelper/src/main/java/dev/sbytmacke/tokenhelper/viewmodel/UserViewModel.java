@@ -3,6 +3,7 @@ package dev.sbytmacke.tokenhelper.viewmodel;
 import dev.sbytmacke.tokenhelper.dto.UserDTO;
 import dev.sbytmacke.tokenhelper.models.UserEntity;
 import dev.sbytmacke.tokenhelper.repositories.UserRepository;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,5 +150,10 @@ public class UserViewModel {
     public void updateUsername(String oldUsername, String newUsername) {
         logger.info("updateUsername");
         repository.updateUsername(oldUsername, newUsername);
+    }
+
+    public List<Document> backupData() {
+        logger.info("backupData");
+        return repository.backupData();
     }
 }

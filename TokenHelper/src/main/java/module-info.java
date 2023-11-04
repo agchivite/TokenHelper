@@ -5,6 +5,7 @@ module dev.sbytmacke.tokenhelper {
     requires org.mongodb.bson;
     requires org.slf4j;
     requires org.mongodb.driver.core;
+    requires com.google.gson;
 
     opens dev.sbytmacke.tokenhelper to javafx.fxml;
     exports dev.sbytmacke.tokenhelper;

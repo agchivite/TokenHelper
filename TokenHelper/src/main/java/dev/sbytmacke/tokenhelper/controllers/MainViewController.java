@@ -1,5 +1,7 @@
 package dev.sbytmacke.tokenhelper.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import dev.sbytmacke.tokenhelper.dto.UserDTO;
 import dev.sbytmacke.tokenhelper.models.UserEntity;
 import dev.sbytmacke.tokenhelper.routes.RoutesManager;
@@ -7,14 +9,18 @@ import dev.sbytmacke.tokenhelper.utils.DateFormatterUtils;
 import dev.sbytmacke.tokenhelper.utils.TimeUtils;
 import dev.sbytmacke.tokenhelper.viewmodel.UserViewModel;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -25,13 +31,13 @@ import java.util.stream.Collectors;
 import static javafx.scene.control.Alert.AlertType.ERROR;
 
 public class MainViewController {
-    private static final int NUM_USERS_TO_SHOW_RANKING = 6;
+    private static final int NUM_USERS_TO_SHOW_RANKING = 20;
+    private static final double PERCENT_SUCCESS_RANKING_TO_SHOW = 51.0;
     private final String noDataTime = "--:--";
     Logger logger = LoggerFactory.getLogger(getClass());
-    // Almacenar la fecha actual y la fecha anterior
-    LocalDate savedDate = null;
     private UserViewModel userViewModel;
-
+    private double medianValueTotalBets;
+    private double medianValueTotalSuccess; // Para poner los colores de la tabla en el futuro!
     @FXML
     private Button buttonMainMiniView;
     // Menu
@@ -41,6 +47,8 @@ public class MainViewController {
     private MenuItem menuLeyenda;
     @FXML
     private MenuItem menuUpdateData;
+    @FXML
+    private MenuItem menuBackup;
 
     /* Create user */
     @FXML
@@ -105,7 +113,6 @@ public class MainViewController {
     private TableColumn<UserDTO, String> columnSuccessRanking;
     @FXML
     private TableColumn<UserDTO, String> columnTotalBetsRanking;
-
     // Global Result
     @FXML
     private Label textFinalResultDate;
@@ -116,6 +123,48 @@ public class MainViewController {
     @FXML
     private Label textFinalResultTotalBets;
 
+    private void calculateMedianTotalBets() {
+        List<UserDTO> allUsers = userViewModel.getAll();
+        Integer numUsers = allUsers.size();
+
+        List<UserDTO> sortedAllUsers = allUsers.stream()
+                .sorted(Comparator.comparing(UserDTO::getTotalBets))
+                .collect(Collectors.toList());
+
+        // Calcula la mediana de los valores seleccionados
+        double medianValue;
+        if (numUsers % 2 == 0) {
+            int middle = numUsers / 2;
+            double value1 = sortedAllUsers.get(middle - 1).getTotalBets();
+            double value2 = sortedAllUsers.get(middle).getTotalBets();
+            medianValue = (value1 + value2) / 2.0;
+        } else {
+            medianValue = sortedAllUsers.get(numUsers / 2).getTotalBets();
+        }
+        medianValueTotalBets = medianValue;
+    }
+
+    private void calculateMedianTotalSuccess() {
+        List<UserDTO> allUsers = userViewModel.getAll();
+        Integer numUsers = allUsers.size();
+
+        List<UserDTO> sortedAllUsers = allUsers.stream()
+                .sorted(Comparator.comparing(UserDTO::getTotalBets))
+                .collect(Collectors.toList());
+
+        // Calcula la mediana de los valores seleccionados
+        double medianValue;
+        if (numUsers % 2 == 0) {
+            int middle = numUsers / 2;
+            double value1 = sortedAllUsers.get(middle - 1).getPercentReliable();
+            double value2 = sortedAllUsers.get(middle).getPercentReliable();
+            medianValue = (value1 + value2) / 2.0;
+        } else {
+            medianValue = sortedAllUsers.get(numUsers / 2).getPercentReliable();
+        }
+        medianValueTotalSuccess = medianValue;
+    }
+
     public TableView<UserDTO> getTableUsers() {
         return tableUsers;
     }
@@ -123,22 +172,70 @@ public class MainViewController {
     public void init(UserViewModel userViewModel) {
         logger.info("Initializing MainViewController");
         this.userViewModel = userViewModel;
+        calculateMedianTotalBets();
+        calculateMedianTotalSuccess();
         initBindings();
         initDetails();
         initEvents();
     }
 
+    private void initBindings() {
+        logger.info("Initializing Bindings");
+
+        // Table Ranking Global
+        List<UserDTO> filterTopUsersReliable = filterRakingUsersReliable(userViewModel.getAll());
+        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable));
+        orderByTotalSuccessBets(tableUsersRanking);
+        listUsers(tableUsersRanking.getItems());
+
+        columnUsernameRanking.setCellValueFactory(new PropertyValueFactory<>("username"));
+        columnSuccessRanking.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
+        columnTotalBetsRanking.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
+
+        // ComboTime
+        comboTime.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
+        comboTime.getSelectionModel().select(0);
+
+        // ComboTimeFilter
+        comboTimeFilter.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
+        comboTimeFilter.getSelectionModel().select(0);
+
+        columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
+        columnSuccess.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
+        columnTotalBets.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
+
+        ToggleGroup toggleGroup = new ToggleGroup();
+        radioButtonGood.setToggleGroup(toggleGroup);
+        radioButtonBad.setToggleGroup(toggleGroup);
+
+        ToggleGroup toggleGroupDaysOfWeek = new ToggleGroup();
+        radioButtonNone.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonMonday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonTuesday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonWednesday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonThursday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonFriday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonSaturday.setToggleGroup(toggleGroupDaysOfWeek);
+        radioButtonSunday.setToggleGroup(toggleGroupDaysOfWeek);
+    }
+
+    private void initDetails() {
+        radioButtonNone.setSelected(true);
+        tableUsers.setSelectionModel(null);
+        tableUsersRanking.setSelectionModel(null);
+
+        centerAndFontTextTable();
+        setColorsTable();
+
+        comboTimeFilter.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
+        comboTime.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
+    }
+
     private void initEvents() {
         logger.info("Initializing Events");
 
-        tableUsers.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) { // Doble clic
-                UserDTO user = tableUsers.getSelectionModel().getSelectedItem();
-                if (user != null) {
-                    System.out.println("Doble clic en: " + user.getUsername());
-                }
-            }
-        });
+        menuBackup.setOnAction(event -> onBackupMenuAction());
+
         buttonCleanSaveUsername.setOnAction(event -> textFieldUser.setText(null));
 
         buttonClearFilters.setOnAction(event -> {
@@ -211,13 +308,15 @@ public class MainViewController {
         textFieldUser.textProperty().addListener((observable, oldValue, newValue) -> {
             contextMenu.getItems().clear();
 
-            List<String> listSuggestions = filterSuggestionsList(newValue.trim());
+            if (newValue != null) {
+                List<String> listSuggestions = filterSuggestionsList(newValue.trim());
 
-            // Agrega sugerencias al ContextMenu basadas en el valor del TextField
-            for (String suggestion : listSuggestions) {
-                MenuItem menuItem = new MenuItem(suggestion);
-                //menuItem.setStyle("-fx-text-fill: white;"); // Cambia el color del texto a blanco
-                contextMenu.getItems().add(menuItem);
+                // Agrega sugerencias al ContextMenu basadas en el valor del TextField
+                for (String suggestion : listSuggestions) {
+                    MenuItem menuItem = new MenuItem(suggestion);
+                    //menuItem.setStyle("-fx-text-fill: white;"); // Cambia el color del texto a blanco
+                    contextMenu.getItems().add(menuItem);
+                }
             }
 
             contextMenu.show(textFieldUser, Side.BOTTOM, 0, 0);
@@ -270,72 +369,116 @@ public class MainViewController {
         });
     }
 
+    private void onBackupMenuAction() {
+        logger.info("Initializing Backup View");
+
+        if (userViewModel.backupData().isEmpty()) {
+            Alert alert = new Alert(ERROR);
+
+            // Heredar el ícono de la ventana principal
+            Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+
+            alert.setTitle("Backup");
+            alert.setHeaderText("Backup");
+            alert.setContentText("Error al realizar el backup");
+            alert.showAndWait();
+            return;
+        }
+
+        try {
+            List<Document> documents = userViewModel.backupData(); // Obtiene la lista de documentos BSON
+
+            // Para que quede legible
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+
+            try (FileWriter fileWriter = new FileWriter("backup.json")) {
+                fileWriter.write("[");
+
+                for (int i = 0; i < documents.size(); i++) {
+                    Document document = documents.get(i);
+
+                    // Convierte el documento BSON a formato JSON
+                    String json = gson.toJson(document);
+
+                    // Escribe el documento JSON en el archivo
+                    fileWriter.write(json);
+
+                    // Si no es el último documento, agrega una coma
+                    if (i < documents.size() - 1) {
+                        fileWriter.write(",");
+                    }
+                }
+
+                fileWriter.write("]");
+            }
+
+        } catch (Exception e) {
+            logger.error("Error al realizar el backup");
+
+            Alert alert = new Alert(ERROR);
+
+            // Heredar el ícono de la ventana principal
+            Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+
+            alert.setTitle("Backup");
+            alert.setHeaderText("Backup");
+            alert.setContentText("Error al realizar el backup");
+            alert.showAndWait();
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+        // Heredar el ícono de la ventana principal
+        Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
+        dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+
+        alert.setTitle("Backup");
+        alert.setHeaderText("Backup ✅");
+        alert.setContentText("Backup realizado correctamente");
+        alert.showAndWait();
+    }
+
     private void onUpdateMenuAction() throws IOException {
         logger.info("Initializing Update View");
         RoutesManager routesManager = new RoutesManager();
         routesManager.initUpdateView(this);
     }
 
-    private void initBindings() {
-        logger.info("Initializing Bindings");
-
-        // Table Ranking Global
-        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable(NUM_USERS_TO_SHOW_RANKING)));
-
-        columnUsernameRanking.setCellValueFactory(new PropertyValueFactory<>("username"));
-        columnSuccessRanking.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
-        columnTotalBetsRanking.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
-
-        // ComboTime
-        comboTime.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
-        comboTime.getSelectionModel().select(0);
-
-        // ComboTimeFilter
-        comboTimeFilter.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
-        comboTimeFilter.getSelectionModel().select(0);
-
-        columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
-        columnSuccess.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
-        columnTotalBets.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
-
-        ToggleGroup toggleGroup = new ToggleGroup();
-        radioButtonGood.setToggleGroup(toggleGroup);
-        radioButtonBad.setToggleGroup(toggleGroup);
-
-        ToggleGroup toggleGroupDaysOfWeek = new ToggleGroup();
-        radioButtonNone.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonMonday.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonTuesday.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonWednesday.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonThursday.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonFriday.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonSaturday.setToggleGroup(toggleGroupDaysOfWeek);
-        radioButtonSunday.setToggleGroup(toggleGroupDaysOfWeek);
+    private List<UserDTO> listUsers(List<UserDTO> filterTopUsersReliable) {
+        // Asigna al nombre de los usuarios su posición en el ranking
+        for (int i = 0; i < filterTopUsersReliable.size(); i++) {
+            UserDTO user = filterTopUsersReliable.get(i);
+            if (i == 0) {
+                user.setUsername("     🥇 " + user.getUsername());
+            } else if (i == 1) {
+                user.setUsername("     \uD83E\uDD48 " + user.getUsername());
+            } else if (i == 2) {
+                user.setUsername("     \uD83E\uDD49  " + user.getUsername());
+            } else {
+                user.setUsername("        " + (i + 1) + ".  " + user.getUsername());
+            }
+        }
+        return filterTopUsersReliable;
     }
 
-    private List<UserDTO> filterTopUsersReliable(int numberUsersToShow) {
-        List<UserDTO> usersToFilter = userViewModel.getAll();
+    private List<UserDTO> filterRakingUsersReliable(List<UserDTO> usersToFilter) {
 
         return usersToFilter.stream()
-                .filter(user -> user.getPercentReliable() > 49.00) // Filtra usuarios fiables
-                .sorted(Comparator.comparing(UserDTO::getTotalBets).reversed()) // Ordena por totalBets en orden descendente, buscando los datos más reales
-                .limit(numberUsersToShow)
-                //.sorted(Comparator.comparing(UserDTO::getPercentReliable).reversed()) // Ordena por percentReliable en orden descendente, en caso de quererlo
+                .filter(user -> user.getPercentReliable() >= PERCENT_SUCCESS_RANKING_TO_SHOW) // Filtra usuarios fiables
+                // Buscando los datos con más apuestas
+                .filter(user -> user.getTotalBets() >= medianValueTotalBets)
+                // Filtramos aquellos que fallan mucho, aquellos que fallan el 50% de las apuestas o menos
+                .filter(user -> (double) user.getTotalBets() / 2 <= (double) user.getTotalSuccess())
+                .limit(NUM_USERS_TO_SHOW_RANKING)
                 .collect(Collectors.toList());
     }
 
-    private void initDetails() {
-        radioButtonNone.setSelected(true);
-        tableUsersRanking.setSelectionModel(null);
-
-        centerAndFontTextTable();
-        setColorsTable();
-
-        comboTimeFilter.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
-        comboTime.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
-    }
-
     private void setColorsTable() {
+
         tableUsers.setRowFactory(tv -> new TableRow<>() {
 
             @Override
@@ -359,7 +502,6 @@ public class MainViewController {
         });
 
         tableUsersRanking.setRowFactory(tv -> new TableRow<>() {
-
             @Override
             protected void updateItem(UserDTO item, boolean empty) {
                 super.updateItem(item, empty);
@@ -367,14 +509,12 @@ public class MainViewController {
                 if (item == null) {
                     setStyle("");
                 } else {
-                    if (item.getPercentReliable() <= 49.00) {
-                        setStyle("-fx-background-color: #ff6161;");
-                    } else if (item.getPercentReliable() > 49.00 && item.getPercentReliable() <= 65.00) {
-                        setStyle("-fx-background-color: orange;");
-                    } else if (item.getPercentReliable() > 65.00) {
-                        setStyle("-fx-background-color: #53db78;");
-                    } else {
-                        setStyle("-fx-background-color: #ffffff;");
+                    if (getIndex() == 0) {
+                        setStyle("-fx-background-color: #EFB810;");
+                    } else if (getIndex() == 1) {
+                        setStyle("-fx-background-color: #c9c9c9;");
+                    } else if (getIndex() == 2) {
+                        setStyle("-fx-background-color: #b38f34;");
                     }
                 }
             }
@@ -387,9 +527,9 @@ public class MainViewController {
         }
         tableUsers.getColumns().get(0).setStyle("-fx-alignment: CENTER; -fx-font-family: 'Segoe UI Emoji'; -fx-font-size: 15px; ");
 
-        for (int i = 0; i < tableUsersRanking.getColumns().size(); i++) {
-            tableUsersRanking.getColumns().get(i).setStyle("-fx-alignment: CENTER;");
-        }
+        tableUsersRanking.getColumns().get(0).setStyle("-fx-font-family: 'Noto Color Emoji'; -fx-font-size: 14px; ");
+        tableUsersRanking.getColumns().get(1).setStyle("-fx-alignment: CENTER;");
+        tableUsersRanking.getColumns().get(2).setStyle("-fx-alignment: CENTER;");
     }
 
     private List<String> filterSuggestionsList(String input) {
@@ -410,6 +550,9 @@ public class MainViewController {
     }
 
     public void updateAllTables() {
+        calculateMedianTotalBets();
+        calculateMedianTotalSuccess();
+
         String newUsername = textSearchUserFilter.getText().toUpperCase();
         String newTime = comboTimeFilter.getSelectionModel().getSelectedItem();
         Integer newDateOfWeek = getNewDateOfWeek();
@@ -422,28 +565,51 @@ public class MainViewController {
         Boolean onFilterByUserDate = onFilterDataTableByUserDate(newUsername, newTime, newDateOfWeek);
         Boolean onFilterByUserTime = onFilterDataTableByUserTime(newUsername, newTime, newDateOfWeek);
         Boolean onFilterByUserDateTime = onFilterDataTableByUserDateTime(newUsername, newTime, newDateOfWeek);
+        orderByTotalSuccessBets(tableUsers);
 
-        // Ordena la tabla por 'percentSucces'
-        tableUsers.getSortOrder().setAll(columnSuccess);
+        List<UserDTO> filteredUsers = filterRakingUsersReliable(tableUsers.getItems());
 
-        // Y para aquellos que tengan el mismo percentSuccess, ordena por 'totalBets'
-        Comparator<UserDTO> customComparator = (user1, user2) -> {
-            if (user1.getPercentReliable() != user2.getPercentReliable()) {
-                // Si los percentSuccess son diferentes, ordénalos por percentSuccess
-                return Double.compare(user2.getPercentReliable(), user1.getPercentReliable());
-            } else {
-                // Si los percentSuccess son iguales, ordénalos por totalBets
-                return Integer.compare(user2.getTotalBets(), user1.getTotalBets());
-            }
-        };
-        tableUsers.getItems().sort(customComparator); // Aplicamos el comparador personalizado
+        for (int i = filteredUsers.size() - 1; i >= 0; i--) {
+            tableUsers.getItems().remove(filteredUsers.get(i));
+            filteredUsers.get(i).setUsername("⭐ " + filteredUsers.get(i).getUsername());
+            tableUsers.getItems().add(i, filteredUsers.get(i));
+        }
 
         if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
         }
 
-        // Actualizamos el ranking general
-        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable(NUM_USERS_TO_SHOW_RANKING)));
+        // Actualizamos el ranking general (en caso de modificar datos)
+        List<UserDTO> filterTopUsersReliable = filterRakingUsersReliable(userViewModel.getAll());
+        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable));
+        orderByTotalSuccessBets(tableUsersRanking);
+        listUsers(tableUsersRanking.getItems());
+    }
+
+    private List<UserDTO> filterStarUsersReliable(ObservableList<UserDTO> items) {
+        // TODO: Cuando se decida exactamente que queremos en un tio STAR
+        return items;
+    }
+
+
+    private void orderByTotalSuccessBets(TableView<UserDTO> tableToSort) {
+        // Ordenamos por el que tenga más aciertos de cómputo, ya que hemos eliminado aquellos que tienen muchos fallos previamente
+        Comparator<UserDTO> customComparatorRanking = (user1, user2) -> {
+            // Total de aciertos
+            double totalSuccessUser1 = user1.getTotalBets() * user1.getPercentReliable() / 100;
+            double totalSuccessUser2 = user2.getTotalBets() * user2.getPercentReliable() / 100;
+
+            if (totalSuccessUser1 == totalSuccessUser2) {
+                // Si el total de aciertos son iguales, ordénalos por percentSuccess
+                return Double.compare(user2.getPercentReliable(), user1.getPercentReliable());
+            } else {
+                // Si los totalBets no son iguales, ordénalos por total de aciertos
+                return Double.compare(totalSuccessUser2, totalSuccessUser1);
+            }
+        };
+
+        tableToSort.getItems().sort(customComparatorRanking); // Aplicamos el comparador personalizado
     }
 
     public Integer getNewDateOfWeek() {
@@ -606,9 +772,9 @@ public class MainViewController {
             logger.info("Filtering all by date");
             List<UserDTO> usersToShow = userViewModel.getAllByDate(newDateOfWeek);
 
-            setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
@@ -617,42 +783,14 @@ public class MainViewController {
         return false;
     }
 
-    private void setTopicUsers(List<UserDTO> usersToShow) {
-        List<UserDTO> usersFiltered = usersToShow.stream()
-                .filter(user -> user.getPercentReliable() > 65.00)
-                .sorted(Comparator.comparing(UserDTO::getTotalBets).reversed()) // Ordena por totalBets en orden descendente, buscando los datos más
-                //.sorted(Comparator.comparing(UserDTO::getPercentReliable).reversed()) // Ordena por percentReliable en orden descendente, en caso de quererlo
-                .limit(1)
-                .collect(Collectors.toList());
-
-        if (usersFiltered.isEmpty()) {
-            //Filtramos por naranjas
-            usersFiltered = usersToShow.stream()
-                    .filter(user -> user.getPercentReliable() > 49.00)
-                    .sorted(Comparator.comparing(UserDTO::getTotalBets).reversed()) // Ordena por totalBets en orden descendente, buscando los datos más
-                    //.sorted(Comparator.comparing(UserDTO::getPercentReliable).reversed()) // Ordena por percentReliable en orden descendente, en caso de quererlo
-                    .limit(1)
-                    .collect(Collectors.toList());
-        }
-
-        if (!usersFiltered.isEmpty()) {
-            for (UserDTO user : usersFiltered) {
-                // Lo ponemos el primero de la lista
-                usersToShow.remove(user);
-                user.setUsername(user.getUsername() + " ⭐");
-                usersToShow.add(0, user);
-            }
-        }
-    }
-
     private Boolean onFilterDataTableByTime(String newUsername, String newTime, Integer newDate) {
         if (newUsername == null || newUsername.isEmpty() && !newTime.equals(noDataTime) && newDate == null) {
             logger.info("Filtering all by time");
             List<UserDTO> usersToShow = userViewModel.getAllByTime(newTime);
 
-            setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -666,9 +804,9 @@ public class MainViewController {
 
             List<UserDTO> usersToShow = userViewModel.getAllByDateTime(newTime, newDate);
 
-            setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -695,12 +833,12 @@ public class MainViewController {
             logger.info("Filtering all by user & date");
             List<UserDTO> usersToShow = userViewModel.getAllByDate(newDate);
 
-            setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
@@ -716,12 +854,12 @@ public class MainViewController {
 
             List<UserDTO> usersToShow = userViewModel.getAllByTime(newTime);
 
-            setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -735,12 +873,12 @@ public class MainViewController {
 
             List<UserDTO> usersToShow = userViewModel.getAllByDateTime(newTime, newDate);
 
-            setTopicUsers(usersToShow);
             extractedUserByRadioButtonFilter(usersToShow);
 
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
+            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -827,4 +965,6 @@ public class MainViewController {
     public Integer getIndexComboTimeFilter() {
         return comboTimeFilter.getSelectionModel().getSelectedIndex();
     }
+
+
 }

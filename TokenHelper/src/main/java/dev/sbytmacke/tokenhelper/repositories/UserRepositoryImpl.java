@@ -453,4 +453,37 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
 
         databaseManager.closeDatabase();
     }
+
+    @Override
+    public List<Document> backupData() {
+        logger.info("backupData");
+
+        databaseManager.connectDatabase();
+
+        MongoCollection<Document> collection = databaseManager.getDatabase().getCollection(COLLECTION_NAME);
+
+        FindIterable<Document> result = collection.find();
+
+        List<Document> usersDocuments = new ArrayList<>();
+
+        MongoCursor<Document> cursor = result.iterator();
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+
+            // Crear un nuevo documento sin el campo "_id" (ObjectId)
+            Document filteredDocument = new Document();
+            filteredDocument.put(FIELD_USERNAME, document.getString(FIELD_USERNAME));
+            filteredDocument.put(FIELD_DATE_BET, document.getString(FIELD_DATE_BET));
+            filteredDocument.put(FIELD_TIME_BET, document.getString(FIELD_TIME_BET));
+            filteredDocument.put(FIELD_RELIABLE, document.getBoolean(FIELD_RELIABLE));
+
+            usersDocuments.add(filteredDocument);
+        }
+
+        cursor.close();
+        databaseManager.closeDatabase();
+
+        return usersDocuments;
+    }
+
 }
