@@ -69,19 +69,41 @@ public class DataGestorViewController {
     public void init(UserViewModel userViewModel) {
         logger.info("Initializing MainViewController");
         this.userViewModel = userViewModel;
-        initEvents();
         initBindings();
+        initEvents();
         initDetails();
     }
 
+    private void initBindings() {
+        logger.info("Initializing Bindings");
+
+        // ComboTimeFilter
+        comboTimeFilter.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
+        comboTimeFilter.getSelectionModel().select(25);
+
+        // Table, mediante el State hacerlo
+        tableUsers.setItems(FXCollections.observableArrayList(userViewModel.getAllEntity()));
+
+        columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
+        columnDate.setCellValueFactory(new PropertyValueFactory<>("dateBet"));
+        columnTime.setCellValueFactory(new PropertyValueFactory<>("timeBet"));
+        columnReliable.setCellValueFactory(new PropertyValueFactory<>("reliable"));
+
+        radioButtonReliableFilter.setSelected(true);
+        radioButtonNoReliableFilter.setSelected(true);
+    }
+
     private void initEvents() {
+
+        radioButtonReliableFilter.setOnAction(event -> updateAllTables());
+        radioButtonNoReliableFilter.setOnAction(event -> updateAllTables());
 
         buttonClearFilters.setOnAction(event -> {
             textSearchUserFilter.setText("");
             datePickerFilter.setValue(null);
             comboTimeFilter.getSelectionModel().select(0);
-            radioButtonReliableFilter.setSelected(false);
-            radioButtonNoReliableFilter.setSelected(false);
+            radioButtonReliableFilter.setSelected(true);
+            radioButtonNoReliableFilter.setSelected(true);
 
             updateAllTables();
         });
@@ -143,24 +165,6 @@ public class DataGestorViewController {
         });
     }
 
-    private List<String> filterSuggestionsList(String input) {
-        List<String> allUsernames = userViewModel.getAllUsernamesNoRepeat();
-        List<String> filteredSuggestions = new ArrayList<>();
-
-        if (input != null) {
-            // Crear una expresión regular para coincidir con el inicio del nombre de usuario
-            String regex = "^" + input.toLowerCase() + ".*";
-
-            for (String suggestion : allUsernames) {
-                if (suggestion.toLowerCase().matches(regex)) {
-                    filteredSuggestions.add(suggestion);
-                }
-            }
-        }
-
-        return filteredSuggestions;
-    }
-
     private void initDetails() {
         setColorsTable();
         addLastColumnDeleteButton();
@@ -185,6 +189,24 @@ public class DataGestorViewController {
         });
     }
 
+    private List<String> filterSuggestionsList(String input) {
+        List<String> allUsernames = userViewModel.getAllUsernamesNoRepeat();
+        List<String> filteredSuggestions = new ArrayList<>();
+
+        if (input != null) {
+            // Crear una expresión regular para coincidir con el inicio del nombre de usuario
+            String regex = "^" + input.toLowerCase() + ".*";
+
+            for (String suggestion : allUsernames) {
+                if (suggestion.toLowerCase().matches(regex)) {
+                    filteredSuggestions.add(suggestion);
+                }
+            }
+        }
+
+        return filteredSuggestions;
+    }
+
     private void orderTableByDateTime() {
         // Ordena la tabla por 'la fecha'
         tableUsers.getSortOrder().setAll(columnDate);
@@ -201,25 +223,6 @@ public class DataGestorViewController {
         };
 
         tableUsers.getItems().sort(customComparator); // Aplicamos el comparador personalizado
-    }
-
-    private void initBindings() {
-        logger.info("Initializing Bindings");
-
-        // ComboTimeFilter
-        comboTimeFilter.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
-        comboTimeFilter.getSelectionModel().select(25);
-
-        // Table, mediante el State hacerlo
-        tableUsers.setItems(FXCollections.observableArrayList(userViewModel.getAllEntity()));
-
-        columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
-        columnDate.setCellValueFactory(new PropertyValueFactory<>("dateBet"));
-        columnTime.setCellValueFactory(new PropertyValueFactory<>("timeBet"));
-        columnReliable.setCellValueFactory(new PropertyValueFactory<>("reliable"));
-
-        radioButtonReliableFilter.setOnAction(event -> updateAllTables());
-        radioButtonNoReliableFilter.setOnAction(event -> updateAllTables());
     }
 
     private void setColorsTable() {
@@ -327,14 +330,14 @@ public class DataGestorViewController {
     }
 
     private void extractedUserByRadioButtonFilter(List<UserEntity> usersToShow) {
-        if (radioButtonReliableFilter.isSelected()) {
+        if (!radioButtonReliableFilter.isSelected()) {
             usersToShow.removeIf(user -> user.getReliable());
         }
-
-        if (radioButtonNoReliableFilter.isSelected()) {
+        if (!radioButtonNoReliableFilter.isSelected()) {
             usersToShow.removeIf(user -> !user.getReliable());
         }
     }
+
 
     public void updateAllTables() {
         String newUsername = textSearchUserFilter.getText().toUpperCase();
