@@ -469,23 +469,22 @@ public class MainViewController {
             if (gitOutput.toString().contains("fatal") || gitOutput.toString().contains("error")) {
                 logger.error("Backup failed");
                 showFailedBackup();
+                return;
             }
 
-            // Verificar el código de salida
-            if (exitCode == 0) {
-                logger.info("Backup correctly done");
+            logger.info("Backup correctly done");
 
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
-                // Heredar el ícono de la ventana principal
-                Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
-                dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+            // Heredar el ícono de la ventana principal
+            Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
 
-                alert.setTitle("Backup");
-                alert.setHeaderText("Backup ✅");
-                alert.setContentText("Backup realizado correctamente");
-                alert.showAndWait();
-            }
+            alert.setTitle("Backup");
+            alert.setHeaderText("Backup ✅");
+            alert.setContentText("Backup realizado correctamente");
+            alert.showAndWait();
+
         } catch (Exception e) {
             logger.info("Backup fallido");
             showFailedBackup();
@@ -575,7 +574,7 @@ public class MainViewController {
                     setStyle("");
                 } else {
                     if (getIndex() == 0) {
-                        setStyle("-fx-background-color: #EFB810;");
+                        //setStyle("-fx-background-color: #EFB810;");
                     } else if (getIndex() == 1) {
                         setStyle("-fx-background-color: #c9c9c9;");
                     } else if (getIndex() == 2) {

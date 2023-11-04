@@ -74,10 +74,10 @@ jlink {
         // No carga el icono, pero si encuentra el icono
         imageOptions += ['--icon', './src/main/resources/dev/sbytmacke/tokenhelper/icons/main_icon.ico']
         // Si queremos que nos salga el cmd con los loggers
-        if (org.gradle.internal.os.OperatingSystem.current().windows) {
-            installerOptions += ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-shortcut']
-            imageOptions += ['--win-console']
-        }
+        /* if (org.gradle.internal.os.OperatingSystem.current().windows) {
+             installerOptions += ['--win-per-user-install', '--win-dir-chooser', '--win-menu', '--win-shortcut']
+             imageOptions += ['--win-console']
+         }*/
     }
 }
 
