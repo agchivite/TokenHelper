@@ -17,14 +17,7 @@ if (-not (Test-Path -Path $TEMP_DIR)) {
 Copy-Item -Path $JSON_FILE -Destination $TEMP_DIR
 # Copy-Item -Path $CSV_FILE -Destination $TEMP_DIR
 
-# Verificar si la rama de respaldo existe
-if (-not (git show-ref --verify --quiet "refs/heads/$BRANCH_NAME")) {
-    # La rama no existe, crearla
-    git checkout -b $BRANCH_NAME
-} else {
-    # La rama ya existe, cambiar a ella
-    git checkout $BRANCH_NAME
-}
+git checkout $BRANCH_NAME
 
 # Restaurar los archivos desde el directorio temporal
 Copy-Item -Path "$TEMP_DIR\$JSON_FILE" -Destination .
