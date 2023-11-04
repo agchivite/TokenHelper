@@ -430,16 +430,34 @@ public class MainViewController {
             return;
         }
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        try {
+            // Ejecutar el script PowerShell
+            ProcessBuilder processBuilder = new ProcessBuilder("powershell.exe", ".\\resources\\backup.ps1");
+            Process process = processBuilder.start();
+            process.waitFor();
+            
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
-        // Heredar el ícono de la ventana principal
-        Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
-        dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+            // Heredar el ícono de la ventana principal
+            Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
 
-        alert.setTitle("Backup");
-        alert.setHeaderText("Backup ✅");
-        alert.setContentText("Backup realizado correctamente");
-        alert.showAndWait();
+            alert.setTitle("Backup");
+            alert.setHeaderText("Backup ✅");
+            alert.setContentText("Backup realizado correctamente");
+            alert.showAndWait();
+        } catch (Exception e) {
+            Alert alert = new Alert(ERROR);
+
+            // Heredar el ícono de la ventana principal
+            Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+
+            alert.setTitle("Backup");
+            alert.setHeaderText("Backup");
+            alert.setContentText("Error al realizar el backup");
+            alert.showAndWait();
+        }
     }
 
     private void onUpdateMenuAction() throws IOException {

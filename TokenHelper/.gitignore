@@ -12,7 +12,6 @@
 .idea/**/dictionaries
 .idea/**/shelf
 .idea/sonarlint
-entornos
 
 # AWS User-specific
 .idea/**/aws.xml
