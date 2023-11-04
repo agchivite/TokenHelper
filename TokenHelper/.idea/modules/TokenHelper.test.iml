@@ -29,7 +29,7 @@
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.mongodb:bson-record-codec:4.10.2" level="project" />
   </component>
   <component name="SonarLintModuleSettings">
-    <option name="uniqueId" value="0f140ba7-7bd2-4d57-8ada-0c504efd6e37" />
+    <option name="uniqueId" value="0c3ee5c9-1d8b-4ea4-954e-af095111fc12" />
   </component>
   <component name="TestModuleProperties" production-module="TokenHelper.main" />
 </module>
