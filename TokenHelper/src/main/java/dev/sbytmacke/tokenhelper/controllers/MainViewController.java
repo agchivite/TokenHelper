@@ -393,8 +393,7 @@ public class MainViewController {
             // Para que quede legible
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-
-            try (FileWriter fileWriter = new FileWriter("backup.json")) {
+            try (FileWriter fileWriter = new FileWriter("../../../backup.json")) {
                 fileWriter.write("[");
 
                 for (int i = 0; i < documents.size(); i++) {

@@ -1,5 +1,5 @@
 # Archivos que deseas respaldar
-$JSON_FILE = "backup.json"
+$JSON_FILE = "../../../backup.json"
 #$CSV_FILE = "backup.csv"
 
 # Rama de respaldo
@@ -9,7 +9,8 @@ $BRANCH_NAME = "backup"
 $TEMP_DIR = "..\..\temp_backup"
 
 # Crear el directorio temporal de respaldo
-if (-not (Test-Path -Path $TEMP_DIR)) {
+if (-not(Test-Path -Path $TEMP_DIR))
+{
     New-Item -Path $TEMP_DIR -ItemType Directory
 }
 
@@ -17,7 +18,7 @@ if (-not (Test-Path -Path $TEMP_DIR)) {
 Copy-Item -Path $JSON_FILE -Destination $TEMP_DIR
 # Copy-Item -Path $CSV_FILE -Destination $TEMP_DIR
 
-git checkout $BRANCH_NAME
+git checkout -f $BRANCH_NAME
 
 # Restaurar los archivos desde el directorio temporal
 Copy-Item -Path "$TEMP_DIR\$JSON_FILE" -Destination .
@@ -32,7 +33,10 @@ git commit -m "$COMMIT_MESSAGE"
 git push origin $BRANCH_NAME
 
 # Regresar a la rama original
-git checkout -
+git checkout -f -
 
 # Eliminar el directorio temporal
 Remove-Item -Path $TEMP_DIR -Recurse
+
+# Eliminar json
+Remove-Item -Path $JSON_FILE
