@@ -25,7 +25,6 @@ Copy-Item -Path "$TEMP_DIR\$JSON_FILE" -Destination .
 
 # Agregar los archivos al índice de Git
 git add -f $JSON_FILE
-git add -f build
 
 # git add $CSV_FILE
 

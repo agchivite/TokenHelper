@@ -421,12 +421,21 @@ public class MainViewController {
 
         try {
             // Obtiene la ruta del script desde el archivo JAR
-            //String scriptPathInJar = "/dev/sbytmacke/tokenhelper/scripts/backup.ps1";
-            //InputStream scriptInputStream = getClass().getResourceAsStream(scriptPathInJar);
+            String scriptPathInJar = "/dev/sbytmacke/tokenhelper/scripts/backup.ps1";
+            InputStream scriptInputStream = getClass().getResourceAsStream(scriptPathInJar);
 
             // Crea un archivo temporal para almacenar el script
             File tempScriptFile = File.createTempFile("backup", ".ps1");
             tempScriptFile.deleteOnExit();
+
+            // Copia el contenido del script desde el recurso dentro del archivo JAR al archivo temporal
+            try (FileOutputStream fileOutputStream = new FileOutputStream(tempScriptFile)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = scriptInputStream.read(buffer)) != -1) {
+                    fileOutputStream.write(buffer, 0, bytesRead);
+                }
+            }
 
             // Obtiene la ruta del archivo temporal
             String scriptPath = tempScriptFile.getAbsolutePath();
