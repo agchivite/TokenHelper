@@ -5,6 +5,9 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/TokenHelper.iml" filepath="$PROJECT_DIR$/.idea/modules/TokenHelper.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/TokenHelper.main.iml" filepath="$PROJECT_DIR$/.idea/modules/TokenHelper.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/TokenHelper.test.iml" filepath="$PROJECT_DIR$/.idea/modules/TokenHelper.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dev.sbytmacke.TokenHelper.iml" filepath="$PROJECT_DIR$/.idea/modules/dev.sbytmacke.TokenHelper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dev.sbytmacke.TokenHelper.main.iml" filepath="$PROJECT_DIR$/.idea/modules/dev.sbytmacke.TokenHelper.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/dev.sbytmacke.TokenHelper.test.iml" filepath="$PROJECT_DIR$/.idea/modules/dev.sbytmacke.TokenHelper.test.iml" />
     </modules>
   </component>
 </project>

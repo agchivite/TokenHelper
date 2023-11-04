@@ -435,7 +435,7 @@ public class MainViewController {
         try {
             // Comando PowerShell y ubicación del script
             String command = "powershell.exe";
-            String path = ".\\resources\\backup.ps1";
+            String path = Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/scripts/backup.ps1")).toExternalForm();
 
             // Parámetros que deseas pasar al script
             String param1 = "-ExecutionPolicy";
@@ -443,7 +443,7 @@ public class MainViewController {
             String param3 = "-File";
 
             // Construir el proceso con argumentos
-            ProcessBuilder processBuilder = new ProcessBuilder(command, param1, param2, param3, path);
+            ProcessBuilder processBuilder = new ProcessBuilder(command, path);
             processBuilder.redirectErrorStream(true); // Redirigir la salida de error a la salida estándar
 
             Process process = processBuilder.start();
