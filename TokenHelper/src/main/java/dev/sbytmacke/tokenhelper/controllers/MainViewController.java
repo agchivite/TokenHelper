@@ -575,15 +575,15 @@ public class MainViewController {
             protected void updateItem(UserDTO item, boolean empty) {
                 super.updateItem(item, empty);
 
-                if (item == null) {
-                    setStyle("");
-                } else {
+                if (item != null) {
                     if (getIndex() == 0) {
-                        //setStyle("-fx-background-color: #EFB810;");
+                        setStyle("-fx-background-color: #efb810;");
                     } else if (getIndex() == 1) {
                         setStyle("-fx-background-color: #c9c9c9;");
                     } else if (getIndex() == 2) {
                         setStyle("-fx-background-color: #b38f34;");
+                    } else {
+                        setStyle("");
                     }
                 }
             }
