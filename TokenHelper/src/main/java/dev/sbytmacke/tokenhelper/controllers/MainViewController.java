@@ -73,6 +73,8 @@ public class MainViewController {
     @FXML
     private ComboBox<String> comboTimeFilter;
     @FXML
+    private RadioButton radioButtonHideTime;
+    @FXML
     private RadioButton radioButtonHideGreen;
     @FXML
     private RadioButton radioButtonHideOrange;
@@ -233,6 +235,8 @@ public class MainViewController {
     private void initEvents() {
         logger.info("Initializing Events");
 
+        radioButtonHideTime.setOnAction(event -> updateAllTables());
+
         menuBackup.setOnAction(event -> onBackupMenuAction());
 
         buttonCleanSaveUsername.setOnAction(event -> textFieldUser.setText(null));
@@ -240,6 +244,7 @@ public class MainViewController {
         buttonClearFilters.setOnAction(event -> {
             textSearchUserFilter.setText("");
             comboTimeFilter.getSelectionModel().select(0);
+            radioButtonHideTime.setSelected(false);
             radioButtonHideGreen.setSelected(false);
             radioButtonHideOrange.setSelected(false);
             radioButtonHideRed.setSelected(false);
@@ -529,7 +534,7 @@ public class MainViewController {
         return filterTopUsersReliable;
     }
 
-    private List<UserDTO> filterRakingUsersReliable(List<UserDTO> usersToFilter) {
+    public List<UserDTO> filterRakingUsersReliable(List<UserDTO> usersToFilter) {
 
         return usersToFilter.stream()
                 .filter(user -> user.getPercentReliable() >= PERCENT_SUCCESS_RANKING_TO_SHOW) // Filtra usuarios fiables
@@ -618,8 +623,16 @@ public class MainViewController {
         calculateMedianTotalSuccess();
 
         String newUsername = textSearchUserFilter.getText().toUpperCase();
-        String newTime = comboTimeFilter.getSelectionModel().getSelectedItem();
         Integer newDateOfWeek = getNewDateOfWeek();
+        String newTime;
+
+        if (radioButtonHideTime.isSelected()) {
+            newTime = noDataTime;
+            comboTimeFilter.setDisable(true);
+        } else {
+            newTime = comboTimeFilter.getSelectionModel().getSelectedItem();
+            comboTimeFilter.setDisable(false);
+        }
 
         setGlobalResult(newTime, newDateOfWeek);
 
@@ -633,11 +646,7 @@ public class MainViewController {
 
         List<UserDTO> filteredUsers = filterRakingUsersReliable(tableUsers.getItems());
 
-        for (int i = filteredUsers.size() - 1; i >= 0; i--) {
-            tableUsers.getItems().remove(filteredUsers.get(i));
-            filteredUsers.get(i).setUsername("⭐ " + filteredUsers.get(i).getUsername());
-            tableUsers.getItems().add(i, filteredUsers.get(i));
-        }
+        setStarTopUsers(filteredUsers);
 
         if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
             tableUsers.setSelectionModel(null);
@@ -651,13 +660,21 @@ public class MainViewController {
         listUsers(tableUsersRanking.getItems());
     }
 
+    public void setStarTopUsers(List<UserDTO> filteredUsers) {
+        for (int i = filteredUsers.size() - 1; i >= 0; i--) {
+            tableUsers.getItems().remove(filteredUsers.get(i));
+            filteredUsers.get(i).setUsername("⭐ " + filteredUsers.get(i).getUsername());
+            tableUsers.getItems().add(i, filteredUsers.get(i));
+        }
+    }
+
     private List<UserDTO> filterStarUsersReliable(ObservableList<UserDTO> items) {
         // TODO: Cuando se decida exactamente que queremos en un tio STAR
         return items;
     }
 
 
-    private void orderByTotalSuccessBets(TableView<UserDTO> tableToSort) {
+    public void orderByTotalSuccessBets(TableView<UserDTO> tableToSort) {
         // Ordenamos por el que tenga más aciertos de cómputo, ya que hemos eliminado aquellos que tienen muchos fallos previamente
         Comparator<UserDTO> customComparatorRanking = (user1, user2) -> {
             // Total de aciertos
@@ -1031,4 +1048,7 @@ public class MainViewController {
     }
 
 
+    public RadioButton getRadioButtonHideTime() {
+        return radioButtonHideTime;
+    }
 }

@@ -14,18 +14,19 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" prefHeight="548.0" prefWidth="297.0" style="-fx-background-color: #313338;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dev.sbytmacke.tokenhelper.controllers.MainMiniViewController">
-   <GridPane prefHeight="124.0" prefWidth="297.0">
+<VBox alignment="TOP_CENTER" prefHeight="563.0" prefWidth="297.0" style="-fx-background-color: #313338;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dev.sbytmacke.tokenhelper.controllers.MainMiniViewController">
+   <GridPane prefHeight="160.0" prefWidth="297.0">
       <columnConstraints>
          <ColumnConstraints hgrow="SOMETIMES" maxWidth="269.0" minWidth="10.0" prefWidth="116.0" />
          <ColumnConstraints hgrow="SOMETIMES" maxWidth="375.0" minWidth="10.0" prefWidth="181.0" />
       </columnConstraints>
       <rowConstraints>
-         <RowConstraints maxHeight="75.0" minHeight="10.0" prefHeight="61.0" vgrow="SOMETIMES" />
+         <RowConstraints maxHeight="75.0" minHeight="10.0" prefHeight="41.0" vgrow="SOMETIMES" />
+         <RowConstraints maxHeight="75.0" minHeight="10.0" prefHeight="50.0" vgrow="SOMETIMES" />
          <RowConstraints maxHeight="75.0" minHeight="10.0" prefHeight="71.0" vgrow="SOMETIMES" />
       </rowConstraints>
       <children>
-         <VBox alignment="CENTER" prefHeight="61.0" prefWidth="181.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+         <VBox alignment="CENTER" prefHeight="61.0" prefWidth="181.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
             <children>
                <HBox alignment="CENTER_LEFT">
                   <children>
@@ -101,7 +102,7 @@
                </HBox>
             </children>
          </VBox>
-         <HBox alignment="CENTER_LEFT" prefHeight="61.0" prefWidth="104.0">
+         <HBox alignment="CENTER_LEFT" prefHeight="61.0" prefWidth="104.0" GridPane.rowIndex="1">
             <children>
                <Label text="Hora (hh:mm):" textFill="#cfd0d1">
                   <padding>
@@ -110,25 +111,36 @@
                </Label>
             </children>
          </HBox>
-         <Label text="Día de la semana:" textFill="#cfd0d1" GridPane.rowIndex="1">
+         <Label text="Día de la semana:" textFill="#cfd0d1" GridPane.rowIndex="2">
             <GridPane.margin>
                <Insets left="10.0" />
             </GridPane.margin>
          </Label>
-         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1">
+         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <children>
                <ComboBox fx:id="comboTimeFilter" prefHeight="25.0" prefWidth="117.0" style="-fx-background-color: #1e1f22; -fx-control-inner-background: #1e1f22;">
                   <HBox.margin>
                      <Insets right="10.0" />
                   </HBox.margin>
                </ComboBox>
-               <Button fx:id="buttonClearFilters" mnemonicParsing="false" prefHeight="26.0" prefWidth="41.0" text="🌀">
+               <RadioButton fx:id="radioButtonHideTime" mnemonicParsing="false" text="🔗" textFill="#ffc85a">
+                  <padding>
+                     <Insets right="10.0" />
+                  </padding>
                   <font>
-                     <Font name="Segoe UI Emoji" size="14.0" />
+                     <Font name="Segoe UI Emoji" size="12.0" />
                   </font>
-               </Button>
+               </RadioButton>
             </children>
          </HBox>
+         <Button fx:id="buttonClearFilters" mnemonicParsing="false" prefHeight="26.0" prefWidth="48.0" text="🌀" GridPane.columnIndex="1">
+            <font>
+               <Font name="Segoe UI Emoji" size="14.0" />
+            </font>
+            <GridPane.margin>
+               <Insets bottom="5.0" left="10.0" />
+            </GridPane.margin>
+         </Button>
       </children>
       <VBox.margin>
          <Insets top="10.0" />
