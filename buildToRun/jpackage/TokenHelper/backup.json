@@ -3604,11 +3604,6 @@
   "timeBet": "21:01-22:00",
   "reliable": false
 },{
-  "username": "HOUSE ATREIDES MULTICHAIN",
-  "dateBet": "2023-10-20",
-  "timeBet": "20:01-21:00",
-  "reliable": false
-},{
   "username": "ARCHERR\u0027S GAMBLE ? O ARCHERR CALLS?",
   "dateBet": "2023-10-20",
   "timeBet": "20:01-21:00",
@@ -9073,4 +9068,34 @@
   "dateBet": "2023-09-25",
   "timeBet": "15:01-16:00",
   "reliable": false
+},{
+  "username": "KHRONOS XPOVOC CALLS - ETH",
+  "dateBet": "2023-11-05",
+  "timeBet": "11:01-12:00",
+  "reliable": false
+},{
+  "username": "NOCTURNAL CALLS ???",
+  "dateBet": "2023-11-05",
+  "timeBet": "11:01-12:00",
+  "reliable": false
+},{
+  "username": "RYOSHI GAMBLE",
+  "dateBet": "2023-11-05",
+  "timeBet": "11:01-12:00",
+  "reliable": true
+},{
+  "username": "BITCONG?????",
+  "dateBet": "2023-09-22",
+  "timeBet": "17:01-18:00",
+  "reliable": false
+},{
+  "username": "HOUSE ATREIDES MULTICHAIN",
+  "dateBet": "2023-10-20",
+  "timeBet": "20:01-21:00",
+  "reliable": true
+},{
+  "username": "MARK DEGENS",
+  "dateBet": "2023-10-24",
+  "timeBet": "01:01-02:00",
+  "reliable": true
 }]
