@@ -226,7 +226,7 @@ public class MainViewController {
 
     private void initDetails() {
         radioButtonNone.setSelected(true);
-        tableUsers.setSelectionModel(null);
+        // tableUsers.setSelectionModel(null);
         tableUsersRanking.setSelectionModel(null);
 
         centerAndFontTextTable();
@@ -238,6 +238,18 @@ public class MainViewController {
 
     private void initEvents() {
         logger.info("Initializing Events");
+
+        // Evento para abrir la ventana modal al hacer clic en una fila de la tabla
+        tableUsers.setOnMouseClicked(event -> {
+            RoutesManager routesManager = new RoutesManager();
+            try {
+                UserDTO selectedItem = tableUsers.getSelectionModel().getSelectedItem();
+                selectedItem.setUsername(selectedItem.getUsername().replace("⭐ ", ""));
+                routesManager.initUserDetailModal(selectedItem);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         starCheckBox.setOnAction(event -> updateAllTables());
 
@@ -670,7 +682,6 @@ public class MainViewController {
         }
 
         if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
         }
 
@@ -875,7 +886,6 @@ public class MainViewController {
 
             extractedUserByRadioButtonFilter(usersToShow);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
@@ -891,7 +901,6 @@ public class MainViewController {
 
             extractedUserByRadioButtonFilter(usersToShow);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -907,7 +916,6 @@ public class MainViewController {
 
             extractedUserByRadioButtonFilter(usersToShow);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -939,7 +947,6 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
@@ -960,7 +967,6 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -979,7 +985,6 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;

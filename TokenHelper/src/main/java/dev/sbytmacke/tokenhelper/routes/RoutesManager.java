@@ -1,10 +1,8 @@
 package dev.sbytmacke.tokenhelper.routes;
 
 import dev.sbytmacke.tokenhelper.AppMain;
-import dev.sbytmacke.tokenhelper.controllers.DataGestorViewController;
-import dev.sbytmacke.tokenhelper.controllers.MainMiniViewController;
-import dev.sbytmacke.tokenhelper.controllers.MainViewController;
-import dev.sbytmacke.tokenhelper.controllers.UpdateViewController;
+import dev.sbytmacke.tokenhelper.controllers.*;
+import dev.sbytmacke.tokenhelper.dto.UserDTO;
 import dev.sbytmacke.tokenhelper.repositories.UserRepositoryImpl;
 import dev.sbytmacke.tokenhelper.services.database.DatabaseManagerImpl;
 import dev.sbytmacke.tokenhelper.viewmodel.UserViewModel;
@@ -32,6 +30,25 @@ public class RoutesManager {
 
     public static Stage getMainStage() {
         return _mainStage;
+    }
+
+    public void initUserDetailModal(UserDTO selectedItem) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("user-detail-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+
+        UserDetailController controller = fxmlLoader.getController();
+        controller.init(userViewModel, selectedItem);
+
+        // Crear y mostrar la escena modal
+        Stage modalStage = new Stage();
+        modalStage.setTitle("Detalle de usuario");
+        modalStage.setResizable(false);
+        modalStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource(pathMainPng)).toExternalForm()));
+
+        modalStage.setScene(scene);
+        modalStage.initOwner(_mainStage);
+        modalStage.initModality(Modality.NONE); // Para poder interactuar con la pantalla principal
+        modalStage.show();
     }
 
     public void initMainView(Stage stage) throws IOException {
@@ -76,10 +93,6 @@ public class RoutesManager {
         stage.show();
     }
 
-    public Stage getActiveStage() {
-        return _activeStage;
-    }
-
     public void initLeyendaView() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("leyenda-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
@@ -92,7 +105,6 @@ public class RoutesManager {
         stage.setScene(scene);
         stage.initOwner(_mainStage);
         stage.initModality(Modality.NONE); // Para poder interactuar con la pantalla principal
-
         stage.show();
     }
 
@@ -141,5 +153,9 @@ public class RoutesManager {
         stage.initModality(Modality.WINDOW_MODAL);
 
         stage.show();
+    }
+
+    public Stage getActiveStage() {
+        return _activeStage;
     }
 }

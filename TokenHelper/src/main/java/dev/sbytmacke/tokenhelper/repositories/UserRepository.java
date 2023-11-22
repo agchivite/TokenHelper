@@ -36,5 +36,7 @@ public interface UserRepository<U, N> extends Repository<U, N> {
     void updateUsername(N oldUsername, N newUsername);
 
     List<Document> backupData();
+
+    List<U> getAllBetsByUser(N username);
 }
 
