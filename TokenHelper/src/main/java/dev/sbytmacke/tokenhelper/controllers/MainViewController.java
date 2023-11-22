@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -985,7 +986,7 @@ public class MainViewController {
             alert.showAndWait();
             return;
         }
-        
+
         if (userName.contains("{") || userName.contains("}")) {
             logger.info(infoError);
             Alert alert = new Alert(ERROR);
@@ -1009,7 +1010,7 @@ public class MainViewController {
             Alert alert = new Alert(ERROR);
             alert.setTitle(titleError);
             alert.setHeaderText("Fecha incorrecta");
-            alert.setContentText("La fecha no puede ser más tarde del día presente");
+            alert.setContentText("La fecha NO puede ser más tarde del día presente");
             alert.showAndWait();
             return;
         }
@@ -1020,6 +1021,21 @@ public class MainViewController {
             alert.setTitle(titleError);
             alert.setHeaderText("Hora vacía");
             alert.setContentText("La hora NO puede estar vacía");
+            alert.showAndWait();
+            return;
+        }
+
+        // time es una string 00:01-01:00
+        String[] parts = time.split("-");
+        LocalTime inputTime = LocalTime.parse(parts[0]);
+        LocalTime currentTime = LocalTime.now();
+
+        if (inputTime.isAfter(currentTime)) {
+            logger.info(infoError);
+            Alert alert = new Alert(ERROR);
+            alert.setTitle(titleError);
+            alert.setHeaderText("Hora incorrecta");
+            alert.setContentText("La hora NO puede ser posterior a la actual");
             alert.showAndWait();
             return;
         }
