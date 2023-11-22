@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -80,6 +81,8 @@ public class MainViewController {
     private RadioButton radioButtonHideOrange;
     @FXML
     private RadioButton radioButtonHideRed;
+    @FXML
+    private CheckBox starCheckBox;
     @FXML
     private RadioButton radioButtonNone;
     @FXML
@@ -201,6 +204,7 @@ public class MainViewController {
         comboTimeFilter.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
         comboTimeFilter.getSelectionModel().select(0);
 
+        // Limpiamos la tabla
         columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         columnSuccess.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
         columnTotalBets.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
@@ -222,7 +226,7 @@ public class MainViewController {
 
     private void initDetails() {
         radioButtonNone.setSelected(true);
-        tableUsers.setSelectionModel(null);
+        // tableUsers.setSelectionModel(null);
         tableUsersRanking.setSelectionModel(null);
 
         centerAndFontTextTable();
@@ -234,6 +238,20 @@ public class MainViewController {
 
     private void initEvents() {
         logger.info("Initializing Events");
+
+        // Evento para abrir la ventana modal al hacer clic en una fila de la tabla
+        tableUsers.setOnMouseClicked(event -> {
+            RoutesManager routesManager = new RoutesManager();
+            try {
+                UserDTO selectedItem = tableUsers.getSelectionModel().getSelectedItem();
+                selectedItem.setUsername(selectedItem.getUsername().replace("⭐ ", ""));
+                routesManager.initUserDetailModal(selectedItem);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        starCheckBox.setOnAction(event -> updateAllTables());
 
         radioButtonHideTime.setOnAction(event -> updateAllTables());
 
@@ -522,13 +540,13 @@ public class MainViewController {
         for (int i = 0; i < filterTopUsersReliable.size(); i++) {
             UserDTO user = filterTopUsersReliable.get(i);
             if (i == 0) {
-                user.setUsername("     🥇 " + user.getUsername());
+                user.setUsername("  🥇 " + user.getUsername());
             } else if (i == 1) {
-                user.setUsername("     \uD83E\uDD48 " + user.getUsername());
+                user.setUsername("  \uD83E\uDD48 " + user.getUsername());
             } else if (i == 2) {
-                user.setUsername("     \uD83E\uDD49  " + user.getUsername());
+                user.setUsername("  \uD83E\uDD49  " + user.getUsername());
             } else {
-                user.setUsername("        " + (i + 1) + ".  " + user.getUsername());
+                user.setUsername("   " + (i + 1) + ".  " + user.getUsername());
             }
         }
         return filterTopUsersReliable;
@@ -605,14 +623,24 @@ public class MainViewController {
         List<String> allUsernames = userViewModel.getAllUsernamesNoRepeat();
         List<String> filteredSuggestions = new ArrayList<>();
 
+        // 1. REGEX
         // Crear una expresión regular para coincidir con el inicio del nombre de usuario
-        String regex = "^" + input.toLowerCase() + ".*";
-
+/*        String regex = "^" + input.toLowerCase() + ".*";
         for (String suggestion : allUsernames) {
             if (suggestion.toLowerCase().matches(regex)) {
                 filteredSuggestions.add(suggestion);
             }
+        }*/
+
+        // 2. CONTAINS
+        for (String suggestion : allUsernames) {
+            if (suggestion.toLowerCase().contains(input.toLowerCase())) {
+                filteredSuggestions.add(suggestion);
+            }
         }
+
+        // Ordenar alfabéticamente las sugerencias
+        filteredSuggestions.sort(String::compareToIgnoreCase);
 
         //suggestionListView.getItems().setAll(filteredSuggestions);
         return filteredSuggestions;
@@ -645,11 +673,15 @@ public class MainViewController {
         orderByTotalSuccessBets(tableUsers);
 
         List<UserDTO> filteredUsers = filterRakingUsersReliable(tableUsers.getItems());
-
         setStarTopUsers(filteredUsers);
 
+        if (starCheckBox.isSelected()) {
+            tableUsers.setItems(FXCollections.observableArrayList(filteredUsers));
+        } else {
+            tableUsers.setItems(FXCollections.observableArrayList(tableUsers.getItems()));
+        }
+
         if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
         }
 
@@ -689,7 +721,6 @@ public class MainViewController {
                 return Double.compare(totalSuccessUser2, totalSuccessUser1);
             }
         };
-
         tableToSort.getItems().sort(customComparatorRanking); // Aplicamos el comparador personalizado
     }
 
@@ -855,7 +886,6 @@ public class MainViewController {
 
             extractedUserByRadioButtonFilter(usersToShow);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
@@ -871,7 +901,6 @@ public class MainViewController {
 
             extractedUserByRadioButtonFilter(usersToShow);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -887,7 +916,6 @@ public class MainViewController {
 
             extractedUserByRadioButtonFilter(usersToShow);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -919,7 +947,6 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
@@ -940,7 +967,6 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -959,7 +985,6 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -986,6 +1011,16 @@ public class MainViewController {
             return;
         }
 
+        if (userName.contains("{") || userName.contains("}")) {
+            logger.info(infoError);
+            Alert alert = new Alert(ERROR);
+            alert.setTitle(titleError);
+            alert.setHeaderText("Nombre de usuario incorrecto");
+            alert.setContentText("El nombre de usuario NO puede contener los caracteres '{' o '}'");
+            alert.showAndWait();
+            return;
+        }
+
         if (date == null) {
             logger.info(infoError);
             Alert alert = new Alert(ERROR);
@@ -999,7 +1034,7 @@ public class MainViewController {
             Alert alert = new Alert(ERROR);
             alert.setTitle(titleError);
             alert.setHeaderText("Fecha incorrecta");
-            alert.setContentText("La fecha no puede ser más tarde del día presente");
+            alert.setContentText("La fecha NO puede ser más tarde del día presente");
             alert.showAndWait();
             return;
         }
@@ -1010,6 +1045,21 @@ public class MainViewController {
             alert.setTitle(titleError);
             alert.setHeaderText("Hora vacía");
             alert.setContentText("La hora NO puede estar vacía");
+            alert.showAndWait();
+            return;
+        }
+
+        // time es una string 00:01-01:00
+        String[] parts = time.split("-");
+        LocalTime inputTime = LocalTime.parse(parts[0]);
+        LocalTime currentTime = LocalTime.now();
+
+        if (inputTime.isAfter(currentTime)) {
+            logger.info(infoError);
+            Alert alert = new Alert(ERROR);
+            alert.setTitle(titleError);
+            alert.setHeaderText("Hora incorrecta");
+            alert.setContentText("La hora NO puede ser posterior a la actual");
             alert.showAndWait();
             return;
         }
@@ -1047,8 +1097,16 @@ public class MainViewController {
         return comboTimeFilter.getSelectionModel().getSelectedIndex();
     }
 
-
     public RadioButton getRadioButtonHideTime() {
         return radioButtonHideTime;
+    }
+
+    public CheckBox getStarCheckBox() {
+        return starCheckBox;
+    }
+
+    public void clearTable() {
+        tableUsers.getItems().clear();
+        tableUsers.setItems(FXCollections.observableArrayList());
     }
 }

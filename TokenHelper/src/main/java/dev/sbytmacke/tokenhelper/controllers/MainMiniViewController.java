@@ -49,6 +49,8 @@ public class MainMiniViewController {
     private RadioButton radioButtonSunday;
     @FXML
     private Button buttonClearFilters;
+    @FXML
+    private CheckBox starCheckBox;
 
     public void init(MainViewController mainViewController) {
         this.mainViewController = mainViewController;
@@ -60,6 +62,8 @@ public class MainMiniViewController {
     }
 
     private void initEvents() {
+        starCheckBox.setOnAction(event -> updateAllTables());
+
         radioButtonHideTime.setOnAction(event -> updateAllTables());
 
         buttonClearFilters.setOnAction(event -> {
@@ -166,6 +170,8 @@ public class MainMiniViewController {
             }
         }
 
+        starCheckBox.setSelected(mainViewController.getStarCheckBox().isSelected());
+
         columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         columnSuccess.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
         columnTotalBets.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
@@ -202,8 +208,13 @@ public class MainMiniViewController {
         mainViewController.orderByTotalSuccessBets(tableUsers);
 
         List<UserDTO> filteredUsers = mainViewController.filterRakingUsersReliable(tableUsers.getItems());
-
         mainViewController.setStarTopUsers(filteredUsers);
+
+        if (starCheckBox.isSelected()) {
+            tableUsers.setItems(FXCollections.observableArrayList(filteredUsers));
+        } else {
+            tableUsers.setItems(FXCollections.observableArrayList(tableUsers.getItems()));
+        }
 
         if (!onFilterByDateTime && !onFilterByDate && !onFilterByTime) {
             tableUsers.getItems().clear();

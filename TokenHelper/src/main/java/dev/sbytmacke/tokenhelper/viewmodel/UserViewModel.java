@@ -38,7 +38,6 @@ public class UserViewModel {
         return Math.round(totalPercentSuccess) / 100.0;
     }
 
-
     public void saveUser(UserEntity userEntity) {
         repository.addItem(userEntity);
     }
@@ -155,5 +154,10 @@ public class UserViewModel {
     public List<Document> backupData() {
         logger.info("backupData");
         return repository.backupData();
+    }
+
+    public List<UserEntity> getAllBetsByUser(String username) {
+        logger.info("getAllBetsByUser");
+        return repository.getAllBetsByUser(username);
     }
 }

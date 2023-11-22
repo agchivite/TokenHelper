@@ -486,4 +486,33 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
         return usersDocuments;
     }
 
+    @Override
+    public List<UserEntity> getAllBetsByUser(String username) {
+        logger.info("getAllBetsByUser");
+
+        databaseManager.connectDatabase();
+
+
+        MongoCollection<Document> collection = databaseManager.getDatabase().getCollection(COLLECTION_NAME);
+
+        // Crear un filtro para encontrar los documentos con el nombre de usuario antiguo
+        Bson filter = Filters.eq(FIELD_USERNAME, username);
+        
+        FindIterable<Document> result = collection.find(filter); // Consulta
+
+        ArrayList<UserEntity> usersFiltered = new ArrayList<>();
+
+        MongoCursor<Document> cursor = result.iterator();
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+            UserEntity user = mapDocumentToEntity(document);
+            usersFiltered.add(user);
+        }
+
+        cursor.close();
+        databaseManager.closeDatabase();
+
+        return usersFiltered;
+    }
+
 }
