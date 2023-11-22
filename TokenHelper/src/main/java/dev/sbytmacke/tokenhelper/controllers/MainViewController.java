@@ -985,6 +985,16 @@ public class MainViewController {
             alert.showAndWait();
             return;
         }
+        
+        if (userName.contains("{") || userName.contains("}")) {
+            logger.info(infoError);
+            Alert alert = new Alert(ERROR);
+            alert.setTitle(titleError);
+            alert.setHeaderText("Nombre de usuario incorrecto");
+            alert.setContentText("El nombre de usuario NO puede contener los caracteres '{' o '}'");
+            alert.showAndWait();
+            return;
+        }
 
         if (date == null) {
             logger.info(infoError);
@@ -1046,7 +1056,6 @@ public class MainViewController {
     public Integer getIndexComboTimeFilter() {
         return comboTimeFilter.getSelectionModel().getSelectedIndex();
     }
-
 
     public RadioButton getRadioButtonHideTime() {
         return radioButtonHideTime;
