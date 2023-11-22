@@ -625,6 +625,9 @@ public class MainViewController {
                 filteredSuggestions.add(suggestion);
             }
         }
+        
+        // Ordenar alfabéticamente las sugerencias
+        filteredSuggestions.sort(String::compareToIgnoreCase);
 
         //suggestionListView.getItems().setAll(filteredSuggestions);
         return filteredSuggestions;
