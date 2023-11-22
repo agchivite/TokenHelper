@@ -16,7 +16,7 @@
 <?import javafx.scene.text.Font?>
 
 <VBox alignment="TOP_CENTER" prefHeight="563.0" prefWidth="297.0" style="-fx-background-color: #313338;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dev.sbytmacke.tokenhelper.controllers.MainMiniViewController">
-   <GridPane prefHeight="160.0" prefWidth="297.0">
+   <GridPane maxHeight="160.0" maxWidth="297.0" minHeight="160.0" minWidth="297.0" prefHeight="160.0" prefWidth="297.0">
       <columnConstraints>
          <ColumnConstraints hgrow="SOMETIMES" maxWidth="269.0" minWidth="10.0" prefWidth="116.0" />
          <ColumnConstraints hgrow="SOMETIMES" maxWidth="375.0" minWidth="10.0" prefWidth="181.0" />
