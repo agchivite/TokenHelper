@@ -522,13 +522,13 @@ public class MainViewController {
         for (int i = 0; i < filterTopUsersReliable.size(); i++) {
             UserDTO user = filterTopUsersReliable.get(i);
             if (i == 0) {
-                user.setUsername("     🥇 " + user.getUsername());
+                user.setUsername("  🥇 " + user.getUsername());
             } else if (i == 1) {
-                user.setUsername("     \uD83E\uDD48 " + user.getUsername());
+                user.setUsername("  \uD83E\uDD48 " + user.getUsername());
             } else if (i == 2) {
-                user.setUsername("     \uD83E\uDD49  " + user.getUsername());
+                user.setUsername("  \uD83E\uDD49  " + user.getUsername());
             } else {
-                user.setUsername("        " + (i + 1) + ".  " + user.getUsername());
+                user.setUsername("   " + (i + 1) + ".  " + user.getUsername());
             }
         }
         return filterTopUsersReliable;
