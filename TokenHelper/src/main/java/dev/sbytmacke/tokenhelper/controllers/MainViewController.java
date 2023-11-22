@@ -610,11 +610,18 @@ public class MainViewController {
         List<String> allUsernames = userViewModel.getAllUsernamesNoRepeat();
         List<String> filteredSuggestions = new ArrayList<>();
 
+        // 1. REGEX
         // Crear una expresión regular para coincidir con el inicio del nombre de usuario
-        String regex = "^" + input.toLowerCase() + ".*";
-
+/*        String regex = "^" + input.toLowerCase() + ".*";
         for (String suggestion : allUsernames) {
             if (suggestion.toLowerCase().matches(regex)) {
+                filteredSuggestions.add(suggestion);
+            }
+        }*/
+
+        // 2. CONTAINS
+        for (String suggestion : allUsernames) {
+            if (suggestion.toLowerCase().contains(input.toLowerCase())) {
                 filteredSuggestions.add(suggestion);
             }
         }
@@ -699,7 +706,6 @@ public class MainViewController {
                 return Double.compare(totalSuccessUser2, totalSuccessUser1);
             }
         };
-
         tableToSort.getItems().sort(customComparatorRanking); // Aplicamos el comparador personalizado
     }
 
