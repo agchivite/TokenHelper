@@ -82,6 +82,8 @@ public class MainViewController {
     @FXML
     private RadioButton radioButtonHideRed;
     @FXML
+    private CheckBox starCheckBox;
+    @FXML
     private RadioButton radioButtonNone;
     @FXML
     private RadioButton radioButtonMonday;
@@ -235,6 +237,8 @@ public class MainViewController {
 
     private void initEvents() {
         logger.info("Initializing Events");
+
+        starCheckBox.setOnAction(event -> updateAllTables());
 
         radioButtonHideTime.setOnAction(event -> updateAllTables());
 
@@ -646,8 +650,13 @@ public class MainViewController {
         orderByTotalSuccessBets(tableUsers);
 
         List<UserDTO> filteredUsers = filterRakingUsersReliable(tableUsers.getItems());
-
         setStarTopUsers(filteredUsers);
+
+        if (starCheckBox.isSelected()) {
+            tableUsers.setItems(FXCollections.observableArrayList(filteredUsers));
+        } else {
+            tableUsers.setItems(FXCollections.observableArrayList(tableUsers.getItems()));
+        }
 
         if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
             tableUsers.setSelectionModel(null);
@@ -1075,5 +1084,9 @@ public class MainViewController {
 
     public RadioButton getRadioButtonHideTime() {
         return radioButtonHideTime;
+    }
+
+    public CheckBox getStarCheckBox() {
+        return starCheckBox;
     }
 }
