@@ -110,6 +110,9 @@ public class RoutesManager {
 
         // EventHandler para el evento de cierre de la ventana
         stage.setOnCloseRequest(event -> {
+            // Limpiamos la tabla main-view
+            mainViewController.clearTable();
+            mainViewController.updateAllTables();
             _mainStage.show();
         });
 

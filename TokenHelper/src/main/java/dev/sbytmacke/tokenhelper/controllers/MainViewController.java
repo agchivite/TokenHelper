@@ -204,6 +204,7 @@ public class MainViewController {
         comboTimeFilter.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
         comboTimeFilter.getSelectionModel().select(0);
 
+        // Limpiamos la tabla
         columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         columnSuccess.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
         columnTotalBets.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
@@ -625,7 +626,7 @@ public class MainViewController {
                 filteredSuggestions.add(suggestion);
             }
         }
-        
+
         // Ordenar alfabéticamente las sugerencias
         filteredSuggestions.sort(String::compareToIgnoreCase);
 
@@ -1097,5 +1098,10 @@ public class MainViewController {
 
     public CheckBox getStarCheckBox() {
         return starCheckBox;
+    }
+
+    public void clearTable() {
+        tableUsers.getItems().clear();
+        tableUsers.setItems(FXCollections.observableArrayList());
     }
 }
