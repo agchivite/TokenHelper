@@ -227,7 +227,7 @@ public class MainViewController {
     private void initDetails() {
         radioButtonNone.setSelected(true);
         // tableUsers.setSelectionModel(null);
-        tableUsersRanking.setSelectionModel(null);
+        // tableUsersRanking.setSelectionModel(null);
 
         centerAndFontTextTable();
         setColorsTable();
@@ -235,6 +235,7 @@ public class MainViewController {
         comboTimeFilter.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
         comboTime.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
         tableUsers.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/tableUsers.css")).toExternalForm());
+        tableUsersRanking.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/tableUsers.css")).toExternalForm());
     }
 
     private void initEvents() {
@@ -244,9 +245,6 @@ public class MainViewController {
         tableUsers.setOnMouseClicked(event -> {
             RoutesManager routesManager = new RoutesManager();
             try {
-                // Mantener el color negro al clicar en la fila
-
-
                 UserDTO selectedItem = tableUsers.getSelectionModel().getSelectedItem();
                 selectedItem.setUsername(selectedItem.getUsername().replace("⭐ ", ""));
                 routesManager.initUserDetailModal(selectedItem);
@@ -254,6 +252,23 @@ public class MainViewController {
                 throw new RuntimeException(e);
             }
         });
+        // TODO:
+/*        tableUsersRanking.setOnMouseClicked(event -> {
+            RoutesManager routesManager = new RoutesManager();
+            try {
+                UserDTO selectedItem = tableUsers.getSelectionModel().getSelectedItem();
+                selectedItem.setUsername(selectedItem.getUsername().replace("⭐ ", ""));
+                // Reemplazar las emdallas
+       *//*         user.setUsername("  🥇 " + user.getUsername());
+                user.setUsername("  \uD83E\uDD48 " + user.getUsername());
+                user.setUsername("  \uD83E\uDD49  " + user.getUsername());
+                user.setUsername("   " + (i + 1) + ".  " + user.getUsername());
+            *//*
+                routesManager.initUserDetailModal(selectedItem);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });*/
 
         starCheckBox.setOnAction(event -> updateAllTables());
 
@@ -1058,12 +1073,12 @@ public class MainViewController {
         LocalTime inputTime = LocalTime.parse(parts[0]);
         LocalTime currentTime = LocalTime.now();
 
-        if (inputTime.isAfter(currentTime)) {
+        if (inputTime.isAfter(currentTime) && (date.equals(LocalDate.now()))) {
             logger.info(infoError);
             Alert alert = new Alert(ERROR);
             alert.setTitle(titleError);
             alert.setHeaderText("Hora incorrecta");
-            alert.setContentText("La hora NO puede ser posterior a la actual");
+            alert.setContentText("La hora NO puede ser posterior a la actual de hoy");
             alert.showAndWait();
             return;
         }
