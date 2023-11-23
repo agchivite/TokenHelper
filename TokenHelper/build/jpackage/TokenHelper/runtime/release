@@ -1,0 +1,2 @@
+JAVA_VERSION="17.0.9"
+MODULES="java.base jdk.unsupported com.google.gson java.logging java.management java.security.sasl java.naming java.security.jgss dev.sbytmacke.merged.module java.datatransfer java.xml java.prefs java.desktop javafx.base javafx.graphics javafx.controls java.scripting javafx.fxml org.mongodb.bson org.mongodb.driver.core org.mongodb.driver.sync.client org.slf4j dev.sbytmacke.tokenhelper"
