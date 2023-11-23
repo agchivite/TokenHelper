@@ -108,6 +108,7 @@ public class UserDetailController {
         usernameLabel.setText(user.getUsername());
         //bestDay.setText(String.valueOf(user.getPercentReliable()));
         bestHour.setText("No implementado");
+        bestDay.setText("No implementado");
         bestDayHour.setText("No implementado");
     }
 
