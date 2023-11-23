@@ -234,6 +234,7 @@ public class MainViewController {
 
         comboTimeFilter.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
         comboTime.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
+        tableUsers.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/tableUsers.css")).toExternalForm());
     }
 
     private void initEvents() {
@@ -243,6 +244,9 @@ public class MainViewController {
         tableUsers.setOnMouseClicked(event -> {
             RoutesManager routesManager = new RoutesManager();
             try {
+                // Mantener el color negro al clicar en la fila
+
+
                 UserDTO selectedItem = tableUsers.getSelectionModel().getSelectedItem();
                 selectedItem.setUsername(selectedItem.getUsername().replace("⭐ ", ""));
                 routesManager.initUserDetailModal(selectedItem);
