@@ -625,19 +625,19 @@ public class MainViewController {
 
         // 1. REGEX
         // Crear una expresión regular para coincidir con el inicio del nombre de usuario
-/*        String regex = "^" + input.toLowerCase() + ".*";
+        String regex = "^" + input.toLowerCase() + ".*";
         for (String suggestion : allUsernames) {
             if (suggestion.toLowerCase().matches(regex)) {
                 filteredSuggestions.add(suggestion);
             }
-        }*/
+        }
 
         // 2. CONTAINS
-        for (String suggestion : allUsernames) {
+ /*       for (String suggestion : allUsernames) {
             if (suggestion.toLowerCase().contains(input.toLowerCase())) {
                 filteredSuggestions.add(suggestion);
             }
-        }
+        }*/
 
         // Ordenar alfabéticamente las sugerencias
         filteredSuggestions.sort(String::compareToIgnoreCase);
