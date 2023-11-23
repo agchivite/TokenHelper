@@ -642,6 +642,10 @@ public class MainViewController {
         List<String> allUsernames = userViewModel.getAllUsernamesNoRepeat();
         List<String> filteredSuggestions = new ArrayList<>();
 
+        if (input == null || input.isEmpty()) {
+            return filteredSuggestions;
+        }
+
         // 1. REGEX
         // Crear una expresión regular para coincidir con el inicio del nombre de usuario
         String regex = "^" + input.toLowerCase() + ".*";
