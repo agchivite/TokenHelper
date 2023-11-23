@@ -10,10 +10,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class MainMiniViewController {
     private final String noDataTime = "--:--";
@@ -32,6 +30,8 @@ public class MainMiniViewController {
     @FXML
     private ComboBox<String> comboTimeFilter;
     @FXML
+    private RadioButton radioButtonHideTime;
+    @FXML
     private RadioButton radioButtonNone;
     @FXML
     private RadioButton radioButtonMonday;
@@ -49,6 +49,8 @@ public class MainMiniViewController {
     private RadioButton radioButtonSunday;
     @FXML
     private Button buttonClearFilters;
+    @FXML
+    private CheckBox starCheckBox;
 
     public void init(MainViewController mainViewController) {
         this.mainViewController = mainViewController;
@@ -57,12 +59,16 @@ public class MainMiniViewController {
         initBindings();
         initDetails();
         initEvents();
-
     }
 
     private void initEvents() {
+        starCheckBox.setOnAction(event -> updateAllTables());
+
+        radioButtonHideTime.setOnAction(event -> updateAllTables());
+
         buttonClearFilters.setOnAction(event -> {
             comboTimeFilter.getSelectionModel().select(0);
+            radioButtonHideTime.setSelected(false);
             radioButtonNone.setSelected(true);
             updateAllTables();
         });
@@ -83,6 +89,7 @@ public class MainMiniViewController {
         centerAndFontTextTable();
         setColorsTable();
         tableUsers.setSelectionModel(null);
+
         comboTimeFilter.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
     }
 
@@ -119,6 +126,10 @@ public class MainMiniViewController {
     }
 
     private void initBindings() {
+
+        radioButtonHideTime.setSelected(mainViewController.getRadioButtonHideTime().isSelected());
+
+        comboTimeFilter.setDisable(radioButtonHideTime.isSelected());
 
         comboTimeFilter.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
         comboTimeFilter.getSelectionModel().select(mainViewController.getIndexComboTimeFilter());
@@ -159,6 +170,8 @@ public class MainMiniViewController {
             }
         }
 
+        starCheckBox.setSelected(mainViewController.getStarCheckBox().isSelected());
+
         columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         columnSuccess.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
         columnTotalBets.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
@@ -174,32 +187,34 @@ public class MainMiniViewController {
 
         // Asigna los datos a la tabla
         tableUsers.setItems(userData);
-        tableUsers.getSortOrder().setAll(columnSuccess);
     }
 
     public void updateAllTables() {
-        String newTime = comboTimeFilter.getSelectionModel().getSelectedItem();
         Integer newDateOfWeek = getNewDateOfWeek();
+        String newTime;
+
+        if (radioButtonHideTime.isSelected()) {
+            newTime = noDataTime;
+            comboTimeFilter.setDisable(true);
+        } else {
+            newTime = comboTimeFilter.getSelectionModel().getSelectedItem();
+            comboTimeFilter.setDisable(false);
+        }
 
         Boolean onFilterByDate = onFilterDataTableByDate(newTime, newDateOfWeek);
         Boolean onFilterByTime = onFilterDataTableByTime(newTime, newDateOfWeek);
         Boolean onFilterByDateTime = onFilterDataTableByDateTime(newTime, newDateOfWeek);
 
+        mainViewController.orderByTotalSuccessBets(tableUsers);
 
-        // Ordena la tabla por 'percentSucces'
-        tableUsers.getSortOrder().setAll(columnSuccess);
+        List<UserDTO> filteredUsers = mainViewController.filterRakingUsersReliable(tableUsers.getItems());
+        mainViewController.setStarTopUsers(filteredUsers);
 
-        // Y para aquellos que tengan el mismo percentSuccess, ordena por 'totalBets'
-        Comparator<UserDTO> customComparator = (user1, user2) -> {
-            if (user1.getPercentReliable() != user2.getPercentReliable()) {
-                // Si los percentSuccess son diferentes, ordénalos por percentSuccess
-                return Double.compare(user2.getPercentReliable(), user1.getPercentReliable());
-            } else {
-                // Si los percentSuccess son iguales, ordénalos por totalBets
-                return Integer.compare(user2.getTotalBets(), user1.getTotalBets());
-            }
-        };
-        tableUsers.getItems().sort(customComparator); // Aplicamos el comparador personalizado
+        if (starCheckBox.isSelected()) {
+            tableUsers.setItems(FXCollections.observableArrayList(filteredUsers));
+        } else {
+            tableUsers.setItems(FXCollections.observableArrayList(tableUsers.getItems()));
+        }
 
         if (!onFilterByDateTime && !onFilterByDate && !onFilterByTime) {
             tableUsers.getItems().clear();
@@ -212,8 +227,6 @@ public class MainMiniViewController {
 
             // Eliminamos los rojos
             usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
-
-            setTopicUsers(usersToShow);
 
             tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
@@ -230,8 +243,6 @@ public class MainMiniViewController {
             // Eliminamos los rojos
             usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
 
-            setTopicUsers(usersToShow);
-
             tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
@@ -247,8 +258,6 @@ public class MainMiniViewController {
 
             // Eliminamos los rojos
             usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
-
-            setTopicUsers(usersToShow);
 
             tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
@@ -285,34 +294,5 @@ public class MainMiniViewController {
         }
         return newDateOfWeek;
     }
-
-    private void setTopicUsers(List<UserDTO> usersToShow) {
-        List<UserDTO> usersFiltered = usersToShow.stream()
-                .filter(user -> user.getPercentReliable() > 65.00)
-                .sorted(Comparator.comparing(UserDTO::getTotalBets).reversed()) // Ordena por totalBets en orden descendente, buscando los datos más
-                //.sorted(Comparator.comparing(UserDTO::getPercentReliable).reversed()) // Ordena por percentReliable en orden descendente, en caso de quererlo
-                .limit(1)
-                .collect(Collectors.toList());
-
-        if (usersFiltered.isEmpty()) {
-            //Filtramos por naranjas
-            usersFiltered = usersToShow.stream()
-                    .filter(user -> user.getPercentReliable() > 49.00)
-                    .sorted(Comparator.comparing(UserDTO::getTotalBets).reversed()) // Ordena por totalBets en orden descendente, buscando los datos más
-                    //.sorted(Comparator.comparing(UserDTO::getPercentReliable).reversed()) // Ordena por percentReliable en orden descendente, en caso de quererlo
-                    .limit(1)
-                    .collect(Collectors.toList());
-        }
-
-        if (!usersFiltered.isEmpty()) {
-            for (UserDTO user : usersFiltered) {
-                // Lo ponemos el primero de la lista
-                usersToShow.remove(user);
-                user.setUsername(user.getUsername() + " ⭐");
-                usersToShow.add(0, user);
-            }
-        }
-    }
-
 }
 

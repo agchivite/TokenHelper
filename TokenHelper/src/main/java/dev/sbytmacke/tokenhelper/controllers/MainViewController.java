@@ -20,9 +20,9 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
@@ -74,11 +74,15 @@ public class MainViewController {
     @FXML
     private ComboBox<String> comboTimeFilter;
     @FXML
+    private RadioButton radioButtonHideTime;
+    @FXML
     private RadioButton radioButtonHideGreen;
     @FXML
     private RadioButton radioButtonHideOrange;
     @FXML
     private RadioButton radioButtonHideRed;
+    @FXML
+    private CheckBox starCheckBox;
     @FXML
     private RadioButton radioButtonNone;
     @FXML
@@ -200,6 +204,7 @@ public class MainViewController {
         comboTimeFilter.setItems(FXCollections.observableArrayList(TimeUtils.getAllSliceHours()));
         comboTimeFilter.getSelectionModel().select(0);
 
+        // Limpiamos la tabla
         columnUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         columnSuccess.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
         columnTotalBets.setCellValueFactory(new PropertyValueFactory<>("totalBets"));
@@ -221,18 +226,53 @@ public class MainViewController {
 
     private void initDetails() {
         radioButtonNone.setSelected(true);
-        tableUsers.setSelectionModel(null);
-        tableUsersRanking.setSelectionModel(null);
+        // tableUsers.setSelectionModel(null);
+        // tableUsersRanking.setSelectionModel(null);
 
         centerAndFontTextTable();
         setColorsTable();
 
         comboTimeFilter.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
         comboTime.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
+        tableUsers.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/tableUsers.css")).toExternalForm());
+        tableUsersRanking.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/tableUsers.css")).toExternalForm());
     }
 
     private void initEvents() {
         logger.info("Initializing Events");
+
+        // Evento para abrir la ventana modal al hacer clic en una fila de la tabla
+        tableUsers.setOnMouseClicked(event -> {
+            RoutesManager routesManager = new RoutesManager();
+            try {
+                UserDTO selectedItem = tableUsers.getSelectionModel().getSelectedItem();
+                selectedItem.setUsername(selectedItem.getUsername().replace("⭐ ", ""));
+                routesManager.initUserDetailModal(selectedItem);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        // TODO:
+/*        tableUsersRanking.setOnMouseClicked(event -> {
+            RoutesManager routesManager = new RoutesManager();
+            try {
+                UserDTO selectedItem = tableUsers.getSelectionModel().getSelectedItem();
+                selectedItem.setUsername(selectedItem.getUsername().replace("⭐ ", ""));
+                // Reemplazar las emdallas
+       *//*         user.setUsername("  🥇 " + user.getUsername());
+                user.setUsername("  \uD83E\uDD48 " + user.getUsername());
+                user.setUsername("  \uD83E\uDD49  " + user.getUsername());
+                user.setUsername("   " + (i + 1) + ".  " + user.getUsername());
+            *//*
+                routesManager.initUserDetailModal(selectedItem);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });*/
+
+        starCheckBox.setOnAction(event -> updateAllTables());
+
+        radioButtonHideTime.setOnAction(event -> updateAllTables());
 
         menuBackup.setOnAction(event -> onBackupMenuAction());
 
@@ -241,6 +281,7 @@ public class MainViewController {
         buttonClearFilters.setOnAction(event -> {
             textSearchUserFilter.setText("");
             comboTimeFilter.getSelectionModel().select(0);
+            radioButtonHideTime.setSelected(false);
             radioButtonHideGreen.setSelected(false);
             radioButtonHideOrange.setSelected(false);
             radioButtonHideRed.setSelected(false);
@@ -370,7 +411,7 @@ public class MainViewController {
     }
 
     private void onBackupMenuAction() {
-        logger.info("Initializing Backup View");
+        logger.info("Initializing Backup");
 
         if (userViewModel.backupData().isEmpty()) {
             Alert alert = new Alert(ERROR);
@@ -378,6 +419,8 @@ public class MainViewController {
             // Heredar el ícono de la ventana principal
             Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
             dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
+
+            logger.error("Backup failed");
 
             alert.setTitle("Backup");
             alert.setHeaderText("Backup");
@@ -391,7 +434,6 @@ public class MainViewController {
 
             // Para que quede legible
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
 
             try (FileWriter fileWriter = new FileWriter("backup.json")) {
                 fileWriter.write("[");
@@ -415,30 +457,94 @@ public class MainViewController {
             }
 
         } catch (Exception e) {
-            logger.error("Error al realizar el backup");
+            showFailedBackup();
+            return;
+        }
 
-            Alert alert = new Alert(ERROR);
+        try {
+            // Obtiene la ruta del script desde el archivo JAR
+            String scriptPathInJar = "/dev/sbytmacke/tokenhelper/scripts/backup.ps1";
+            InputStream scriptInputStream = getClass().getResourceAsStream(scriptPathInJar);
+
+            // Crea un archivo temporal para almacenar el script
+            File tempScriptFile = File.createTempFile("backup", ".ps1");
+            tempScriptFile.deleteOnExit();
+
+            // Copia el contenido del script desde el recurso dentro del archivo JAR al archivo temporal
+            try (FileOutputStream fileOutputStream = new FileOutputStream(tempScriptFile)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = scriptInputStream.read(buffer)) != -1) {
+                    fileOutputStream.write(buffer, 0, bytesRead);
+                }
+            }
+
+            // Obtiene la ruta del archivo temporal
+            String scriptPath = tempScriptFile.getAbsolutePath();
+
+            String command = "powershell.exe -ExecutionPolicy Bypass -File " + scriptPath;
+            Process process = Runtime.getRuntime().exec(command);
+
+            // Capturar la salida estándar y la de error
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+            String outputLine;
+            StringBuilder gitOutput = new StringBuilder();
+
+            // Leer y mostrar la salida estándar
+            while ((outputLine = stdInput.readLine()) != null) {
+                System.out.println(outputLine);
+                gitOutput.append(outputLine).append("\n");
+            }
+
+            // Leer y mostrar la salida de error
+            while ((outputLine = stdError.readLine()) != null) {
+                System.err.println(outputLine);
+                gitOutput.append(outputLine).append("\n");
+            }
+
+            // Esperar a que termine el proceso
+            int exitCode = process.waitFor();
+
+            // Analizar la salida de Git (gitOutput) para buscar cualquier mensaje de error adicional específico del comando Git
+            if (gitOutput.toString().contains("fatal") || gitOutput.toString().contains("error")) {
+                logger.error("Backup failed");
+                showFailedBackup();
+                return;
+            }
+
+            logger.info("Backup correctly done");
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
             // Heredar el ícono de la ventana principal
             Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
             dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
 
             alert.setTitle("Backup");
-            alert.setHeaderText("Backup");
-            alert.setContentText("Error al realizar el backup");
+            alert.setHeaderText("Backup ✅");
+            alert.setContentText("Backup realizado correctamente");
             alert.showAndWait();
-            return;
-        }
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        } catch (Exception e) {
+            logger.info("Backup fallido");
+            showFailedBackup();
+        }
+    }
+
+    private void showFailedBackup() {
+        logger.error("Backup failed");
+
+        Alert alert = new Alert(ERROR);
 
         // Heredar el ícono de la ventana principal
         Stage dialogStage = (Stage) alert.getDialogPane().getScene().getWindow();
         dialogStage.getIcons().addAll(RoutesManager.getMainStage().getIcons());
 
         alert.setTitle("Backup");
-        alert.setHeaderText("Backup ✅");
-        alert.setContentText("Backup realizado correctamente");
+        alert.setHeaderText("Backup");
+        alert.setContentText("Error al realizar el backup");
         alert.showAndWait();
     }
 
@@ -453,19 +559,19 @@ public class MainViewController {
         for (int i = 0; i < filterTopUsersReliable.size(); i++) {
             UserDTO user = filterTopUsersReliable.get(i);
             if (i == 0) {
-                user.setUsername("     🥇 " + user.getUsername());
+                user.setUsername("  🥇 " + user.getUsername());
             } else if (i == 1) {
-                user.setUsername("     \uD83E\uDD48 " + user.getUsername());
+                user.setUsername("  \uD83E\uDD48 " + user.getUsername());
             } else if (i == 2) {
-                user.setUsername("     \uD83E\uDD49  " + user.getUsername());
+                user.setUsername("  \uD83E\uDD49  " + user.getUsername());
             } else {
-                user.setUsername("        " + (i + 1) + ".  " + user.getUsername());
+                user.setUsername("   " + (i + 1) + ".  " + user.getUsername());
             }
         }
         return filterTopUsersReliable;
     }
 
-    private List<UserDTO> filterRakingUsersReliable(List<UserDTO> usersToFilter) {
+    public List<UserDTO> filterRakingUsersReliable(List<UserDTO> usersToFilter) {
 
         return usersToFilter.stream()
                 .filter(user -> user.getPercentReliable() >= PERCENT_SUCCESS_RANKING_TO_SHOW) // Filtra usuarios fiables
@@ -506,15 +612,15 @@ public class MainViewController {
             protected void updateItem(UserDTO item, boolean empty) {
                 super.updateItem(item, empty);
 
-                if (item == null) {
-                    setStyle("");
-                } else {
+                if (item != null) {
                     if (getIndex() == 0) {
-                        setStyle("-fx-background-color: #EFB810;");
+                        setStyle("-fx-background-color: #efb810;");
                     } else if (getIndex() == 1) {
                         setStyle("-fx-background-color: #c9c9c9;");
                     } else if (getIndex() == 2) {
                         setStyle("-fx-background-color: #b38f34;");
+                    } else {
+                        setStyle("");
                     }
                 }
             }
@@ -536,14 +642,28 @@ public class MainViewController {
         List<String> allUsernames = userViewModel.getAllUsernamesNoRepeat();
         List<String> filteredSuggestions = new ArrayList<>();
 
+        if (input == null || input.isEmpty()) {
+            return filteredSuggestions;
+        }
+
+        // 1. REGEX
         // Crear una expresión regular para coincidir con el inicio del nombre de usuario
         String regex = "^" + input.toLowerCase() + ".*";
-
         for (String suggestion : allUsernames) {
             if (suggestion.toLowerCase().matches(regex)) {
                 filteredSuggestions.add(suggestion);
             }
         }
+
+        // 2. CONTAINS
+ /*       for (String suggestion : allUsernames) {
+            if (suggestion.toLowerCase().contains(input.toLowerCase())) {
+                filteredSuggestions.add(suggestion);
+            }
+        }*/
+
+        // Ordenar alfabéticamente las sugerencias
+        filteredSuggestions.sort(String::compareToIgnoreCase);
 
         //suggestionListView.getItems().setAll(filteredSuggestions);
         return filteredSuggestions;
@@ -554,8 +674,16 @@ public class MainViewController {
         calculateMedianTotalSuccess();
 
         String newUsername = textSearchUserFilter.getText().toUpperCase();
-        String newTime = comboTimeFilter.getSelectionModel().getSelectedItem();
         Integer newDateOfWeek = getNewDateOfWeek();
+        String newTime;
+
+        if (radioButtonHideTime.isSelected()) {
+            newTime = noDataTime;
+            comboTimeFilter.setDisable(true);
+        } else {
+            newTime = comboTimeFilter.getSelectionModel().getSelectedItem();
+            comboTimeFilter.setDisable(false);
+        }
 
         setGlobalResult(newTime, newDateOfWeek);
 
@@ -568,15 +696,15 @@ public class MainViewController {
         orderByTotalSuccessBets(tableUsers);
 
         List<UserDTO> filteredUsers = filterRakingUsersReliable(tableUsers.getItems());
+        setStarTopUsers(filteredUsers);
 
-        for (int i = filteredUsers.size() - 1; i >= 0; i--) {
-            tableUsers.getItems().remove(filteredUsers.get(i));
-            filteredUsers.get(i).setUsername("⭐ " + filteredUsers.get(i).getUsername());
-            tableUsers.getItems().add(i, filteredUsers.get(i));
+        if (starCheckBox.isSelected()) {
+            tableUsers.setItems(FXCollections.observableArrayList(filteredUsers));
+        } else {
+            tableUsers.setItems(FXCollections.observableArrayList(tableUsers.getItems()));
         }
 
         if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
         }
 
@@ -587,13 +715,21 @@ public class MainViewController {
         listUsers(tableUsersRanking.getItems());
     }
 
+    public void setStarTopUsers(List<UserDTO> filteredUsers) {
+        for (int i = filteredUsers.size() - 1; i >= 0; i--) {
+            tableUsers.getItems().remove(filteredUsers.get(i));
+            filteredUsers.get(i).setUsername("⭐ " + filteredUsers.get(i).getUsername());
+            tableUsers.getItems().add(i, filteredUsers.get(i));
+        }
+    }
+
     private List<UserDTO> filterStarUsersReliable(ObservableList<UserDTO> items) {
         // TODO: Cuando se decida exactamente que queremos en un tio STAR
         return items;
     }
 
 
-    private void orderByTotalSuccessBets(TableView<UserDTO> tableToSort) {
+    public void orderByTotalSuccessBets(TableView<UserDTO> tableToSort) {
         // Ordenamos por el que tenga más aciertos de cómputo, ya que hemos eliminado aquellos que tienen muchos fallos previamente
         Comparator<UserDTO> customComparatorRanking = (user1, user2) -> {
             // Total de aciertos
@@ -608,7 +744,6 @@ public class MainViewController {
                 return Double.compare(totalSuccessUser2, totalSuccessUser1);
             }
         };
-
         tableToSort.getItems().sort(customComparatorRanking); // Aplicamos el comparador personalizado
     }
 
@@ -774,7 +909,6 @@ public class MainViewController {
 
             extractedUserByRadioButtonFilter(usersToShow);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
@@ -790,7 +924,6 @@ public class MainViewController {
 
             extractedUserByRadioButtonFilter(usersToShow);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -806,7 +939,6 @@ public class MainViewController {
 
             extractedUserByRadioButtonFilter(usersToShow);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -838,7 +970,6 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
@@ -859,7 +990,6 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -878,7 +1008,6 @@ public class MainViewController {
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -905,6 +1034,16 @@ public class MainViewController {
             return;
         }
 
+        if (userName.contains("{") || userName.contains("}")) {
+            logger.info(infoError);
+            Alert alert = new Alert(ERROR);
+            alert.setTitle(titleError);
+            alert.setHeaderText("Nombre de usuario incorrecto");
+            alert.setContentText("El nombre de usuario NO puede contener los caracteres '{' o '}'");
+            alert.showAndWait();
+            return;
+        }
+
         if (date == null) {
             logger.info(infoError);
             Alert alert = new Alert(ERROR);
@@ -918,7 +1057,7 @@ public class MainViewController {
             Alert alert = new Alert(ERROR);
             alert.setTitle(titleError);
             alert.setHeaderText("Fecha incorrecta");
-            alert.setContentText("La fecha no puede ser más tarde del día presente");
+            alert.setContentText("La fecha NO puede ser más tarde del día presente");
             alert.showAndWait();
             return;
         }
@@ -929,6 +1068,21 @@ public class MainViewController {
             alert.setTitle(titleError);
             alert.setHeaderText("Hora vacía");
             alert.setContentText("La hora NO puede estar vacía");
+            alert.showAndWait();
+            return;
+        }
+
+        // time es una string 00:01-01:00
+        String[] parts = time.split("-");
+        LocalTime inputTime = LocalTime.parse(parts[0]);
+        LocalTime currentTime = LocalTime.now();
+
+        if (inputTime.isAfter(currentTime) && (date.equals(LocalDate.now()))) {
+            logger.info(infoError);
+            Alert alert = new Alert(ERROR);
+            alert.setTitle(titleError);
+            alert.setHeaderText("Hora incorrecta");
+            alert.setContentText("La hora NO puede ser posterior a la actual de hoy");
             alert.showAndWait();
             return;
         }
@@ -966,5 +1120,16 @@ public class MainViewController {
         return comboTimeFilter.getSelectionModel().getSelectedIndex();
     }
 
+    public RadioButton getRadioButtonHideTime() {
+        return radioButtonHideTime;
+    }
 
+    public CheckBox getStarCheckBox() {
+        return starCheckBox;
+    }
+
+    public void clearTable() {
+        tableUsers.getItems().clear();
+        tableUsers.setItems(FXCollections.observableArrayList());
+    }
 }
