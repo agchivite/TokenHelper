@@ -9,7 +9,6 @@ import dev.sbytmacke.tokenhelper.viewmodel.UserViewModel;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Control;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -58,7 +57,7 @@ public class RoutesManager {
         MainViewController controller = fxmlLoader.getController(); // Obtenemos el controlador
         controller.init(userViewModel); // Inyección de dependencias desde el DatabaseManager hasta el Controller
 
-        Scene scene = new Scene(root, Control.USE_COMPUTED_SIZE, 810);
+        Scene scene = new Scene(root, 1600, 810); //Control.USE_COMPUTED_SIZE
         stage.setResizable(false);
         stage.setTitle("TokenHelper");
         // Agregar un icono a la ventana
