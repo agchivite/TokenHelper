@@ -38,7 +38,7 @@ public class MainViewController {
     private UserViewModel userViewModel;
     private double medianValueTotalBets;
     private double medianValueTotalSuccess; // Para poner los colores de la tabla en el futuro!
-    private double averageTotalBets;
+    private double averageOnlyReliableUsersTotalBets;
     @FXML
     private Button buttonMainMiniView;
     // Menu
@@ -182,16 +182,26 @@ public class MainViewController {
         initBindings();
         initDetails();
         initEvents();
-        averageTotalBets = calculateAverageTotalBets();
+        averageOnlyReliableUsersTotalBets = calculateAverageOnlyReliableUsersTotalBets();
     }
 
-    private double calculateAverageTotalBets() {
+    private double calculateAverageOnlyReliableUsersTotalBets() {
         List<UserDTO> allUsers = userViewModel.getAll();
-        double totalBets = 0;
+        int totalBetsReliable = 0;
+        int totalUsersReliable = 0;
+
+        // Solamente cogemos de aquellos usuarios qu sean fiables
         for (UserDTO user : allUsers) {
-            totalBets += user.getTotalBets();
+            if (user.getPercentReliable() > 65) {
+                totalBetsReliable += user.getTotalBets();
+                totalUsersReliable++;
+            }
         }
-        return totalBets / allUsers.size();
+
+        if (totalUsersReliable == 0) {
+            return 0.0;
+        }
+        return (double) totalBetsReliable / totalUsersReliable;
     }
 
     private void initBindings() {
@@ -615,7 +625,7 @@ public class MainViewController {
                     }
 
                     // Filtro especial para los verdes que fallen la media
-                    if (item.getPercentReliable() > 65.00 && item.getTotalBets() < averageTotalBets) {
+                    if (item.getPercentReliable() > 65.00 && item.getTotalBets() < averageOnlyReliableUsersTotalBets) {
                         setStyle("-fx-background-color: orange;");
                     }
                 }
@@ -907,12 +917,12 @@ public class MainViewController {
 
     private void extractedUserByRadioButtonFilter(List<UserDTO> usersToShow) {
         if (radioButtonHideGreen.isSelected()) {
-            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00);
+            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00 && user.getTotalBets() > averageOnlyReliableUsersTotalBets);
         }
 
         if (radioButtonHideOrange.isSelected()) {
             usersToShow.removeIf(user -> user.getPercentReliable() > 49.00 && user.getPercentReliable() <= 65.00);
-            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00 && user.getTotalBets() < averageTotalBets);
+            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00 && user.getTotalBets() < averageOnlyReliableUsersTotalBets);
         }
 
         if (radioButtonHideRed.isSelected()) {
@@ -1151,7 +1161,7 @@ public class MainViewController {
         tableUsers.setItems(FXCollections.observableArrayList());
     }
 
-    public double getAverageTotalBets() {
-        return averageTotalBets;
+    public double getAverageOnlyReliableUsersTotalBets() {
+        return averageOnlyReliableUsersTotalBets;
     }
 }
