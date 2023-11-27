@@ -1,0 +1,21 @@
+
+p
+java:S3008"URename this field "_mainStage" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(´ªößúÿÿÿÿ
+m
+java:S3008"WRename this field "_activeStage" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(”ëø
+m
+java:S3008"WRename this field "_activeScene" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ß†—¥
+7
+java:S1170"!Make this final field static too.(å’¦¨
+q
+java:S1450"[Remove the "_activeScene" field and declare it as a local variable in the relevant methods.(ß†—¥
+W
+java:S1075"ARefactor your code to get this URI from a customizable parameter.(å’¦¨
+Q
+java:S2696C"6Make the enclosing method "static" or remove this set.(ı½Ëœüÿÿÿÿ
+Q
+java:S2696D"6Make the enclosing method "static" or remove this set.(°Ïæıÿÿÿÿ
+L
+java:S2696E"6Make the enclosing method "static" or remove this set.(ÑÆ‡ù
+F
+java:S1068"0Remove this unused "_activeScene" private field.(ß†—¥

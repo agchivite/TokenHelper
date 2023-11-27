@@ -38,6 +38,7 @@ public class MainViewController {
     private UserViewModel userViewModel;
     private double medianValueTotalBets;
     private double medianValueTotalSuccess; // Para poner los colores de la tabla en el futuro!
+    private double averageOnlyReliableUsersTotalBets;
     @FXML
     private Button buttonMainMiniView;
     // Menu
@@ -181,6 +182,26 @@ public class MainViewController {
         initBindings();
         initDetails();
         initEvents();
+        averageOnlyReliableUsersTotalBets = calculateAverageOnlyReliableUsersTotalBets();
+    }
+
+    private double calculateAverageOnlyReliableUsersTotalBets() {
+        List<UserDTO> allUsers = userViewModel.getAll();
+        int totalBetsReliable = 0;
+        int totalUsersReliable = 0;
+
+        // Solamente cogemos de aquellos usuarios qu sean fiables
+        for (UserDTO user : allUsers) {
+            if (user.getPercentReliable() > 65) {
+                totalBetsReliable += user.getTotalBets();
+                totalUsersReliable++;
+            }
+        }
+
+        if (totalUsersReliable == 0) {
+            return 0.0;
+        }
+        return (double) totalBetsReliable / totalUsersReliable;
     }
 
     private void initBindings() {
@@ -584,7 +605,6 @@ public class MainViewController {
     }
 
     private void setColorsTable() {
-
         tableUsers.setRowFactory(tv -> new TableRow<>() {
 
             @Override
@@ -603,6 +623,11 @@ public class MainViewController {
                     } else {
                         setStyle("-fx-background-color: #ffffff;");
                     }
+
+                    // Filtro especial para los verdes que fallen la media
+                    if (item.getPercentReliable() > 65.00 && item.getTotalBets() < averageOnlyReliableUsersTotalBets) {
+                        setStyle("-fx-background-color: orange;");
+                    }
                 }
             }
         });
@@ -611,7 +636,8 @@ public class MainViewController {
             @Override
             protected void updateItem(UserDTO item, boolean empty) {
                 super.updateItem(item, empty);
-
+                setStyle("-fx-background-color: #ffffff;");
+                
                 if (item != null) {
                     if (getIndex() == 0) {
                         setStyle("-fx-background-color: #efb810;");
@@ -619,8 +645,6 @@ public class MainViewController {
                         setStyle("-fx-background-color: #c9c9c9;");
                     } else if (getIndex() == 2) {
                         setStyle("-fx-background-color: #b38f34;");
-                    } else {
-                        setStyle("");
                     }
                 }
             }
@@ -656,7 +680,7 @@ public class MainViewController {
         }
 
         // 2. CONTAINS
- /*       for (String suggestion : allUsernames) {
+    /*  for (String suggestion : allUsernames) {
             if (suggestion.toLowerCase().contains(input.toLowerCase())) {
                 filteredSuggestions.add(suggestion);
             }
@@ -713,6 +737,8 @@ public class MainViewController {
         tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable));
         orderByTotalSuccessBets(tableUsersRanking);
         listUsers(tableUsersRanking.getItems());
+
+        setColorsTable();
     }
 
     public void setStarTopUsers(List<UserDTO> filteredUsers) {
@@ -890,11 +916,12 @@ public class MainViewController {
 
     private void extractedUserByRadioButtonFilter(List<UserDTO> usersToShow) {
         if (radioButtonHideGreen.isSelected()) {
-            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00);
+            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00 && user.getTotalBets() > averageOnlyReliableUsersTotalBets);
         }
 
         if (radioButtonHideOrange.isSelected()) {
             usersToShow.removeIf(user -> user.getPercentReliable() > 49.00 && user.getPercentReliable() <= 65.00);
+            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00 && user.getTotalBets() < averageOnlyReliableUsersTotalBets);
         }
 
         if (radioButtonHideRed.isSelected()) {
@@ -1131,5 +1158,9 @@ public class MainViewController {
     public void clearTable() {
         tableUsers.getItems().clear();
         tableUsers.setItems(FXCollections.observableArrayList());
+    }
+
+    public double getAverageOnlyReliableUsersTotalBets() {
+        return averageOnlyReliableUsersTotalBets;
     }
 }
