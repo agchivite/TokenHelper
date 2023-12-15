@@ -44,14 +44,15 @@ public class UserDetailController {
 
         // Filtrar días con igual o más apuestas que el promedio
         Map<Integer, Double> filteredDays = new HashMap<>();
+        double bestSuccessRate = -1.0;
         for (Map.Entry<Integer, Double> entry : mapSuccessRateByDay.entrySet()) {
             int dayOfWeek = entry.getKey();
-            double successRate = entry.getValue();
-
+            int successRate = entry.getValue().intValue();
             int betsOnDay = countBetsOnDay(bets, dayOfWeek);
 
-            if (betsOnDay >= averageBetsPerDay) {
-                filteredDays.put(dayOfWeek, successRate);
+            if (betsOnDay >= averageBetsPerDay && successRate > bestSuccessRate) {
+                bestSuccessRate = successRate;
+                filteredDays.put(dayOfWeek, bestSuccessRate);
             }
         }
 
