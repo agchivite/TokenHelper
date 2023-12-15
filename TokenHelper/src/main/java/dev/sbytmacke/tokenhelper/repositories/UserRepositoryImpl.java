@@ -492,12 +492,11 @@ public class UserRepositoryImpl implements UserRepository<UserEntity, String> {
 
         databaseManager.connectDatabase();
 
-
         MongoCollection<Document> collection = databaseManager.getDatabase().getCollection(COLLECTION_NAME);
 
         // Crear un filtro para encontrar los documentos con el nombre de usuario antiguo
         Bson filter = Filters.eq(FIELD_USERNAME, username);
-        
+
         FindIterable<Document> result = collection.find(filter); // Consulta
 
         ArrayList<UserEntity> usersFiltered = new ArrayList<>();
