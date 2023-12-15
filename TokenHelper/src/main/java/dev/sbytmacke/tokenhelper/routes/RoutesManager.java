@@ -42,7 +42,7 @@ public class RoutesManager {
         // Crear y mostrar la escena modal
         Stage modalStage = new Stage();
         modalStage.setTitle("Detalle de usuario");
-        modalStage.setResizable(false);
+        modalStage.setResizable(true);
         modalStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource(pathMainPng)).toExternalForm()));
 
         modalStage.setScene(scene);
