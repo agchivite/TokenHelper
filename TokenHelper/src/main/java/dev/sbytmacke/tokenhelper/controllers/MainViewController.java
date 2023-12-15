@@ -146,8 +146,11 @@ public class MainViewController {
         } else {
             medianValue = sortedAllUsers.get(numUsers / 2).getTotalBets();
         }
-        medianValueTotalBets = medianValue;
+
+        // Redondea al entero más cercano
+        medianValueTotalBets = Math.round(medianValue);
     }
+
 
     private void calculateMedianTotalSuccess() {
         List<UserDTO> allUsers = userViewModel.getAll();
@@ -167,8 +170,11 @@ public class MainViewController {
         } else {
             medianValue = sortedAllUsers.get(numUsers / 2).getPercentReliable();
         }
-        medianValueTotalSuccess = medianValue;
+
+        // Redondea al entero más cercano
+        medianValueTotalSuccess = Math.round(medianValue);
     }
+
 
     public TableView<UserDTO> getTableUsers() {
         return tableUsers;
@@ -593,7 +599,6 @@ public class MainViewController {
     }
 
     public List<UserDTO> filterRakingUsersReliable(List<UserDTO> usersToFilter) {
-
         return usersToFilter.stream()
                 .filter(user -> user.getPercentReliable() >= PERCENT_SUCCESS_RANKING_TO_SHOW) // Filtra usuarios fiables
                 // Buscando los datos con más apuestas
@@ -637,7 +642,7 @@ public class MainViewController {
             protected void updateItem(UserDTO item, boolean empty) {
                 super.updateItem(item, empty);
                 setStyle("-fx-background-color: #ffffff;");
-                
+
                 if (item != null) {
                     if (getIndex() == 0) {
                         setStyle("-fx-background-color: #efb810;");
