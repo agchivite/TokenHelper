@@ -32,12 +32,12 @@ import static javafx.scene.control.Alert.AlertType.ERROR;
 
 public class MainViewController {
     private static final int NUM_USERS_TO_SHOW_RANKING = 20;
-    private static final double PERCENT_SUCCESS_RANKING_TO_SHOW = 51.0;
+
     private final String noDataTime = "--:--";
     public UserViewModel userViewModel;
     Logger logger = LoggerFactory.getLogger(getClass());
-    private double averageOnlyReliableUsersTotalBets;
     private int medianTotalBets;
+    private double medianSuccessRate;
 
     @FXML
     private Button buttonMainMiniView;
@@ -139,8 +139,8 @@ public class MainViewController {
         initBindings();
         initDetails();
         initEvents();
-        averageOnlyReliableUsersTotalBets = calculateAverageOnlyReliableUsersTotalBets();
         medianTotalBets = userViewModel.getMedianTotalBets();
+        medianSuccessRate = userViewModel.getMedianSuccessRate();
     }
 
     private double calculateAverageOnlyReliableUsersTotalBets() {
@@ -572,11 +572,11 @@ public class MainViewController {
 
     public List<UserDTO> filterRakingUsersReliable(List<UserDTO> usersToFilter) {
         return usersToFilter.stream()
-                .filter(user -> user.getPercentReliable() >= PERCENT_SUCCESS_RANKING_TO_SHOW) // Filtra usuarios fiables
+                .filter(user -> user.getPercentReliable() >= medianSuccessRate) // Filtra usuarios fiables
                 // Buscando los datos con más apuestas
                 .filter(user -> user.getTotalBets() >= medianTotalBets)
                 // Filtramos aquellos que fallan mucho, aquellos que fallan el 50% de las apuestas o menos
-                .filter(user -> (double) user.getTotalBets() / 2 <= (double) user.getTotalSuccess())
+                .filter(user -> (double) user.getTotalBets() / 2 <= user.getTotalSuccess())
                 .limit(NUM_USERS_TO_SHOW_RANKING)
                 .collect(Collectors.toList());
     }
@@ -602,7 +602,7 @@ public class MainViewController {
                     }
 
                     // Filtro especial para los verdes que fallen la media
-                    if (item.getPercentReliable() > 65.00 && item.getTotalBets() < averageOnlyReliableUsersTotalBets) {
+                    if (item.getPercentReliable() > 65.00 && item.getTotalBets() < medianTotalBets) {
                         setStyle("-fx-background-color: orange;");
                     }
                 }
@@ -884,12 +884,12 @@ public class MainViewController {
 
     private void extractedUserByRadioButtonFilter(List<UserDTO> usersToShow) {
         if (radioButtonHideGreen.isSelected()) {
-            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00 && user.getTotalBets() > averageOnlyReliableUsersTotalBets);
+            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00 && user.getTotalBets() > medianTotalBets);
         }
 
         if (radioButtonHideOrange.isSelected()) {
             usersToShow.removeIf(user -> user.getPercentReliable() > 49.00 && user.getPercentReliable() <= 65.00);
-            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00 && user.getTotalBets() < averageOnlyReliableUsersTotalBets);
+            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00 && user.getTotalBets() < medianTotalBets);
         }
 
         if (radioButtonHideRed.isSelected()) {
@@ -1128,7 +1128,7 @@ public class MainViewController {
         tableUsers.setItems(FXCollections.observableArrayList());
     }
 
-    public double getAverageOnlyReliableUsersTotalBets() {
+    /*public double getAverageOnlyReliableUsersTotalBets() {
         return averageOnlyReliableUsersTotalBets;
-    }
+    }*/
 }

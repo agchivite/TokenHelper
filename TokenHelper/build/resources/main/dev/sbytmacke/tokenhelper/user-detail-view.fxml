@@ -5,10 +5,9 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="200.0" prefWidth="320.0"
-            xmlns="http://javafx.com/javafx/17.0.2-ea"
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="200.0" xmlns="http://javafx.com/javafx/17.0.2-ea"
             fx:controller="dev.sbytmacke.tokenhelper.controllers.UserDetailController">
-	<VBox alignment="CENTER" prefHeight="200.0" spacing="20.0">
+	<VBox alignment="CENTER" spacing="20.0">
 		<Label fx:id="usernameLabel" text="Username" underline="true">
 			<padding>
 				<Insets left="10.0" right="10.0" top="10.0"/>

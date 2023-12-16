@@ -127,7 +127,7 @@ public class MainMiniViewController {
                     }
 
                     // Filtro especial para los verdes que fallen la media
-                    if (item.getPercentReliable() > 65.00 && item.getTotalBets() < mainViewController.getAverageOnlyReliableUsersTotalBets()) {
+                    if (item.getPercentReliable() > 65.00 && item.getTotalBets() < userViewModel.getMedianTotalBets()) {
                         setStyle("-fx-background-color: orange;");
                     }
                 }
