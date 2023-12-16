@@ -83,7 +83,7 @@ public class UserDetailController {
     public void init(UserViewModel userViewModel, UserDTO user) {
         this.userViewModel = userViewModel;
         this.medianTotalBets = userViewModel.getMedianTotalBets();
-        this.averageAllUsersSuccessRate = userViewModel.getAverageSuccessRate();
+        this.averageAllUsersSuccessRate = userViewModel.getMedianSuccessRate(); // TODO: aqui
 
         usernameLabel.setText(user.getUsername());
 
@@ -285,9 +285,11 @@ public class UserDetailController {
             double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
             double betsOnDay = successAndBets.get(1);
 
+            System.out.println("dayOfWeekNumber: " + dayOfWeekNumber + ", successRate: " + successRate + ", betsOnDay: " + betsOnDay + ", averageBetsByOneUser: " + averageBetsPerDayByOneUser + ", averageAllUsersSuccessRate: " + averageAllUsersSuccessRate);
             if (betsOnDay >= averageBetsPerDayByOneUser && betsOnDay >= medianTotalBets && successRate >= averageAllUsersSuccessRate) {
                 filteredDaysByAverageBetsPerDay.add(dayOfWeekNumber);
             }
+            System.out.println("Media de apuestas por usuario: " + averageBetsPerDayByOneUser + ", media de aciertos de todos los usuarios: " + averageAllUsersSuccessRate);
         }
 
         // TODO: pensar un mejor filtro cuando no haya ninguno, por ahora lo dejo con que el algoritmo considerar que ningun dato tiene valor para ser el mejor

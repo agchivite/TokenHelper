@@ -180,6 +180,29 @@ public class UserViewModel {
         return Math.round(totalPercentSuccess / users.size() * 100) / 100.0;
     }
 
+    public double getMedianSuccessRate() {
+        logger.info("getMedianSuccessRate");
+        List<UserDTO> users = repository.getAll();
+
+        List<UserDTO> sortedAllUsers = users.stream()
+                .sorted(Comparator.comparing(UserDTO::getTotalSuccess))
+                .toList();
+
+        // Calcula la mediana de los valores seleccionados
+        double medianValue;
+        if (users.size() % 2 == 0) {
+            int middle = users.size() / 2;
+            double value1 = sortedAllUsers.get(middle - 1).getPercentReliable();
+            double value2 = sortedAllUsers.get(middle).getPercentReliable();
+            medianValue = (value1 + value2) / 2.0;
+        } else {
+            medianValue = sortedAllUsers.get(users.size() / 2).getPercentReliable();
+        }
+
+        // Redondea al entero más cercano
+        return Math.round(medianValue * 100) / 100.0;
+    }
+
     public int getMedianTotalBets() {
         List<UserDTO> allUsers = repository.getAll();
         int numUsers = allUsers.size();
