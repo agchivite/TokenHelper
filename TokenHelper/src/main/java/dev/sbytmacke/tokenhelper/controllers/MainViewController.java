@@ -36,8 +36,6 @@ public class MainViewController {
     private final String noDataTime = "--:--";
     Logger logger = LoggerFactory.getLogger(getClass());
     private UserViewModel userViewModel;
-    private double medianValueTotalBets;
-    private double medianValueTotalSuccess; // Para poner los colores de la tabla en el futuro!
     private double averageOnlyReliableUsersTotalBets;
     @FXML
     private Button buttonMainMiniView;
@@ -128,54 +126,6 @@ public class MainViewController {
     @FXML
     private Label textFinalResultTotalBets;
 
-    private void calculateMedianTotalBets() {
-        List<UserDTO> allUsers = userViewModel.getAll();
-        Integer numUsers = allUsers.size();
-
-        List<UserDTO> sortedAllUsers = allUsers.stream()
-                .sorted(Comparator.comparing(UserDTO::getTotalBets))
-                .collect(Collectors.toList());
-
-        // Calcula la mediana de los valores seleccionados
-        double medianValue;
-        if (numUsers % 2 == 0) {
-            int middle = numUsers / 2;
-            double value1 = sortedAllUsers.get(middle - 1).getTotalBets();
-            double value2 = sortedAllUsers.get(middle).getTotalBets();
-            medianValue = (value1 + value2) / 2.0;
-        } else {
-            medianValue = sortedAllUsers.get(numUsers / 2).getTotalBets();
-        }
-
-        // Redondea al entero más cercano
-        medianValueTotalBets = Math.round(medianValue);
-    }
-
-
-    private void calculateMedianTotalSuccess() {
-        List<UserDTO> allUsers = userViewModel.getAll();
-        Integer numUsers = allUsers.size();
-
-        List<UserDTO> sortedAllUsers = allUsers.stream()
-                .sorted(Comparator.comparing(UserDTO::getTotalBets))
-                .collect(Collectors.toList());
-
-        // Calcula la mediana de los valores seleccionados
-        double medianValue;
-        if (numUsers % 2 == 0) {
-            int middle = numUsers / 2;
-            double value1 = sortedAllUsers.get(middle - 1).getPercentReliable();
-            double value2 = sortedAllUsers.get(middle).getPercentReliable();
-            medianValue = (value1 + value2) / 2.0;
-        } else {
-            medianValue = sortedAllUsers.get(numUsers / 2).getPercentReliable();
-        }
-
-        // Redondea al entero más cercano
-        medianValueTotalSuccess = Math.round(medianValue);
-    }
-
-
     public TableView<UserDTO> getTableUsers() {
         return tableUsers;
     }
@@ -183,8 +133,6 @@ public class MainViewController {
     public void init(UserViewModel userViewModel) {
         logger.info("Initializing MainViewController");
         this.userViewModel = userViewModel;
-        calculateMedianTotalBets();
-        calculateMedianTotalSuccess();
         initBindings();
         initDetails();
         initEvents();
@@ -273,29 +221,31 @@ public class MainViewController {
             RoutesManager routesManager = new RoutesManager();
             try {
                 UserDTO selectedItem = tableUsers.getSelectionModel().getSelectedItem();
+                if (selectedItem == null) {
+                    return;
+                }
                 selectedItem.setUsername(selectedItem.getUsername().replace("⭐ ", ""));
                 routesManager.initUserDetailModal(selectedItem);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
-        // TODO:
-/*        tableUsersRanking.setOnMouseClicked(event -> {
+        tableUsersRanking.setOnMouseClicked(event -> {
             RoutesManager routesManager = new RoutesManager();
             try {
-                UserDTO selectedItem = tableUsers.getSelectionModel().getSelectedItem();
-                selectedItem.setUsername(selectedItem.getUsername().replace("⭐ ", ""));
-                // Reemplazar las emdallas
-       *//*         user.setUsername("  🥇 " + user.getUsername());
-                user.setUsername("  \uD83E\uDD48 " + user.getUsername());
-                user.setUsername("  \uD83E\uDD49  " + user.getUsername());
-                user.setUsername("   " + (i + 1) + ".  " + user.getUsername());
-            *//*
+                UserDTO selectedItem = tableUsersRanking.getSelectionModel().getSelectedItem();
+                if (selectedItem == null) {
+                    return;
+                }
+                selectedItem.setUsername(selectedItem.getUsername().replace("  🥇 ", ""));
+                selectedItem.setUsername(selectedItem.getUsername().replace("  \uD83E\uDD48 ", ""));
+                selectedItem.setUsername(selectedItem.getUsername().replace("  \uD83E\uDD49  ", ""));
+                selectedItem.setUsername(selectedItem.getUsername().replaceAll(".*\\.\\s+", ""));
                 routesManager.initUserDetailModal(selectedItem);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        });*/
+        });
 
         starCheckBox.setOnAction(event -> updateAllTables());
 
@@ -602,7 +552,7 @@ public class MainViewController {
         return usersToFilter.stream()
                 .filter(user -> user.getPercentReliable() >= PERCENT_SUCCESS_RANKING_TO_SHOW) // Filtra usuarios fiables
                 // Buscando los datos con más apuestas
-                .filter(user -> user.getTotalBets() >= medianValueTotalBets)
+                .filter(user -> user.getTotalBets() >= userViewModel.getMedianTotalBets())
                 // Filtramos aquellos que fallan mucho, aquellos que fallan el 50% de las apuestas o menos
                 .filter(user -> (double) user.getTotalBets() / 2 <= (double) user.getTotalSuccess())
                 .limit(NUM_USERS_TO_SHOW_RANKING)
@@ -699,9 +649,6 @@ public class MainViewController {
     }
 
     public void updateAllTables() {
-        calculateMedianTotalBets();
-        calculateMedianTotalSuccess();
-
         String newUsername = textSearchUserFilter.getText().toUpperCase();
         Integer newDateOfWeek = getNewDateOfWeek();
         String newTime;

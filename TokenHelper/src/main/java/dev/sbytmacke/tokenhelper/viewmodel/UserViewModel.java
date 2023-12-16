@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class UserViewModel {
@@ -115,7 +117,7 @@ public class UserViewModel {
         List<UserDTO> users = repository.getAll();
 
         if (users.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
 
         return users;
@@ -159,5 +161,45 @@ public class UserViewModel {
     public List<UserEntity> getAllBetsByUser(String username) {
         logger.info("getAllBetsByUser");
         return repository.getAllBetsByUser(username);
+    }
+
+    public double getAverageSuccessRate() {
+        logger.info("getAverageSuccessRate");
+        List<UserDTO> users = repository.getAll();
+
+        if (users.isEmpty()) {
+            return 0.0;
+        }
+
+        double totalPercentSuccess = 0.0;
+        for (UserDTO user : users) {
+            totalPercentSuccess += user.getPercentReliable();
+        }
+
+        // Redondea al entero más cercano
+        return Math.round(totalPercentSuccess / users.size() * 100) / 100.0;
+    }
+
+    public int getMedianTotalBets() {
+        List<UserDTO> allUsers = repository.getAll();
+        int numUsers = allUsers.size();
+
+        List<UserDTO> sortedAllUsers = allUsers.stream()
+                .sorted(Comparator.comparing(UserDTO::getTotalBets))
+                .toList();
+
+        // Calcula la mediana de los valores seleccionados
+        double medianValue;
+        if (numUsers % 2 == 0) {
+            int middle = numUsers / 2;
+            double value1 = sortedAllUsers.get(middle - 1).getTotalBets();
+            double value2 = sortedAllUsers.get(middle).getTotalBets();
+            medianValue = (value1 + value2) / 2.0;
+        } else {
+            medianValue = sortedAllUsers.get(numUsers / 2).getTotalBets();
+        }
+
+        // Redondea al entero más cercano
+        return (int) Math.round(medianValue);
     }
 }

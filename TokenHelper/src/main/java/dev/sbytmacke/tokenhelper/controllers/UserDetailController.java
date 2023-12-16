@@ -2,133 +2,45 @@ package dev.sbytmacke.tokenhelper.controllers;
 
 import dev.sbytmacke.tokenhelper.dto.UserDTO;
 import dev.sbytmacke.tokenhelper.models.UserEntity;
+import dev.sbytmacke.tokenhelper.utils.DayHourComparator;
 import dev.sbytmacke.tokenhelper.viewmodel.UserViewModel;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.*;
 
 public class UserDetailController {
 
+    private int rowIndex = 0;
     private UserViewModel userViewModel;
     @FXML
+    private GridPane gridPane;
+    @FXML
     private Label usernameLabel;
-    @FXML
-    private Label bestDay;
-    @FXML
-    private Label bestHour;
-    @FXML
-    private Label bestDayHour;
 
-    private static Map<Integer, Double> getMapSuccessByDay(List<UserEntity> bets) {
-        Map<Integer, Double> mapSuccessRateByDay = new HashMap<>();
+    private static Map<Integer, List<Double>> getMapSuccessByDay(List<UserEntity> bets) {
+        Map<Integer, List<Double>> mapSuccessRateByDay = new HashMap<>();
 
         for (UserEntity bet : bets) {
-            LocalDate betDate = bet.getDateBet();
-            int dayOfWeek = betDate.getDayOfWeek().getValue();
+            int dayOfWeek = bet.getDateBet().getDayOfWeek().getValue();
 
-            // Contar aciertos y apuestas por día
-            mapSuccessRateByDay.putIfAbsent(dayOfWeek, 0.0);
+            // Contar aciertos y apuestas por día, el índice 0 es aciertos y el 1 es el total de apuestas
+            mapSuccessRateByDay.putIfAbsent(dayOfWeek, new ArrayList<>(Arrays.asList(0.0, 0.0)));
             double successRate = Boolean.TRUE.equals(bet.getReliable()) ? 1.0 : 0.0;
-            mapSuccessRateByDay.put(dayOfWeek, mapSuccessRateByDay.get(dayOfWeek) + successRate);
+            List<Double> successAndBets = mapSuccessRateByDay.get(dayOfWeek);
+            successAndBets.set(0, successAndBets.get(0) + successRate);
+            successAndBets.set(1, successAndBets.get(1) + 1);
+            mapSuccessRateByDay.put(dayOfWeek, successAndBets);
         }
+
         return mapSuccessRateByDay;
     }
 
-    public void init(UserViewModel userViewModel, UserDTO user) {
-        this.userViewModel = userViewModel;
-
-        usernameLabel.setText(user.getUsername());
-
-        List<UserEntity> listAllBetsOnlyByOneUser = userViewModel.getAllBetsByUser(user.getUsername());
-        int totalBets = listAllBetsOnlyByOneUser.size();
-
-        setBestDay(listAllBetsOnlyByOneUser, totalBets);
-        setBestHour(listAllBetsOnlyByOneUser, totalBets);
-        setBestDayHour(listAllBetsOnlyByOneUser, totalBets);
-    }
-
-    private List<Integer> getBestDay(List<UserEntity> bets, int averageBetsPerDay) {
-        Map<Integer, Double> mapSuccessRateByDay = getMapSuccessByDay(bets);
-
-        // Días con mayor porcentaje de aciertos, es una lista porque puede haber varios días con el mismo porcentaje
-        List<Integer> bestDaysOfThwWeek = getDayWithMaxSuccess(mapSuccessRateByDay);
-
-        // Filtramos los mejores días para ver si corresponden con el promedio de apuestas
-        List<Integer> filteredDaysByAverageBetsPerDay = new ArrayList<>();
-        for (Integer dayOfWeek : bestDaysOfThwWeek) {
-            int betsOnDay = countBetsOnDay(bets, dayOfWeek);
-
-            if (betsOnDay >= averageBetsPerDay) {
-                filteredDaysByAverageBetsPerDay.add(dayOfWeek);
-            }
-        }
-
-        // Si no hay ninguno, escogemos los que tengan más aciertos
-        if (filteredDaysByAverageBetsPerDay.isEmpty()) {
-            filteredDaysByAverageBetsPerDay.addAll(bestDaysOfThwWeek);
-        }
-
-        return filteredDaysByAverageBetsPerDay;
-    }
-
-    private int countBetsOnDay(List<UserEntity> bets, int dayOfWeek) {
-        return (int) bets.stream()
-                .filter(bet -> bet.getDateBet().getDayOfWeek().getValue() == dayOfWeek)
-                .count();
-    }
-
-    private List<Integer> getDayWithMaxSuccess(Map<Integer, Double> successRateByDay) {
-        int bestDayOfWeekNumber = -1;
-        double maxSuccessRate = -1.0;
-
-        for (Map.Entry<Integer, Double> entry : successRateByDay.entrySet()) {
-            int dayOfWeek = entry.getKey();
-            double successRate = entry.getValue();
-
-            if (successRate > maxSuccessRate) {
-                maxSuccessRate = successRate;
-                bestDayOfWeekNumber = dayOfWeek;
-            }
-        }
-
-        // Comprobamos si hay otros días con el mismo porcentaje de aciertos
-        List<Integer> bestDaysOfWeek = new ArrayList<>();
-        bestDaysOfWeek.add(bestDayOfWeekNumber);
-        for (Map.Entry<Integer, Double> entry : successRateByDay.entrySet()) {
-            int dayOfWeek = entry.getKey();
-            double successRate = entry.getValue();
-
-            if (successRate == maxSuccessRate && dayOfWeek != bestDayOfWeekNumber) {
-                bestDaysOfWeek.add(dayOfWeek);
-            }
-        }
-
-        return bestDaysOfWeek;
-    }
-
-    private void setBestDayHour(List<UserEntity> listAllBetsOnlyByOneUser, int totalBets) {
-        // TODO: Implementar
-        bestDayHour.setText("No implementado");
-    }
-
-    private void setBestHour(List<UserEntity> listAllBetsOnlyByOneUser, int totalBets) {
-        int uniqueHoursWithBets = countUniqueHoursWithBets(listAllBetsOnlyByOneUser);
-        int averageBetsPerHour = uniqueHoursWithBets > 0 ? Math.round((float) totalBets / uniqueHoursWithBets) : 0;
-        List<String> bestHourNumber = getBestHour(listAllBetsOnlyByOneUser, averageBetsPerHour);
-
-        bestHour.setText(String.join(", ", bestHourNumber));
-    }
-
-    private void setBestDay(List<UserEntity> listAllBetsOnlyByOneUser, int totalBets) {
-        int uniqueDaysWithBets = countUniqueDaysOfWeekWithBets(listAllBetsOnlyByOneUser);
-        int averageBetsPerDay = uniqueDaysWithBets > 0 ? Math.round((float) totalBets / uniqueDaysWithBets) : 0;
-        List<Integer> bestDayNumber = getBestDay(listAllBetsOnlyByOneUser, averageBetsPerDay);
-
-        // Traducción de los días
+    private static List<String> getSpanishDayOfWeekFromEnglish(List<Integer> bestDayNumber) {
         List<String> bestDays = new ArrayList<>();
         for (Integer dayNumber : bestDayNumber) {
             String dayNameWithMaxSuccess = DayOfWeek.of(dayNumber).toString();
@@ -144,8 +56,248 @@ public class UserDetailController {
             };
             bestDays.add(dayOfWeek);
         }
+        return bestDays;
+    }
 
-        bestDay.setText(String.join(", ", bestDays));
+    private Map<String, List<Double>> getMapSuccessByHour(List<UserEntity> bets) {
+        Map<String, List<Double>> mapSuccessRateByHour = new HashMap<>();
+
+        for (UserEntity bet : bets) {
+            String betHour = bet.getTimeBet();
+
+            // Contar aciertos y apuestas por hora, el índice 0 es aciertos y el 1 es el total de apuestas
+            mapSuccessRateByHour.putIfAbsent(betHour, new ArrayList<>(Arrays.asList(0.0, 0.0)));
+            double successRate = Boolean.TRUE.equals(bet.getReliable()) ? 1.0 : 0.0;
+            List<Double> successAndBets = mapSuccessRateByHour.get(betHour);
+            successAndBets.set(0, successAndBets.get(0) + successRate);
+            successAndBets.set(1, successAndBets.get(1) + 1);
+            mapSuccessRateByHour.put(betHour, successAndBets);
+        }
+
+        return mapSuccessRateByHour;
+    }
+
+    public void init(UserViewModel userViewModel, UserDTO user) {
+        this.userViewModel = userViewModel;
+
+        usernameLabel.setText(user.getUsername());
+
+        List<UserEntity> listAllBetsOnlyByOneUser = userViewModel.getAllBetsByUser(user.getUsername());
+        int totalBets = listAllBetsOnlyByOneUser.size();
+
+        setBestDay(listAllBetsOnlyByOneUser, totalBets);
+        setBestHour(listAllBetsOnlyByOneUser, totalBets);
+        setBestDayHour(listAllBetsOnlyByOneUser, totalBets);
+    }
+
+    private void setBestDayHour(List<UserEntity> listAllBetsOnlyByOneUser, int totalBets) {
+        int uniqueHoursDayWithBets = countUniqueHoursDayWithBets(listAllBetsOnlyByOneUser);
+        int averageBetsByOneUser = uniqueHoursDayWithBets > 0 ? Math.round((float) totalBets / uniqueHoursDayWithBets) : 0;
+        List<String> bestHourDays = getBestDayHour(listAllBetsOnlyByOneUser, averageBetsByOneUser);
+        bestHourDays.sort(new DayHourComparator());
+
+        Label correspondenceLabel = new Label("Mejor/es Día y Hora:");
+        Insets labelMargins = new Insets(0, 0, 0, 15);
+        correspondenceLabel.setPadding(labelMargins);
+        gridPane.add(correspondenceLabel, 0, rowIndex);
+
+        if (bestHourDays.isEmpty()) {
+            Label noDataLabel = new Label("No tiene...");
+            gridPane.add(noDataLabel, 1, rowIndex);
+            rowIndex++;
+            return;
+        }
+
+        for (String hour : bestHourDays) {
+            Label hourLabel = new Label(hour);
+            gridPane.add(hourLabel, 1, rowIndex);
+            rowIndex++;
+        }
+    }
+
+    private List<String> getBestDayHour(List<UserEntity> listAllBetsOnlyByOneUser, int averageBetsByOneUser) {
+        Map<String, List<Double>> mapSuccessRateByDayHour = getMapSuccessByDayHour(listAllBetsOnlyByOneUser);
+
+        double averageAllUsersSuccessRate = userViewModel.getAverageSuccessRate();
+
+        // Filtramos los mejores días para ver si corresponden con el promedio de apuestas
+        List<String> filteredDaysByAverageBetsPerDayHour = new ArrayList<>();
+        for (Map.Entry<String, List<Double>> entry : mapSuccessRateByDayHour.entrySet()) {
+            String dayOfWeekAndHour = entry.getKey();
+            List<Double> successAndBets = entry.getValue();
+            double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
+            double betsOnDay = successAndBets.get(1);
+
+            if (betsOnDay >= averageBetsByOneUser && successRate > averageAllUsersSuccessRate) {
+                filteredDaysByAverageBetsPerDayHour.add(dayOfWeekAndHour);
+            }
+        }
+
+        // Si no hay ninguno, escogemos los que tengan más aciertos, siempre que sea valioso comparando con el resto de usuarios
+        if (filteredDaysByAverageBetsPerDayHour.isEmpty()) {
+            for (Map.Entry<String, List<Double>> entry : mapSuccessRateByDayHour.entrySet()) {
+                String dayOfWeekAndHour = entry.getKey();
+                List<Double> successAndBets = entry.getValue();
+                double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
+
+                if (successRate > averageAllUsersSuccessRate) {
+                    filteredDaysByAverageBetsPerDayHour.add(dayOfWeekAndHour);
+                }
+            }
+        }
+
+        return filteredDaysByAverageBetsPerDayHour;
+    }
+
+    private Map<String, List<Double>> getMapSuccessByDayHour(List<UserEntity> listAllBetsOnlyByOneUser) {
+        Map<String, List<Double>> mapSuccessRateByDayHour = new HashMap<>();
+
+        for (UserEntity bet : listAllBetsOnlyByOneUser) {
+            String betHour = bet.getTimeBet();
+            DayOfWeek betDay = bet.getDateBet().getDayOfWeek();
+
+            String betDayOfWeekSpanish = switch (betDay.toString()) {
+                case "MONDAY" -> "LUNES";
+                case "TUESDAY" -> "MARTES";
+                case "WEDNESDAY" -> "MIÉRCOLES";
+                case "THURSDAY" -> "JUEVES";
+                case "FRIDAY" -> "VIERNES";
+                case "SATURDAY" -> "SÁBADO";
+                case "SUNDAY" -> "DOMINGO";
+                default -> "ERROR";
+            };
+            String betHourAndDay = betDayOfWeekSpanish + " de " + betHour;
+
+            // Contar aciertos y apuestas por hora, el índice 0 es aciertos y el 1 es el total de apuestas
+            mapSuccessRateByDayHour.putIfAbsent(betHourAndDay, new ArrayList<>(Arrays.asList(0.0, 0.0)));
+            double successRate = Boolean.TRUE.equals(bet.getReliable()) ? 1.0 : 0.0;
+            List<Double> successAndBets = mapSuccessRateByDayHour.get(betHourAndDay);
+            successAndBets.set(0, successAndBets.get(0) + successRate);
+            successAndBets.set(1, successAndBets.get(1) + 1);
+            mapSuccessRateByDayHour.put(betHourAndDay, successAndBets);
+        }
+
+        return mapSuccessRateByDayHour;
+    }
+
+    private int countUniqueHoursDayWithBets(List<UserEntity> listAllBetsOnlyByOneUser) {
+        Set<String> uniqueHours = new HashSet<>();
+
+        for (UserEntity bet : listAllBetsOnlyByOneUser) {
+            DayOfWeek dayOfWeek = bet.getDateBet().getDayOfWeek();
+            uniqueHours.add(dayOfWeek + " " + bet.getTimeBet());
+        }
+
+        return uniqueHours.size();
+    }
+
+    private void setBestHour(List<UserEntity> listAllBetsOnlyByOneUser, int totalBets) {
+        int uniqueHoursWithBets = countUniqueHoursWithBets(listAllBetsOnlyByOneUser);
+        int averageBetsPerHourByOneUser = uniqueHoursWithBets > 0 ? Math.round((float) totalBets / uniqueHoursWithBets) : 0;
+        List<String> bestHours = getBestHour(listAllBetsOnlyByOneUser, averageBetsPerHourByOneUser);
+
+        Label correspondenceLabel = new Label("Mejor/es Hora/s:");
+        Insets labelMargins = new Insets(0, 0, 0, 15);
+        correspondenceLabel.setPadding(labelMargins);
+        gridPane.add(correspondenceLabel, 0, rowIndex);
+
+        if (bestHours.isEmpty()) {
+            Label noDataLabel = new Label("No tiene...");
+            gridPane.add(noDataLabel, 1, rowIndex);
+            rowIndex++;
+
+            // Fila extra
+            Label emptyLabel = new Label("");
+            gridPane.add(emptyLabel, 0, rowIndex++);
+
+            return;
+        }
+
+        // Etiquetas de hora en la misma columna y última fila
+        for (String hour : bestHours) {
+            Label hourLabel = new Label(hour);
+            gridPane.add(hourLabel, 1, rowIndex);
+            rowIndex++;
+        }
+
+        // Fila extra
+        Label emptyLabel = new Label("");
+        gridPane.add(emptyLabel, 0, rowIndex++);
+
+        //bestHour.setText(String.join("\n", bestHourNumber));
+    }
+
+    private void setBestDay(List<UserEntity> listAllBetsOnlyByOneUser, int totalBets) {
+        int uniqueDaysWithBets = countUniqueDaysOfWeekWithBets(listAllBetsOnlyByOneUser);
+        int averageBetsPerDayByOneUser = uniqueDaysWithBets > 0 ? Math.round((float) totalBets / uniqueDaysWithBets) : 0;
+        List<Integer> bestDayNumber = getBestDay(listAllBetsOnlyByOneUser, averageBetsPerDayByOneUser);
+
+        Label correspondenceLabel = new Label("Mejor/es Día/s:");
+        Insets labelMargins = new Insets(0, 0, 0, 15);
+        correspondenceLabel.setPadding(labelMargins);
+        gridPane.add(correspondenceLabel, 0, 0);
+
+        if (bestDayNumber.isEmpty()) {
+            Label noDataLabel = new Label("No tiene...");
+            gridPane.add(noDataLabel, 1, rowIndex);
+            rowIndex++;
+
+            // Fila extra
+            Label emptyLabel = new Label("");
+            gridPane.add(emptyLabel, 0, rowIndex++);
+
+            return;
+        }
+
+        // Traducción de los días
+        List<String> bestDays = getSpanishDayOfWeekFromEnglish(bestDayNumber);
+
+        // Agregar las etiquetas al GridPane
+        for (String day : bestDays) {
+            Label dayLabel = new Label(day);
+            gridPane.add(dayLabel, 1, rowIndex);
+            rowIndex++;
+        }
+
+        // Fila extra
+        Label emptyLabel = new Label("");
+        gridPane.add(emptyLabel, 0, rowIndex++);
+
+        //bestDay.setText(String.join("\n", bestDays));
+    }
+
+    private List<Integer> getBestDay(List<UserEntity> bets, int averageBetsPerDayByOneUser) {
+        Map<Integer, List<Double>> mapSuccessRateByDay = getMapSuccessByDay(bets);
+
+        double averageAllUsersSuccessRate = userViewModel.getAverageSuccessRate();
+
+        // Filtramos los mejores días para ver si corresponden con el promedio de apuestas
+        List<Integer> filteredDaysByAverageBetsPerDay = new ArrayList<>();
+        for (Map.Entry<Integer, List<Double>> entry : mapSuccessRateByDay.entrySet()) {
+            int dayOfWeekNumber = entry.getKey();
+            List<Double> successAndBets = entry.getValue();
+            double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
+            double betsOnDay = successAndBets.get(1);
+
+            if (betsOnDay >= averageBetsPerDayByOneUser && successRate > averageAllUsersSuccessRate) {
+                filteredDaysByAverageBetsPerDay.add(dayOfWeekNumber);
+            }
+        }
+
+        // Si no hay ninguno, escogemos el que tengan más aciertos, siempre que sea valioso comparando con el resto de usuarios
+        if (filteredDaysByAverageBetsPerDay.isEmpty()) {
+            for (Map.Entry<Integer, List<Double>> entry : mapSuccessRateByDay.entrySet()) {
+                int dayOfWeekNumber = entry.getKey();
+                List<Double> successAndBets = entry.getValue();
+                double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
+
+                if (successRate > averageAllUsersSuccessRate) {
+                    filteredDaysByAverageBetsPerDay.add(dayOfWeekNumber);
+                }
+            }
+        }
+
+        return filteredDaysByAverageBetsPerDay;
     }
 
     private int countUniqueDaysOfWeekWithBets(List<UserEntity> bets) {
@@ -159,78 +311,38 @@ public class UserDetailController {
         return uniqueDays.size();
     }
 
-    private Map<String, Double> getMapSuccessByHour(List<UserEntity> bets) {
-        Map<String, Double> mapSuccessRateByHour = new HashMap<>();
+    private List<String> getBestHour(List<UserEntity> bets, int averageBetsPerHourByOneUser) {
+        Map<String, List<Double>> mapSuccessRateByHour = getMapSuccessByHour(bets);
 
-        for (UserEntity bet : bets) {
-            String betHour = bet.getTimeBet();
+        double averageAllUsersSuccessRate = userViewModel.getAverageSuccessRate();
 
-            // Contar aciertos y apuestas por hora
-            mapSuccessRateByHour.putIfAbsent(betHour, 0.0);
-            double successRate = Boolean.TRUE.equals(bet.getReliable()) ? 1.0 : 0.0;
-            mapSuccessRateByHour.put(betHour, mapSuccessRateByHour.get(betHour) + successRate);
-        }
-
-        return mapSuccessRateByHour;
-    }
-
-    private List<String> getBestHour(List<UserEntity> bets, int averageBetsPerHour) {
-        Map<String, Double> mapSuccessRateByHour = getMapSuccessByHour(bets);
-
-        List<String> bestHours = getHourWithMaxSuccess(mapSuccessRateByHour);
-
-        // Filtrar horas con igual o más apuestas que el promedio
+        // Filtramos los mejores días para ver si corresponden con el promedio de apuestas
         List<String> filteredHours = new ArrayList<>();
-        for (String hour : bestHours) {
-            int betsOnDay = countBetsOnHour(bets, hour);
+        for (Map.Entry<String, List<Double>> entry : mapSuccessRateByHour.entrySet()) {
+            String hourEntry = entry.getKey();
+            List<Double> successAndBets = entry.getValue();
+            double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
+            double betsOnHour = successAndBets.get(1);
 
-            if (betsOnDay >= averageBetsPerHour) {
-                filteredHours.add(hour);
+            if (betsOnHour >= averageBetsPerHourByOneUser && successRate > averageAllUsersSuccessRate) {
+                filteredHours.add(hourEntry);
             }
         }
 
-        // Si no hay ninguno, escogemos los que tengan más aciertos
+        // Si no hay ninguno, escogemos los que tengan más aciertos, siempre que sea valioso comparando con el resto de usuarios
         if (filteredHours.isEmpty()) {
-            filteredHours.addAll(bestHours);
+            for (Map.Entry<String, List<Double>> entry : mapSuccessRateByHour.entrySet()) {
+                String hourEntry = entry.getKey();
+                List<Double> successAndBets = entry.getValue();
+                double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
+
+                if (successRate > averageAllUsersSuccessRate) {
+                    filteredHours.add(hourEntry);
+                }
+            }
         }
 
-        // Encontrar la hora con el mayor porcentaje de aciertos entre las filtradas
         return filteredHours;
-    }
-
-    private int countBetsOnHour(List<UserEntity> bets, String betHour) {
-        return (int) bets.stream()
-                .filter(bet -> bet.getTimeBet().equals(betHour))
-                .count();
-    }
-
-    private List<String> getHourWithMaxSuccess(Map<String, Double> successRateByHour) {
-        String bestHour = null;
-        double maxSuccessRate = -1.0;
-
-        for (Map.Entry<String, Double> entry : successRateByHour.entrySet()) {
-            String hour = entry.getKey();
-            double successRate = entry.getValue();
-
-            if (successRate > maxSuccessRate) {
-                maxSuccessRate = successRate;
-                bestHour = hour;
-            }
-        }
-
-        // Comprobamos si hay otras horas con el mismo porcentaje de aciertos
-        List<String> bestHours = new ArrayList<>();
-        bestHours.add(bestHour);
-        for (Map.Entry<String, Double> entry : successRateByHour.entrySet()) {
-            String hour = entry.getKey();
-            double successRate = entry.getValue();
-
-            if (successRate == maxSuccessRate && !hour.equals(bestHour)) {
-                bestHours.add(hour);
-            }
-        }
-
-        return bestHours;
     }
 
     private int countUniqueHoursWithBets(List<UserEntity> bets) {
@@ -242,7 +354,6 @@ public class UserDetailController {
 
         return uniqueHours.size();
     }
-
 
     @FXML
     private void closeWindow() {
