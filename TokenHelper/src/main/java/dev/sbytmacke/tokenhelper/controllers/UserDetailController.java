@@ -17,6 +17,9 @@ public class UserDetailController {
 
     private int rowIndex = 0;
     private UserViewModel userViewModel;
+    private int medianTotalBets;
+    private double averageAllUsersSuccessRate;
+
     @FXML
     private GridPane gridPane;
     @FXML
@@ -79,6 +82,8 @@ public class UserDetailController {
 
     public void init(UserViewModel userViewModel, UserDTO user) {
         this.userViewModel = userViewModel;
+        this.medianTotalBets = userViewModel.getMedianTotalBets();
+        this.averageAllUsersSuccessRate = userViewModel.getAverageSuccessRate();
 
         usernameLabel.setText(user.getUsername());
 
@@ -118,8 +123,6 @@ public class UserDetailController {
     private List<String> getBestDayHour(List<UserEntity> listAllBetsOnlyByOneUser, int averageBetsByOneUser) {
         Map<String, List<Double>> mapSuccessRateByDayHour = getMapSuccessByDayHour(listAllBetsOnlyByOneUser);
 
-        double averageAllUsersSuccessRate = userViewModel.getAverageSuccessRate();
-
         // Filtramos los mejores días para ver si corresponden con el promedio de apuestas
         List<String> filteredDaysByAverageBetsPerDayHour = new ArrayList<>();
         for (Map.Entry<String, List<Double>> entry : mapSuccessRateByDayHour.entrySet()) {
@@ -129,7 +132,7 @@ public class UserDetailController {
             double betsOnDayHour = successAndBets.get(1);
 
             System.out.println("dayOfWeekAndHour: " + dayOfWeekAndHour + ", successRate: " + successRate + ", betsOnDay: " + betsOnDayHour + ", averageBetsByOneUser: " + averageBetsByOneUser + ", averageAllUsersSuccessRate: " + averageAllUsersSuccessRate);
-            if (betsOnDayHour >= averageBetsByOneUser && betsOnDayHour > userViewModel.getMedianTotalBets() && successRate > averageAllUsersSuccessRate) {
+            if (betsOnDayHour >= averageBetsByOneUser && betsOnDayHour >= medianTotalBets && successRate >= averageAllUsersSuccessRate) {
                 filteredDaysByAverageBetsPerDayHour.add(dayOfWeekAndHour);
             }
         }
@@ -274,8 +277,6 @@ public class UserDetailController {
     private List<Integer> getBestDay(List<UserEntity> bets, int averageBetsPerDayByOneUser) {
         Map<Integer, List<Double>> mapSuccessRateByDay = getMapSuccessByDay(bets);
 
-        double averageAllUsersSuccessRate = userViewModel.getAverageSuccessRate();
-
         // Filtramos los mejores días para ver si corresponden con el promedio de apuestas
         List<Integer> filteredDaysByAverageBetsPerDay = new ArrayList<>();
         for (Map.Entry<Integer, List<Double>> entry : mapSuccessRateByDay.entrySet()) {
@@ -284,7 +285,7 @@ public class UserDetailController {
             double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
             double betsOnDay = successAndBets.get(1);
 
-            if (betsOnDay >= averageBetsPerDayByOneUser && betsOnDay > userViewModel.getMedianTotalBets() && successRate > averageAllUsersSuccessRate) {
+            if (betsOnDay >= averageBetsPerDayByOneUser && betsOnDay >= medianTotalBets && successRate >= averageAllUsersSuccessRate) {
                 filteredDaysByAverageBetsPerDay.add(dayOfWeekNumber);
             }
         }
@@ -320,8 +321,6 @@ public class UserDetailController {
     private List<String> getBestHour(List<UserEntity> bets, int averageBetsPerHourByOneUser) {
         Map<String, List<Double>> mapSuccessRateByHour = getMapSuccessByHour(bets);
 
-        double averageAllUsersSuccessRate = userViewModel.getAverageSuccessRate();
-
         // Filtramos los mejores días para ver si corresponden con el promedio de apuestas
         List<String> filteredHours = new ArrayList<>();
         for (Map.Entry<String, List<Double>> entry : mapSuccessRateByHour.entrySet()) {
@@ -330,7 +329,7 @@ public class UserDetailController {
             double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
             double betsOnHour = successAndBets.get(1);
 
-            if (betsOnHour >= averageBetsPerHourByOneUser && betsOnHour > userViewModel.getMedianTotalBets() && successRate > averageAllUsersSuccessRate) {
+            if (betsOnHour >= averageBetsPerHourByOneUser && betsOnHour >= medianTotalBets && successRate >= averageAllUsersSuccessRate) {
                 filteredHours.add(hourEntry);
             }
         }
