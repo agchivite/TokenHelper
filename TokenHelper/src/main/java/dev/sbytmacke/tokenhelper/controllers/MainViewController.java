@@ -593,16 +593,16 @@ public class MainViewController {
                 } else {
                     if (item.getPercentReliable() <= 49.00) {
                         setStyle("-fx-background-color: #ff6161;");
-                    } else if (item.getPercentReliable() > 49.00 && item.getPercentReliable() <= 65.00) {
+                    } else if (item.getPercentReliable() > 49.00 && item.getPercentReliable() <= medianSuccessRate) {
                         setStyle("-fx-background-color: orange;");
-                    } else if (item.getPercentReliable() > 65.00) {
+                    } else if (item.getPercentReliable() > medianSuccessRate) {
                         setStyle("-fx-background-color: #53db78;");
                     } else {
                         setStyle("-fx-background-color: #ffffff;");
                     }
 
                     // Filtro especial para los verdes que fallen la media
-                    if (item.getPercentReliable() > 65.00 && item.getTotalBets() < medianTotalBets) {
+                    if (item.getPercentReliable() > medianSuccessRate && item.getTotalBets() < medianTotalBets) {
                         setStyle("-fx-background-color: orange;");
                     }
                 }
@@ -809,9 +809,9 @@ public class MainViewController {
         textFinalResultPercentSuccess.setText(percentSuccess + "%");
         if (percentSuccess <= 49.00) {
             textFinalResultPercentSuccess.setTextFill(Color.RED);
-        } else if (percentSuccess > 49.00 && percentSuccess <= 65.00) {
+        } else if (percentSuccess > 49.00 && percentSuccess <= medianSuccessRate) {
             textFinalResultPercentSuccess.setTextFill(Color.ORANGE);
-        } else if (percentSuccess > 65.00) {
+        } else if (percentSuccess > medianSuccessRate) {
             textFinalResultPercentSuccess.setTextFill(Color.GREEN);
         } else {
             textFinalResultPercentSuccess.setTextFill(Color.WHITE);
@@ -884,12 +884,12 @@ public class MainViewController {
 
     private void extractedUserByRadioButtonFilter(List<UserDTO> usersToShow) {
         if (radioButtonHideGreen.isSelected()) {
-            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00 && user.getTotalBets() > medianTotalBets);
+            usersToShow.removeIf(user -> user.getPercentReliable() > medianSuccessRate && user.getTotalBets() > medianTotalBets);
         }
 
         if (radioButtonHideOrange.isSelected()) {
-            usersToShow.removeIf(user -> user.getPercentReliable() > 49.00 && user.getPercentReliable() <= 65.00);
-            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00 && user.getTotalBets() < medianTotalBets);
+            usersToShow.removeIf(user -> user.getPercentReliable() > 49.00 && user.getPercentReliable() <= medianSuccessRate);
+            usersToShow.removeIf(user -> user.getPercentReliable() > medianSuccessRate && user.getTotalBets() < medianTotalBets);
         }
 
         if (radioButtonHideRed.isSelected()) {

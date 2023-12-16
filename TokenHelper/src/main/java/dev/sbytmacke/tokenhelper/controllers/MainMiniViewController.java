@@ -21,6 +21,8 @@ public class MainMiniViewController {
     private UserViewModel userViewModel;
     private MainViewController mainViewController;
     private TableView<UserDTO> tableUsersMainView;
+
+    private double medianSuccessRate;
     @FXML
     private TableView<UserDTO> tableUsers;
     @FXML
@@ -58,6 +60,7 @@ public class MainMiniViewController {
         this.mainViewController = mainViewController;
         this.userViewModel = mainViewController.getUserViewModel();
         this.tableUsersMainView = mainViewController.getTableUsers();
+        this.medianSuccessRate = userViewModel.getMedianSuccessRate();
         initBindings();
         initDetails();
         initEvents();
@@ -118,16 +121,16 @@ public class MainMiniViewController {
                 } else {
                     if (item.getPercentReliable() <= 49.00) {
                         setStyle("-fx-background-color: #ff6161;");
-                    } else if (item.getPercentReliable() > 49.00 && item.getPercentReliable() <= 65.00) {
+                    } else if (item.getPercentReliable() > 49.00 && item.getPercentReliable() <= medianSuccessRate) {
                         setStyle("-fx-background-color: orange;");
-                    } else if (item.getPercentReliable() > 65.00) {
+                    } else if (item.getPercentReliable() > medianSuccessRate) {
                         setStyle("-fx-background-color: #53db78;");
                     } else {
                         setStyle("-fx-background-color: #ffffff;");
                     }
 
                     // Filtro especial para los verdes que fallen la media
-                    if (item.getPercentReliable() > 65.00 && item.getTotalBets() < userViewModel.getMedianTotalBets()) {
+                    if (item.getPercentReliable() > medianSuccessRate && item.getTotalBets() < userViewModel.getMedianTotalBets()) {
                         setStyle("-fx-background-color: orange;");
                     }
                 }
