@@ -126,15 +126,20 @@ public class UserDetailController {
             String dayOfWeekAndHour = entry.getKey();
             List<Double> successAndBets = entry.getValue();
             double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
-            double betsOnDay = successAndBets.get(1);
+            double betsOnDayHour = successAndBets.get(1);
 
-            if (betsOnDay >= averageBetsByOneUser && successRate > averageAllUsersSuccessRate) {
+            System.out.println("dayOfWeekAndHour: " + dayOfWeekAndHour + ", successRate: " + successRate + ", betsOnDay: " + betsOnDayHour + ", averageBetsByOneUser: " + averageBetsByOneUser + ", averageAllUsersSuccessRate: " + averageAllUsersSuccessRate);
+            if (betsOnDayHour >= averageBetsByOneUser && betsOnDayHour > userViewModel.getMedianTotalBets() && successRate > averageAllUsersSuccessRate) {
                 filteredDaysByAverageBetsPerDayHour.add(dayOfWeekAndHour);
             }
         }
 
+        System.out.println("Media de apuestas por usuario: " + averageBetsByOneUser + ", media de aciertos de todos los usuarios: " + averageAllUsersSuccessRate);
+        System.out.println("Mediana general de totalapeustas: " + userViewModel.getMedianTotalBets());
+
+        // TODO: pensar un mejor filtro cuando no haya ninguno, por ahora lo dejo con que el algoritmo considerar que ningun dato tiene valor para ser el mejor
         // Si no hay ninguno, escogemos los que tengan más aciertos, siempre que sea valioso comparando con el resto de usuarios
-        if (filteredDaysByAverageBetsPerDayHour.isEmpty()) {
+    /*    if (filteredDaysByAverageBetsPerDayHour.isEmpty()) {
             for (Map.Entry<String, List<Double>> entry : mapSuccessRateByDayHour.entrySet()) {
                 String dayOfWeekAndHour = entry.getKey();
                 List<Double> successAndBets = entry.getValue();
@@ -144,7 +149,7 @@ public class UserDetailController {
                     filteredDaysByAverageBetsPerDayHour.add(dayOfWeekAndHour);
                 }
             }
-        }
+        }*/
 
         return filteredDaysByAverageBetsPerDayHour;
     }
@@ -279,13 +284,14 @@ public class UserDetailController {
             double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
             double betsOnDay = successAndBets.get(1);
 
-            if (betsOnDay >= averageBetsPerDayByOneUser && successRate > averageAllUsersSuccessRate) {
+            if (betsOnDay >= averageBetsPerDayByOneUser && betsOnDay > userViewModel.getMedianTotalBets() && successRate > averageAllUsersSuccessRate) {
                 filteredDaysByAverageBetsPerDay.add(dayOfWeekNumber);
             }
         }
 
+        // TODO: pensar un mejor filtro cuando no haya ninguno, por ahora lo dejo con que el algoritmo considerar que ningun dato tiene valor para ser el mejor
         // Si no hay ninguno, escogemos el que tengan más aciertos, siempre que sea valioso comparando con el resto de usuarios
-        if (filteredDaysByAverageBetsPerDay.isEmpty()) {
+  /*      if (filteredDaysByAverageBetsPerDay.isEmpty()) {
             for (Map.Entry<Integer, List<Double>> entry : mapSuccessRateByDay.entrySet()) {
                 int dayOfWeekNumber = entry.getKey();
                 List<Double> successAndBets = entry.getValue();
@@ -295,7 +301,7 @@ public class UserDetailController {
                     filteredDaysByAverageBetsPerDay.add(dayOfWeekNumber);
                 }
             }
-        }
+        }*/
 
         return filteredDaysByAverageBetsPerDay;
     }
@@ -324,13 +330,14 @@ public class UserDetailController {
             double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
             double betsOnHour = successAndBets.get(1);
 
-            if (betsOnHour >= averageBetsPerHourByOneUser && successRate > averageAllUsersSuccessRate) {
+            if (betsOnHour >= averageBetsPerHourByOneUser && betsOnHour > userViewModel.getMedianTotalBets() && successRate > averageAllUsersSuccessRate) {
                 filteredHours.add(hourEntry);
             }
         }
 
+        // TODO: pensar un mejor filtro cuando no haya ninguno, por ahora lo dejo con que el algoritmo considerar que ningun dato tiene valor para ser el mejor
         // Si no hay ninguno, escogemos los que tengan más aciertos, siempre que sea valioso comparando con el resto de usuarios
-        if (filteredHours.isEmpty()) {
+  /*      if (filteredHours.isEmpty()) {
             for (Map.Entry<String, List<Double>> entry : mapSuccessRateByHour.entrySet()) {
                 String hourEntry = entry.getKey();
                 List<Double> successAndBets = entry.getValue();
@@ -340,7 +347,7 @@ public class UserDetailController {
                     filteredHours.add(hourEntry);
                 }
             }
-        }
+        }*/
 
         return filteredHours;
     }

@@ -34,8 +34,8 @@ public class MainViewController {
     private static final int NUM_USERS_TO_SHOW_RANKING = 20;
     private static final double PERCENT_SUCCESS_RANKING_TO_SHOW = 51.0;
     private final String noDataTime = "--:--";
+    public UserViewModel userViewModel;
     Logger logger = LoggerFactory.getLogger(getClass());
-    private UserViewModel userViewModel;
     private double averageOnlyReliableUsersTotalBets;
     @FXML
     private Button buttonMainMiniView;
@@ -48,7 +48,8 @@ public class MainViewController {
     private MenuItem menuUpdateData;
     @FXML
     private MenuItem menuBackup;
-
+    @FXML
+    private MenuItem menuRanking;
     /* Create user */
     @FXML
     private Button buttonCleanSaveUsername;
@@ -289,10 +290,9 @@ public class MainViewController {
                 throw new RuntimeException(e);
             }
         });
+        menuRanking.setOnAction(event -> onRankingMenuAction());
 
-        buttonCreateUser.setOnAction(event -> {
-            saveUser();
-        });
+        buttonCreateUser.setOnAction(event -> saveUser());
 
         // Filters
         textSearchUserFilter.setOnKeyReleased(event -> updateAllTables());
@@ -385,6 +385,16 @@ public class MainViewController {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private void onRankingMenuAction() {
+        logger.info("Initializing Ranking-Charts View");
+        RoutesManager routesManager = new RoutesManager();
+        try {
+            routesManager.initChartsView(this);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void onBackupMenuAction() {

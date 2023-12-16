@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--<LineChart xmlns:fx="http://javafx.com/fxml/1" fx:id="lineChart" xmlns="http://javafx.com/javafx/17.0.2-ea"
+           fx:controller="dev.sbytmacke.tokenhelper.controllers.ChartsViewController">
+	<xAxis>
+		<NumberAxis fx:id="totalBets" label="X" side="BOTTOM"/>
+	</xAxis>
+	<yAxis>
+		<NumberAxis fx:id="percentSuccess" label="Y" side="LEFT"/>
+	</yAxis>
+</LineChart>-->
+
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.layout.AnchorPane?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.2-ea"
+            fx:controller="dev.sbytmacke.tokenhelper.controllers.ChartsViewController">
+	<PieChart fx:id="pieChart" layoutX="14.0" layoutY="14.0" title="UsersByTotalBets">
+	</PieChart>
+</AnchorPane>

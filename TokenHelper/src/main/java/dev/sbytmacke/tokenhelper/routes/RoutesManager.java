@@ -155,6 +155,25 @@ public class RoutesManager {
         stage.show();
     }
 
+    public void initChartsView(MainViewController mainViewController) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("charts-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+
+        ChartsViewController controller = fxmlLoader.getController();
+        controller.init(mainViewController);
+
+        Stage stage = new Stage();
+        stage.setTitle("Ranking");
+        stage.setResizable(false);
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource(pathMainPng)).toExternalForm()));
+
+        stage.setScene(scene);
+        stage.initOwner(_mainStage);
+        stage.initModality(Modality.WINDOW_MODAL);
+
+        stage.show();
+    }
+
     public Stage getActiveStage() {
         return _activeStage;
     }
