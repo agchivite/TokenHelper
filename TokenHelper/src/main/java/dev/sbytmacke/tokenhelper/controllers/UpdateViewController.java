@@ -75,7 +75,7 @@ public class UpdateViewController {
             dialog.showAndWait().ifPresent(response -> {
                 if (response == ButtonType.OK) {
                     mainViewController.getUserViewModel().updateUsername(textFieldOldUsername.getText().toUpperCase().trim(), textFieldNewUsername.getText().toUpperCase().trim());
-                    mainViewController.updateAllTables();
+                    mainViewController.updateMainTable();
                     textFieldOldUsername.setText("");
                     textFieldNewUsername.setText("");
                 }

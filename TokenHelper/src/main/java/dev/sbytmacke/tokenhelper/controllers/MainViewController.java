@@ -37,6 +37,8 @@ public class MainViewController {
     public UserViewModel userViewModel;
     Logger logger = LoggerFactory.getLogger(getClass());
     private double averageOnlyReliableUsersTotalBets;
+    private int medianTotalBets;
+
     @FXML
     private Button buttonMainMiniView;
     // Menu
@@ -138,6 +140,7 @@ public class MainViewController {
         initDetails();
         initEvents();
         averageOnlyReliableUsersTotalBets = calculateAverageOnlyReliableUsersTotalBets();
+        medianTotalBets = userViewModel.getMedianTotalBets();
     }
 
     private double calculateAverageOnlyReliableUsersTotalBets() {
@@ -163,10 +166,7 @@ public class MainViewController {
         logger.info("Initializing Bindings");
 
         // Table Ranking Global
-        List<UserDTO> filterTopUsersReliable = filterRakingUsersReliable(userViewModel.getAll());
-        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable));
-        orderByTotalSuccessBets(tableUsersRanking);
-        listUsers(tableUsersRanking.getItems());
+        updateRankingTable();
 
         columnUsernameRanking.setCellValueFactory(new PropertyValueFactory<>("username"));
         columnSuccessRanking.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
@@ -248,9 +248,9 @@ public class MainViewController {
             }
         });
 
-        starCheckBox.setOnAction(event -> updateAllTables());
+        starCheckBox.setOnAction(event -> updateMainTable());
 
-        radioButtonHideTime.setOnAction(event -> updateAllTables());
+        radioButtonHideTime.setOnAction(event -> updateMainTable());
 
         menuBackup.setOnAction(event -> onBackupMenuAction());
 
@@ -270,7 +270,7 @@ public class MainViewController {
             radioButtonFriday.setSelected(false);
             radioButtonSaturday.setSelected(false);
             radioButtonSunday.setSelected(false);
-            updateAllTables();
+            updateMainTable();
         });
 
         DateFormatterUtils dateFormatterUtils = new DateFormatterUtils();
@@ -292,11 +292,16 @@ public class MainViewController {
         });
         menuRanking.setOnAction(event -> onRankingMenuAction());
 
-        buttonCreateUser.setOnAction(event -> saveUser());
+        buttonCreateUser.setOnAction(event -> {
+            saveUser();
+
+            // Actualizamos el ranking general
+            updateRankingTable();
+        });
 
         // Filters
-        textSearchUserFilter.setOnKeyReleased(event -> updateAllTables());
-        comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> updateAllTables());
+        textSearchUserFilter.setOnKeyReleased(event -> updateMainTable());
+        comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> updateMainTable());
 
         // Cambiamos también en el DatePicker al añadir
         DateTimeFormatter dateFormatterDatePicker = dateFormatterUtils.formatDate(datePicker);
@@ -309,18 +314,18 @@ public class MainViewController {
             }
         });
 
-        radioButtonHideGreen.setOnAction(event -> updateAllTables());
-        radioButtonHideOrange.setOnAction(event -> updateAllTables());
-        radioButtonHideRed.setOnAction(event -> updateAllTables());
+        radioButtonHideGreen.setOnAction(event -> updateMainTable());
+        radioButtonHideOrange.setOnAction(event -> updateMainTable());
+        radioButtonHideRed.setOnAction(event -> updateMainTable());
 
-        radioButtonNone.setOnAction(event -> updateAllTables());
-        radioButtonMonday.setOnAction(event -> updateAllTables());
-        radioButtonTuesday.setOnAction(event -> updateAllTables());
-        radioButtonWednesday.setOnAction(event -> updateAllTables());
-        radioButtonThursday.setOnAction(event -> updateAllTables());
-        radioButtonFriday.setOnAction(event -> updateAllTables());
-        radioButtonSaturday.setOnAction(event -> updateAllTables());
-        radioButtonSunday.setOnAction(event -> updateAllTables());
+        radioButtonNone.setOnAction(event -> updateMainTable());
+        radioButtonMonday.setOnAction(event -> updateMainTable());
+        radioButtonTuesday.setOnAction(event -> updateMainTable());
+        radioButtonWednesday.setOnAction(event -> updateMainTable());
+        radioButtonThursday.setOnAction(event -> updateMainTable());
+        radioButtonFriday.setOnAction(event -> updateMainTable());
+        radioButtonSaturday.setOnAction(event -> updateMainTable());
+        radioButtonSunday.setOnAction(event -> updateMainTable());
 
         contextMenu = new ContextMenu();
         textFieldUser.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -370,7 +375,7 @@ public class MainViewController {
                 textFieldUser.setText(selectedItem.getText());
             } else if (textSearchUserFilter.isFocused()) {
                 textSearchUserFilter.setText(selectedItem.getText());
-                updateAllTables();
+                updateMainTable();
             }
             contextMenu.hide();
         });
@@ -385,6 +390,13 @@ public class MainViewController {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private void updateRankingTable() {
+        List<UserDTO> filterTopUsersReliable = filterRakingUsersReliable(userViewModel.getAll());
+        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable));
+        orderByTotalSuccessBets(tableUsersRanking);
+        listUsers(tableUsersRanking.getItems());
     }
 
     private void onRankingMenuAction() {
@@ -562,7 +574,7 @@ public class MainViewController {
         return usersToFilter.stream()
                 .filter(user -> user.getPercentReliable() >= PERCENT_SUCCESS_RANKING_TO_SHOW) // Filtra usuarios fiables
                 // Buscando los datos con más apuestas
-                .filter(user -> user.getTotalBets() >= userViewModel.getMedianTotalBets())
+                .filter(user -> user.getTotalBets() >= medianTotalBets)
                 // Filtramos aquellos que fallan mucho, aquellos que fallan el 50% de las apuestas o menos
                 .filter(user -> (double) user.getTotalBets() / 2 <= (double) user.getTotalSuccess())
                 .limit(NUM_USERS_TO_SHOW_RANKING)
@@ -658,7 +670,7 @@ public class MainViewController {
         return filteredSuggestions;
     }
 
-    public void updateAllTables() {
+    public void updateMainTable() {
         String newUsername = textSearchUserFilter.getText().toUpperCase();
         Integer newDateOfWeek = getNewDateOfWeek();
         String newTime;
@@ -693,12 +705,6 @@ public class MainViewController {
         if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
             tableUsers.getItems().clear();
         }
-
-        // Actualizamos el ranking general (en caso de modificar datos)
-        List<UserDTO> filterTopUsersReliable = filterRakingUsersReliable(userViewModel.getAll());
-        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable));
-        orderByTotalSuccessBets(tableUsersRanking);
-        listUsers(tableUsersRanking.getItems());
 
         setColorsTable();
     }
@@ -1098,7 +1104,7 @@ public class MainViewController {
         radioButtonGood.setSelected(false);
         radioButtonBad.setSelected(false);
 
-        updateAllTables();
+        updateMainTable();
     }
 
     public UserViewModel getUserViewModel() {

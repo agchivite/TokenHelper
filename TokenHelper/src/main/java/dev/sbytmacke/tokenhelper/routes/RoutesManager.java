@@ -124,7 +124,7 @@ public class RoutesManager {
         stage.setOnCloseRequest(event -> {
             // Limpiamos la tabla main-view
             mainViewController.clearTable();
-            mainViewController.updateAllTables();
+            mainViewController.updateMainTable();
             _mainStage.show();
         });
 
