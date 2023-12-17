@@ -58,8 +58,8 @@ public class RoutesManager {
         MainViewController controller = fxmlLoader.getController(); // Obtenemos el controlador
         controller.init(userViewModel); // Inyección de dependencias desde el DatabaseManager hasta el Controller
 
-        Scene scene = new Scene(root, Control.USE_COMPUTED_SIZE, 810);
-        stage.setResizable(false);
+        Scene scene = new Scene(root, 1500, Control.USE_COMPUTED_SIZE);
+        stage.setResizable(true);
         stage.setTitle("TokenHelper");
         // Agregar un icono a la ventana
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource(pathMainPng)).toExternalForm()));
@@ -69,6 +69,10 @@ public class RoutesManager {
         _activeScene = scene;
 
         stage.setScene(scene);
+
+        // Maximizar la ventana al tamaño de la pantalla
+        stage.setMaximized(true);
+
         stage.show();
     }
 
@@ -169,7 +173,7 @@ public class RoutesManager {
 
         stage.setScene(scene);
         stage.initOwner(_mainStage);
-        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initModality(Modality.NONE);
 
         stage.show();
     }

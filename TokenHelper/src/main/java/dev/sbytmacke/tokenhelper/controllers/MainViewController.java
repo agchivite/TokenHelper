@@ -12,11 +12,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.bson.Document;
 import org.slf4j.Logger;
@@ -129,6 +131,10 @@ public class MainViewController {
     private Label textFinalResultTotalBets;
     @FXML
     private ImageView imageRefresh;
+    @FXML
+    private PieChart pieChart;
+    @FXML
+    private Text noDataMessagePieChart;
 
     public TableView<UserDTO> getTableUsers() {
         return tableUsers;
@@ -140,6 +146,43 @@ public class MainViewController {
         initBindings();
         initDetails();
         initEvents();
+        updatePieChart(FXCollections.observableArrayList());
+    }
+
+    private void updatePieChart(List<UserDTO> users) {
+        pieChart.getData().clear();
+
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+        for (UserDTO user : users) {
+            // Limitar la longitud del nombre, ya que pieChar no permite mucho espacio
+            String displayName = user.getUsername().length() > 14
+                    ? user.getUsername().substring(0, 10) + "..." // Mostrar solo los primeros 10 caracteres seguidos de "..."
+                    : user.getUsername();
+
+            PieChart.Data slice = new PieChart.Data(displayName, user.getTotalBets());
+            pieChartData.add(slice);
+        }
+
+        if (pieChartData.isEmpty()) {
+            noDataMessagePieChart.setVisible(true);
+            noDataMessagePieChart.setManaged(true);
+            pieChart.setVisible(false);
+            pieChart.setManaged(false);
+            noDataMessagePieChart.setVisible(true);
+        } else {
+            pieChart.setVisible(true);
+            pieChart.setManaged(true);
+            noDataMessagePieChart.setVisible(false);
+            noDataMessagePieChart.setManaged(false);
+            noDataMessagePieChart.setVisible(false);
+            pieChart.setData(pieChartData);
+        }
+
+        // Cambiar el color del texto de las etiquetas
+        pieChart.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/pieChart.css")).toExternalForm());
+        for (PieChart.Data data : pieChart.getData()) {
+            data.getNode().getStyleClass().add("chart-pie-label");
+        }
     }
 
     private double calculateAverageOnlyReliableUsersTotalBets() {
@@ -286,6 +329,13 @@ public class MainViewController {
             radioButtonSaturday.setSelected(false);
             radioButtonSunday.setSelected(false);
             updateMainTable();
+
+            // PieChart
+            noDataMessagePieChart.setVisible(true);
+            noDataMessagePieChart.setManaged(true);
+            pieChart.setVisible(false);
+            pieChart.setManaged(false);
+            noDataMessagePieChart.setVisible(true);
         });
 
         DateFormatterUtils dateFormatterUtils = new DateFormatterUtils();
@@ -705,19 +755,20 @@ public class MainViewController {
         Boolean onFilterByUserDateTime = onFilterDataTableByUserDateTime(newUsername, newTime, newDateOfWeek);
         orderByTotalSuccessBets(tableUsers);
 
+        if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
+            tableUsers.getItems().clear();
+        }
+
         List<UserDTO> filteredUsers = filterStartsAndRakingUsersReliable(tableUsers.getItems());
         setStarTopUsers(filteredUsers);
+        updatePieChart(filteredUsers);
 
         if (starCheckBox.isSelected()) {
             tableUsers.setItems(FXCollections.observableArrayList(filteredUsers));
         } else {
             tableUsers.setItems(FXCollections.observableArrayList(tableUsers.getItems()));
         }
-
-        if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
-            tableUsers.getItems().clear();
-        }
-
+        
         setColorsTable();
     }
 
