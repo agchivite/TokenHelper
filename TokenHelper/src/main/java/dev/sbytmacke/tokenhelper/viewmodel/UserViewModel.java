@@ -31,7 +31,7 @@ public class UserViewModel {
 
 
     private void calculateThirdsSuccessRate() {
-        averageSuccessRate = getAverageSuccessRate();
+        averageSuccessRate = getAverageSuccessRate(repository.getAll());
         double portionSuccessRate = averageSuccessRate / 3;
         badAverageAllUsersSuccessRate = averageSuccessRate - portionSuccessRate;
         goodAverageAllUsersSuccessRate = averageSuccessRate + portionSuccessRate;
@@ -67,7 +67,7 @@ public class UserViewModel {
             return 0.0;
         }
 
-        return calculateMedianTotalBets(users);
+        return getAverageSuccessRate(users);
     }
 
     public Integer getGlobalTotalBetsByDateTime(String newTime, Integer newDate) {
@@ -83,17 +83,7 @@ public class UserViewModel {
             return 0.0;
         }
 
-        return calculateMedianTotalBets(users);
-    }
-
-    public List<String> getAllUsernamesNoRepeat() {
-        logger.info("getAllUsernames");
-        return repository.getAllUsernamesWithoutRepeat();
-    }
-
-    public Integer getGlobalTotalBetsByDate(Integer newDate) {
-        logger.info("getGlobalTotalBetsByDate");
-        return repository.getGlobalTotalBetsByDate(newDate);
+        return getAverageSuccessRate(users);
     }
 
     public double getGlobalPercentSuccessByDate(Integer newDate) {
@@ -104,7 +94,17 @@ public class UserViewModel {
             return 0.0;
         }
 
-        return calculateMedianTotalBets(users);
+        return getAverageSuccessRate(users);
+    }
+
+    public List<String> getAllUsernamesNoRepeat() {
+        logger.info("getAllUsernames");
+        return repository.getAllUsernamesWithoutRepeat();
+    }
+
+    public Integer getGlobalTotalBetsByDate(Integer newDate) {
+        logger.info("getGlobalTotalBetsByDate");
+        return repository.getGlobalTotalBetsByDate(newDate);
     }
 
     public List<UserDTO> getAllByDate(Integer newDate) {
@@ -163,9 +163,8 @@ public class UserViewModel {
         return repository.getAllBetsByUser(username);
     }
 
-    private double getAverageSuccessRate() {
+    private double getAverageSuccessRate(List<UserDTO> users) {
         logger.info("getAverageSuccessRate");
-        List<UserDTO> users = repository.getAll();
 
         if (users.isEmpty()) {
             return 0.0;
@@ -180,7 +179,7 @@ public class UserViewModel {
         return Math.round(totalPercentSuccess / users.size() * 100) / 100.0;
     }
 
-    private double calculateMedianTotalBets(List<UserDTO> allUsers) {
+    private int calculateMedianTotalBets(List<UserDTO> allUsers) {
         int numUsers = allUsers.size();
 
         List<UserDTO> sortedAllUsers = allUsers.stream()
