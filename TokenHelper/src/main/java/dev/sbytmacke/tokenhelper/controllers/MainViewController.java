@@ -819,7 +819,7 @@ public class MainViewController {
         textFinalResultPercentSuccess.setText(percentSuccess + "%");
         if (percentSuccess <= badThirdSuccessRate) {
             textFinalResultPercentSuccess.setTextFill(Color.RED);
-        } else if (percentSuccess > badThirdSuccessRate && percentSuccess <= goodSuccessRate) {
+        } else if (percentSuccess <= goodSuccessRate) {
             textFinalResultPercentSuccess.setTextFill(Color.ORANGE);
         } else if (percentSuccess > goodSuccessRate) {
             textFinalResultPercentSuccess.setTextFill(Color.GREEN);
@@ -894,12 +894,12 @@ public class MainViewController {
 
     private void extractedUserByRadioButtonFilter(List<UserDTO> usersToShow) {
         if (radioButtonHideGreen.isSelected()) {
-            usersToShow.removeIf(user -> user.getPercentReliable() > medianSuccessRate && user.getTotalBets() > medianTotalBets);
+            usersToShow.removeIf(user -> user.getPercentReliable() >= goodSuccessRate && user.getTotalBets() >= medianTotalBets);
         }
 
         if (radioButtonHideOrange.isSelected()) {
             usersToShow.removeIf(user -> user.getPercentReliable() > badThirdSuccessRate && user.getPercentReliable() <= goodSuccessRate);
-            usersToShow.removeIf(user -> user.getPercentReliable() > medianSuccessRate && user.getTotalBets() < goodSuccessRate);
+            usersToShow.removeIf(user -> user.getTotalBets() < medianTotalBets);
         }
 
         if (radioButtonHideRed.isSelected()) {
