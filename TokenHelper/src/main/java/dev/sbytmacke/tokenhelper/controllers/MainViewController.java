@@ -142,7 +142,7 @@ public class MainViewController {
         initDetails();
         initEvents();
         medianTotalBets = userViewModel.getMedianTotalBets();
-        medianSuccessRate = userViewModel.getMedianSuccessRate();
+        medianSuccessRate = userViewModel.getAverageSuccessRate();
         calculateThirdsSuccessRate();
     }
 
