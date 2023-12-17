@@ -13,12 +13,28 @@ import java.util.Comparator;
 import java.util.List;
 
 public class UserViewModel {
+    public static final int USER_FILTER_RELABLE = 60;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final UserRepository<UserEntity, String> repository;
+    public double goodAverageAllUsersSuccessRate;
+    public double badAverageAllUsersSuccessRate;
+    private double averageSuccessRate;
+
 
     public UserViewModel(UserRepository<UserEntity, String> repository) {
         logger.info("Initializing UserViewModel");
         this.repository = repository;
+        calculateThirdsSuccessRate();
+    }
+
+    private void calculateThirdsSuccessRate() {
+        averageSuccessRate = getAverageSuccessRate();
+        double portionSuccessRate = averageSuccessRate / 3;
+        badAverageAllUsersSuccessRate = averageSuccessRate - portionSuccessRate;
+        goodAverageAllUsersSuccessRate = averageSuccessRate + portionSuccessRate;
+        System.out.println("badThirdSuccessRate: " + badAverageAllUsersSuccessRate);
+        System.out.println("goodSuccessRate: " + goodAverageAllUsersSuccessRate);
+        System.out.println("medianSuccessRate: " + averageSuccessRate);
     }
 
     private double calculateGlobalAverageSuccess(List<UserDTO> users) {

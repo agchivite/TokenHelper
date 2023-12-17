@@ -25,7 +25,13 @@ public class DayHourComparator implements Comparator<String> {
         return dayComparison;
     }
 
-    private int getDayOrder(String dayOfWeek) {
+    private int getDayOrder(String dayOfWeekString) {
+        // Extraer el día de la semana de la cadena completa
+        String dayOfWeek = dayOfWeekString.split("-")[1].trim();
+
+        // Remover cualquier texto adicional después del día de la semana
+        dayOfWeek = dayOfWeek.split(" ")[0].trim();
+
         switch (dayOfWeek) {
             case "LUNES":
                 return 1;
