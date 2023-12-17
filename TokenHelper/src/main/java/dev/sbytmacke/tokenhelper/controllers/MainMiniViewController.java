@@ -119,18 +119,18 @@ public class MainMiniViewController {
                 if (item == null) {
                     setStyle("");
                 } else {
-                    if (item.getPercentReliable() <= 49.00) {
+                    if (item.getPercentReliable() <= mainViewController.badThirdSuccessRate) {
                         setStyle("-fx-background-color: #ff6161;");
-                    } else if (item.getPercentReliable() > 49.00 && item.getPercentReliable() <= medianSuccessRate) {
+                    } else if (item.getPercentReliable() > mainViewController.badThirdSuccessRate && item.getPercentReliable() <= mainViewController.goodSuccessRate) {
                         setStyle("-fx-background-color: orange;");
-                    } else if (item.getPercentReliable() > medianSuccessRate) {
+                    } else if (item.getPercentReliable() > mainViewController.goodSuccessRate) {
                         setStyle("-fx-background-color: #53db78;");
                     } else {
                         setStyle("-fx-background-color: #ffffff;");
                     }
 
                     // Filtro especial para los verdes que fallen la media
-                    if (item.getPercentReliable() > medianSuccessRate && item.getTotalBets() < userViewModel.getMedianTotalBets()) {
+                    if (item.getPercentReliable() > mainViewController.goodSuccessRate && item.getTotalBets() < mainViewController.medianTotalBets) {
                         setStyle("-fx-background-color: orange;");
                     }
                 }
@@ -202,7 +202,7 @@ public class MainMiniViewController {
 
             copyListFromMainView.addAll(tableUsersMainView.getItems());
             // Eliminamos los rojos
-            copyListFromMainView.removeIf(user -> user.getPercentReliable() <= 49.00);
+            copyListFromMainView.removeIf(user -> user.getPercentReliable() <= mainViewController.badThirdSuccessRate);
             userData.addAll(copyListFromMainView);
         }
 
@@ -228,7 +228,7 @@ public class MainMiniViewController {
 
         mainViewController.orderByTotalSuccessBets(tableUsers);
 
-        List<UserDTO> filteredUsers = mainViewController.filterRakingUsersReliable(tableUsers.getItems());
+        List<UserDTO> filteredUsers = mainViewController.filterStartsAndRakingUsersReliable(tableUsers.getItems());
         setStarTopUsers(filteredUsers);
 
         if (starCheckBox.isSelected()) {
@@ -247,7 +247,7 @@ public class MainMiniViewController {
             List<UserDTO> usersToShow = userViewModel.getAllByDateTime(newTime, newDate);
 
             // Eliminamos los rojos
-            usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
+            usersToShow.removeIf(user -> user.getPercentReliable() <= mainViewController.badThirdSuccessRate);
 
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
@@ -261,7 +261,7 @@ public class MainMiniViewController {
             List<UserDTO> usersToShow = userViewModel.getAllByTime(newTime);
 
             // Eliminamos los rojos
-            usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
+            usersToShow.removeIf(user -> user.getPercentReliable() <= mainViewController.badThirdSuccessRate);
 
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
@@ -276,7 +276,7 @@ public class MainMiniViewController {
 
 
             // Eliminamos los rojos
-            usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
+            usersToShow.removeIf(user -> user.getPercentReliable() <= mainViewController.badThirdSuccessRate);
 
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));

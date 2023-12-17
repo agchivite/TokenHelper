@@ -32,13 +32,15 @@ import static javafx.scene.control.Alert.AlertType.ERROR;
 
 public class MainViewController {
     private static final int NUM_USERS_TO_SHOW_RANKING = 20;
+    private static final int USER_FILTER_RELABLE = 60;
 
     private final String noDataTime = "--:--";
     public UserViewModel userViewModel;
+    public int medianTotalBets;
+    public double badThirdSuccessRate;
+    public double goodSuccessRate;
     Logger logger = LoggerFactory.getLogger(getClass());
-    private int medianTotalBets;
     private double medianSuccessRate;
-
     @FXML
     private Button buttonMainMiniView;
     // Menu
@@ -141,6 +143,16 @@ public class MainViewController {
         initEvents();
         medianTotalBets = userViewModel.getMedianTotalBets();
         medianSuccessRate = userViewModel.getMedianSuccessRate();
+        calculateThirdsSuccessRate();
+    }
+
+    private void calculateThirdsSuccessRate() {
+        double portionSuccessRate = medianSuccessRate / 3;
+        badThirdSuccessRate = medianSuccessRate - portionSuccessRate;
+        goodSuccessRate = medianSuccessRate + portionSuccessRate;
+        System.out.println("badThirdSuccessRate: " + badThirdSuccessRate);
+        System.out.println("goodSuccessRate: " + goodSuccessRate);
+        System.out.println("medianSuccessRate: " + medianSuccessRate);
     }
 
     private double calculateAverageOnlyReliableUsersTotalBets() {
@@ -150,7 +162,7 @@ public class MainViewController {
 
         // Solamente cogemos de aquellos usuarios qu sean fiables
         for (UserDTO user : allUsers) {
-            if (user.getPercentReliable() > 65) {
+            if (user.getPercentReliable() > goodSuccessRate) {
                 totalBetsReliable += user.getTotalBets();
                 totalUsersReliable++;
             }
@@ -393,7 +405,7 @@ public class MainViewController {
     }
 
     private void updateRankingTable() {
-        List<UserDTO> filterTopUsersReliable = filterRakingUsersReliable(userViewModel.getAll());
+        List<UserDTO> filterTopUsersReliable = filterStartsAndRakingUsersReliable(userViewModel.getAll());
         tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable));
         orderByTotalSuccessBets(tableUsersRanking);
         listUsers(tableUsersRanking.getItems());
@@ -570,13 +582,11 @@ public class MainViewController {
         return filterTopUsersReliable;
     }
 
-    public List<UserDTO> filterRakingUsersReliable(List<UserDTO> usersToFilter) {
+    public List<UserDTO> filterStartsAndRakingUsersReliable(List<UserDTO> usersToFilter) {
         return usersToFilter.stream()
-                .filter(user -> user.getPercentReliable() >= medianSuccessRate) // Filtra usuarios fiables
+                .filter(user -> user.getPercentReliable() >= USER_FILTER_RELABLE) // Filtra usuarios fiables
                 // Buscando los datos con más apuestas
                 .filter(user -> user.getTotalBets() >= medianTotalBets)
-                // Filtramos aquellos que fallan mucho, aquellos que fallan el 50% de las apuestas o menos
-                .filter(user -> (double) user.getTotalBets() / 2 <= user.getTotalSuccess())
                 .limit(NUM_USERS_TO_SHOW_RANKING)
                 .collect(Collectors.toList());
     }
@@ -591,18 +601,18 @@ public class MainViewController {
                 if (item == null) {
                     setStyle("");
                 } else {
-                    if (item.getPercentReliable() <= 49.00) {
+                    if (item.getPercentReliable() <= badThirdSuccessRate) {
                         setStyle("-fx-background-color: #ff6161;");
-                    } else if (item.getPercentReliable() > 49.00 && item.getPercentReliable() <= medianSuccessRate) {
+                    } else if (item.getPercentReliable() > badThirdSuccessRate && item.getPercentReliable() <= goodSuccessRate) {
                         setStyle("-fx-background-color: orange;");
-                    } else if (item.getPercentReliable() > medianSuccessRate) {
+                    } else if (item.getPercentReliable() > goodSuccessRate) {
                         setStyle("-fx-background-color: #53db78;");
                     } else {
                         setStyle("-fx-background-color: #ffffff;");
                     }
 
                     // Filtro especial para los verdes que fallen la media
-                    if (item.getPercentReliable() > medianSuccessRate && item.getTotalBets() < medianTotalBets) {
+                    if (item.getPercentReliable() > goodSuccessRate && item.getTotalBets() < medianTotalBets) {
                         setStyle("-fx-background-color: orange;");
                     }
                 }
@@ -693,7 +703,7 @@ public class MainViewController {
         Boolean onFilterByUserDateTime = onFilterDataTableByUserDateTime(newUsername, newTime, newDateOfWeek);
         orderByTotalSuccessBets(tableUsers);
 
-        List<UserDTO> filteredUsers = filterRakingUsersReliable(tableUsers.getItems());
+        List<UserDTO> filteredUsers = filterStartsAndRakingUsersReliable(tableUsers.getItems());
         setStarTopUsers(filteredUsers);
 
         if (starCheckBox.isSelected()) {
@@ -807,11 +817,11 @@ public class MainViewController {
             return;
         }
         textFinalResultPercentSuccess.setText(percentSuccess + "%");
-        if (percentSuccess <= 49.00) {
+        if (percentSuccess <= badThirdSuccessRate) {
             textFinalResultPercentSuccess.setTextFill(Color.RED);
-        } else if (percentSuccess > 49.00 && percentSuccess <= medianSuccessRate) {
+        } else if (percentSuccess > badThirdSuccessRate && percentSuccess <= goodSuccessRate) {
             textFinalResultPercentSuccess.setTextFill(Color.ORANGE);
-        } else if (percentSuccess > medianSuccessRate) {
+        } else if (percentSuccess > goodSuccessRate) {
             textFinalResultPercentSuccess.setTextFill(Color.GREEN);
         } else {
             textFinalResultPercentSuccess.setTextFill(Color.WHITE);
@@ -888,12 +898,12 @@ public class MainViewController {
         }
 
         if (radioButtonHideOrange.isSelected()) {
-            usersToShow.removeIf(user -> user.getPercentReliable() > 49.00 && user.getPercentReliable() <= medianSuccessRate);
-            usersToShow.removeIf(user -> user.getPercentReliable() > medianSuccessRate && user.getTotalBets() < medianTotalBets);
+            usersToShow.removeIf(user -> user.getPercentReliable() > badThirdSuccessRate && user.getPercentReliable() <= goodSuccessRate);
+            usersToShow.removeIf(user -> user.getPercentReliable() > medianSuccessRate && user.getTotalBets() < goodSuccessRate);
         }
 
         if (radioButtonHideRed.isSelected()) {
-            usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
+            usersToShow.removeIf(user -> user.getPercentReliable() <= badThirdSuccessRate);
         }
     }
 

@@ -18,7 +18,7 @@ public class UserDetailController {
     private int rowIndex = 0;
     private UserViewModel userViewModel;
     private int medianTotalBets;
-    private double averageAllUsersSuccessRate;
+    private double medianAllUsersSuccessRate;
 
     @FXML
     private GridPane gridPane;
@@ -83,7 +83,7 @@ public class UserDetailController {
     public void init(UserViewModel userViewModel, UserDTO user) {
         this.userViewModel = userViewModel;
         this.medianTotalBets = userViewModel.getMedianTotalBets();
-        this.averageAllUsersSuccessRate = userViewModel.getMedianSuccessRate(); // TODO: aqui
+        this.medianAllUsersSuccessRate = userViewModel.getMedianSuccessRate(); // TODO: aqui
 
         usernameLabel.setText(user.getUsername());
 
@@ -131,14 +131,14 @@ public class UserDetailController {
             double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
             double betsOnDayHour = successAndBets.get(1);
 
-            System.out.println("dayOfWeekAndHour: " + dayOfWeekAndHour + ", successRate: " + successRate + ", betsOnDay: " + betsOnDayHour + ", averageBetsByOneUser: " + averageBetsByOneUser + ", averageAllUsersSuccessRate: " + averageAllUsersSuccessRate);
-            if (betsOnDayHour >= averageBetsByOneUser && betsOnDayHour >= medianTotalBets && successRate >= averageAllUsersSuccessRate) {
+            System.out.println("dayOfWeekAndHour: " + dayOfWeekAndHour + ", successRate: " + successRate + ", betsOnDay: " + betsOnDayHour + ", averageBetsByOneUser: " + averageBetsByOneUser + ", averageAllUsersSuccessRate: " + medianAllUsersSuccessRate);
+            if (betsOnDayHour >= averageBetsByOneUser && betsOnDayHour >= medianTotalBets && successRate >= medianAllUsersSuccessRate) {
                 filteredDaysByAverageBetsPerDayHour.add(dayOfWeekAndHour);
             }
         }
 
-        System.out.println("Media de apuestas por usuario: " + averageBetsByOneUser + ", media de aciertos de todos los usuarios: " + averageAllUsersSuccessRate);
-        System.out.println("Mediana general de totalapeustas: " + userViewModel.getMedianTotalBets());
+        System.out.println("Media de apuestas por usuario: " + averageBetsByOneUser + ", mediana de aciertos de todos los usuarios: " + medianAllUsersSuccessRate);
+        System.out.println("Mediana general de total apuestas: " + medianTotalBets);
 
         // TODO: pensar un mejor filtro cuando no haya ninguno, por ahora lo dejo con que el algoritmo considerar que ningun dato tiene valor para ser el mejor
         // Si no hay ninguno, escogemos los que tengan más aciertos, siempre que sea valioso comparando con el resto de usuarios
@@ -285,11 +285,13 @@ public class UserDetailController {
             double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
             double betsOnDay = successAndBets.get(1);
 
-            System.out.println("dayOfWeekNumber: " + dayOfWeekNumber + ", successRate: " + successRate + ", betsOnDay: " + betsOnDay + ", averageBetsByOneUser: " + averageBetsPerDayByOneUser + ", averageAllUsersSuccessRate: " + averageAllUsersSuccessRate);
-            if (betsOnDay >= averageBetsPerDayByOneUser && betsOnDay >= medianTotalBets && successRate >= averageAllUsersSuccessRate) {
+            System.out.println("dayOfWeekNumber: " + dayOfWeekNumber + ", successRate: " + successRate + ", betsOnDay: " + betsOnDay + ", averageBetsByOneUser: " + averageBetsPerDayByOneUser + ", averageAllUsersSuccessRate: " + medianAllUsersSuccessRate);
+            if (betsOnDay >= averageBetsPerDayByOneUser && betsOnDay >= medianTotalBets && successRate >= medianAllUsersSuccessRate) {
                 filteredDaysByAverageBetsPerDay.add(dayOfWeekNumber);
             }
-            System.out.println("Media de apuestas por usuario: " + averageBetsPerDayByOneUser + ", media de aciertos de todos los usuarios: " + averageAllUsersSuccessRate);
+            System.out.println("Media de apuestas por usuario: " + averageBetsPerDayByOneUser + ", mediana de aciertos de todos los usuarios: " + medianAllUsersSuccessRate);
+            System.out.println("Mediana succesRate: " + medianTotalBets);
+
         }
 
         // TODO: pensar un mejor filtro cuando no haya ninguno, por ahora lo dejo con que el algoritmo considerar que ningun dato tiene valor para ser el mejor
@@ -331,7 +333,7 @@ public class UserDetailController {
             double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
             double betsOnHour = successAndBets.get(1);
 
-            if (betsOnHour >= averageBetsPerHourByOneUser && betsOnHour >= medianTotalBets && successRate >= averageAllUsersSuccessRate) {
+            if (betsOnHour >= averageBetsPerHourByOneUser && betsOnHour >= medianTotalBets && successRate >= medianAllUsersSuccessRate) {
                 filteredHours.add(hourEntry);
             }
         }
