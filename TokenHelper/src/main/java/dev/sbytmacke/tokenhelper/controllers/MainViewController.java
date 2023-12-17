@@ -14,6 +14,8 @@ import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.bson.Document;
@@ -33,10 +35,8 @@ import static javafx.scene.control.Alert.AlertType.ERROR;
 public class MainViewController {
     private static final int NUM_USERS_TO_SHOW_RANKING = 20;
     private static final int USER_FILTER_RELABLE = 60;
-
     private final String noDataTime = "--:--";
     public UserViewModel userViewModel;
-    public int medianTotalBets;
     Logger logger = LoggerFactory.getLogger(getClass());
     @FXML
     private Button buttonMainMiniView;
@@ -127,6 +127,8 @@ public class MainViewController {
     private Label textFinalResultPercentSuccess;
     @FXML
     private Label textFinalResultTotalBets;
+    @FXML
+    private ImageView imageRefresh;
 
     public TableView<UserDTO> getTableUsers() {
         return tableUsers;
@@ -138,7 +140,6 @@ public class MainViewController {
         initBindings();
         initDetails();
         initEvents();
-        medianTotalBets = userViewModel.getMedianTotalBets();
     }
 
     private double calculateAverageOnlyReliableUsersTotalBets() {
@@ -210,10 +211,25 @@ public class MainViewController {
         comboTime.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
         tableUsers.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/tableUsers.css")).toExternalForm());
         tableUsersRanking.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/tableUsers.css")).toExternalForm());
+        imageRefresh.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/dev/sbytmacke/tokenhelper/icons/refresh.png"))));
     }
 
     private void initEvents() {
         logger.info("Initializing Events");
+
+        imageRefresh.setOnMouseEntered(event -> imageRefresh.setOpacity(0.5));
+        imageRefresh.setOnMouseExited(event -> imageRefresh.setOpacity(1));
+        imageRefresh.setOnMouseClicked(event -> {
+            logger.info("Refreshing data");
+            userViewModel.refreshData();
+            updateMainTable();
+            updateRankingTable();
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Actualización");
+            alert.setHeaderText("Actualización ✅");
+            alert.setContentText("Datos actualizados correctamente");
+            alert.showAndWait();
+        });
 
         // Evento para abrir la ventana modal al hacer clic en una fila de la tabla
         tableUsers.setOnMouseClicked(event -> {
@@ -573,7 +589,7 @@ public class MainViewController {
         return usersToFilter.stream()
                 .filter(user -> user.getPercentReliable() >= USER_FILTER_RELABLE) // Filtra usuarios fiables
                 // Buscando los datos con más apuestas
-                .filter(user -> user.getTotalBets() >= medianTotalBets)
+                .filter(user -> user.getTotalBets() >= userViewModel.medianTotalBets)
                 .limit(NUM_USERS_TO_SHOW_RANKING)
                 .collect(Collectors.toList());
     }
@@ -599,7 +615,7 @@ public class MainViewController {
                     }
 
                     // Filtro especial para los verdes que fallen la media
-                    if (item.getPercentReliable() > userViewModel.goodAverageAllUsersSuccessRate && item.getTotalBets() < medianTotalBets) {
+                    if (item.getPercentReliable() > userViewModel.goodAverageAllUsersSuccessRate && item.getTotalBets() < userViewModel.medianTotalBets) {
                         setStyle("-fx-background-color: orange;");
                     }
                 }
@@ -881,12 +897,12 @@ public class MainViewController {
 
     private void extractedUserByRadioButtonFilter(List<UserDTO> usersToShow) {
         if (radioButtonHideGreen.isSelected()) {
-            usersToShow.removeIf(user -> user.getPercentReliable() >= userViewModel.goodAverageAllUsersSuccessRate && user.getTotalBets() >= medianTotalBets);
+            usersToShow.removeIf(user -> user.getPercentReliable() >= userViewModel.goodAverageAllUsersSuccessRate && user.getTotalBets() >= userViewModel.medianTotalBets);
         }
 
         if (radioButtonHideOrange.isSelected()) {
             usersToShow.removeIf(user -> user.getPercentReliable() > userViewModel.badAverageAllUsersSuccessRate && user.getPercentReliable() <= userViewModel.goodAverageAllUsersSuccessRate);
-            usersToShow.removeIf(user -> user.getTotalBets() < medianTotalBets);
+            usersToShow.removeIf(user -> user.getTotalBets() < userViewModel.medianTotalBets);
         }
 
         if (radioButtonHideRed.isSelected()) {

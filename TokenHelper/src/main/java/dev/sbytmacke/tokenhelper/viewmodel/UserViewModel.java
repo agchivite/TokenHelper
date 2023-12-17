@@ -18,6 +18,7 @@ public class UserViewModel {
     private final UserRepository<UserEntity, String> repository;
     public double goodAverageAllUsersSuccessRate;
     public double badAverageAllUsersSuccessRate;
+    public int medianTotalBets;
     private double averageSuccessRate;
 
 
@@ -25,7 +26,9 @@ public class UserViewModel {
         logger.info("Initializing UserViewModel");
         this.repository = repository;
         calculateThirdsSuccessRate();
+        calculateMedianTotalBets(repository.getAll());
     }
+
 
     private void calculateThirdsSuccessRate() {
         averageSuccessRate = getAverageSuccessRate();
@@ -35,25 +38,6 @@ public class UserViewModel {
         System.out.println("badThirdSuccessRate: " + badAverageAllUsersSuccessRate);
         System.out.println("goodSuccessRate: " + goodAverageAllUsersSuccessRate);
         System.out.println("medianSuccessRate: " + averageSuccessRate);
-    }
-
-    private double calculateGlobalAverageSuccess(List<UserDTO> users) {
-        int totalSuccess = 0;
-        int totalBets = 0;
-
-        for (UserDTO user : users) {
-            totalSuccess += user.getTotalSuccess();
-            totalBets += user.getTotalBets();
-        }
-
-        // Comprobar si la suma total es cero
-        if (totalBets == 0) {
-            return 0.0;
-        }
-
-        double totalPercentSuccess = (double) totalSuccess * 100 / totalBets * 100;
-
-        return Math.round(totalPercentSuccess) / 100.0;
     }
 
     public void saveUser(UserEntity userEntity) {
@@ -83,7 +67,7 @@ public class UserViewModel {
             return 0.0;
         }
 
-        return calculateGlobalAverageSuccess(users);
+        return calculateMedianTotalBets(users);
     }
 
     public Integer getGlobalTotalBetsByDateTime(String newTime, Integer newDate) {
@@ -99,7 +83,7 @@ public class UserViewModel {
             return 0.0;
         }
 
-        return calculateGlobalAverageSuccess(users);
+        return calculateMedianTotalBets(users);
     }
 
     public List<String> getAllUsernamesNoRepeat() {
@@ -120,7 +104,7 @@ public class UserViewModel {
             return 0.0;
         }
 
-        return calculateGlobalAverageSuccess(users);
+        return calculateMedianTotalBets(users);
     }
 
     public List<UserDTO> getAllByDate(Integer newDate) {
@@ -179,7 +163,7 @@ public class UserViewModel {
         return repository.getAllBetsByUser(username);
     }
 
-    public double getAverageSuccessRate() {
+    private double getAverageSuccessRate() {
         logger.info("getAverageSuccessRate");
         List<UserDTO> users = repository.getAll();
 
@@ -196,31 +180,7 @@ public class UserViewModel {
         return Math.round(totalPercentSuccess / users.size() * 100) / 100.0;
     }
 
-    public double getMedianSuccessRate() {
-        logger.info("getMedianSuccessRate");
-        List<UserDTO> users = repository.getAll();
-
-        List<UserDTO> sortedAllUsers = users.stream()
-                .sorted(Comparator.comparing(UserDTO::getTotalSuccess))
-                .toList();
-
-        // Calcula la mediana de los valores seleccionados
-        double medianValue;
-        if (users.size() % 2 == 0) {
-            int middle = users.size() / 2;
-            double value1 = sortedAllUsers.get(middle - 1).getPercentReliable();
-            double value2 = sortedAllUsers.get(middle).getPercentReliable();
-            medianValue = (value1 + value2) / 2.0;
-        } else {
-            medianValue = sortedAllUsers.get(users.size() / 2).getPercentReliable();
-        }
-
-        // Redondea al entero más cercano
-        return Math.round(medianValue * 100) / 100.0;
-    }
-
-    public int getMedianTotalBets() {
-        List<UserDTO> allUsers = repository.getAll();
+    private double calculateMedianTotalBets(List<UserDTO> allUsers) {
         int numUsers = allUsers.size();
 
         List<UserDTO> sortedAllUsers = allUsers.stream()
@@ -239,6 +199,13 @@ public class UserViewModel {
         }
 
         // Redondea al entero más cercano
-        return (int) Math.round(medianValue);
+        medianTotalBets = (int) Math.round(medianValue);
+        return medianTotalBets;
+    }
+
+    public void refreshData() {
+        logger.info("refreshData");
+        calculateThirdsSuccessRate();
+        calculateMedianTotalBets(repository.getAll());
     }
 }

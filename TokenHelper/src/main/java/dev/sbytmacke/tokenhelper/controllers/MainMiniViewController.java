@@ -22,7 +22,6 @@ public class MainMiniViewController {
     private MainViewController mainViewController;
     private TableView<UserDTO> tableUsersMainView;
 
-    private double medianSuccessRate;
     @FXML
     private TableView<UserDTO> tableUsers;
     @FXML
@@ -60,7 +59,6 @@ public class MainMiniViewController {
         this.mainViewController = mainViewController;
         this.userViewModel = mainViewController.getUserViewModel();
         this.tableUsersMainView = mainViewController.getTableUsers();
-        this.medianSuccessRate = userViewModel.getMedianSuccessRate();
         initBindings();
         initDetails();
         initEvents();
@@ -130,7 +128,7 @@ public class MainMiniViewController {
                     }
 
                     // Filtro especial para los verdes que fallen la media
-                    if (item.getPercentReliable() > userViewModel.goodAverageAllUsersSuccessRate && item.getTotalBets() < mainViewController.medianTotalBets) {
+                    if (item.getPercentReliable() > userViewModel.goodAverageAllUsersSuccessRate && item.getTotalBets() < userViewModel.medianTotalBets) {
                         setStyle("-fx-background-color: orange;");
                     }
                 }
