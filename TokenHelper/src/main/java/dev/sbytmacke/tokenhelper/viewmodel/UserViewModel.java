@@ -19,8 +19,8 @@ public class UserViewModel {
     public double goodAverageAllUsersSuccessRate;
     public double badAverageAllUsersSuccessRate;
     public int medianTotalBets;
+    private Boolean firstRun = true;
     private double averageSuccessRate;
-
 
     public UserViewModel(UserRepository<UserEntity, String> repository) {
         logger.info("Initializing UserViewModel");
@@ -198,8 +198,11 @@ public class UserViewModel {
             medianValue = sortedAllUsers.get(numUsers / 2).getTotalBets();
         }
 
-        // Redondea al entero más cercano
-        medianTotalBets = (int) Math.round(medianValue);
+        if (Boolean.TRUE.equals(firstRun)) {
+            medianTotalBets = (int) Math.round(medianValue);
+            firstRun = false;
+        }
+
         return medianTotalBets;
     }
 

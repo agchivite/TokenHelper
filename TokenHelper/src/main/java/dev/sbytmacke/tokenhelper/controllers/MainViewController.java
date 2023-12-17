@@ -34,7 +34,7 @@ import static javafx.scene.control.Alert.AlertType.ERROR;
 
 public class MainViewController {
     private static final int NUM_USERS_TO_SHOW_RANKING = 20;
-    private static final int USER_FILTER_RELABLE = 60;
+    private static final int DECISION_STRICT_FILTER_RELIABLE = 60;
     private final String noDataTime = "--:--";
     public UserViewModel userViewModel;
     Logger logger = LoggerFactory.getLogger(getClass());
@@ -256,7 +256,7 @@ public class MainViewController {
                 selectedItem.setUsername(userDTOCopy.getUsername().replace("  🥇 ", ""));
                 selectedItem.setUsername(userDTOCopy.getUsername().replace("  \uD83E\uDD48 ", ""));
                 selectedItem.setUsername(userDTOCopy.getUsername().replace("  \uD83E\uDD49  ", ""));
-                selectedItem.setUsername(userDTOCopy.getUsername().replaceAll(".*\\.\\s+", ""));
+                selectedItem.setUsername(userDTOCopy.getUsername().replace(".*\\.\\s+", ""));
                 routesManager.initUserDetailModal(userDTOCopy);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -587,8 +587,7 @@ public class MainViewController {
 
     public List<UserDTO> filterStartsAndRakingUsersReliable(List<UserDTO> usersToFilter) {
         return usersToFilter.stream()
-                .filter(user -> user.getPercentReliable() >= USER_FILTER_RELABLE) // Filtra usuarios fiables
-                // Buscando los datos con más apuestas
+                .filter(user -> user.getPercentReliable() >= DECISION_STRICT_FILTER_RELIABLE)
                 .filter(user -> user.getTotalBets() >= userViewModel.medianTotalBets)
                 .limit(NUM_USERS_TO_SHOW_RANKING)
                 .collect(Collectors.toList());
