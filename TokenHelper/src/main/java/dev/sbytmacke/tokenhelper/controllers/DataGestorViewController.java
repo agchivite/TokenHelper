@@ -301,7 +301,7 @@ public class DataGestorViewController {
                             userViewModel.deleteUser(user);
                             tableUsers.getItems().remove(user);
 
-                            mainController.updateAllTables();
+                            mainController.updateMainTable();
                         }
                     });
                 });

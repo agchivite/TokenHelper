@@ -12,9 +12,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.bson.Document;
 import org.slf4j.Logger;
@@ -32,13 +36,10 @@ import static javafx.scene.control.Alert.AlertType.ERROR;
 
 public class MainViewController {
     private static final int NUM_USERS_TO_SHOW_RANKING = 20;
-    private static final double PERCENT_SUCCESS_RANKING_TO_SHOW = 51.0;
+    private static final int DECISION_STRICT_FILTER_RELIABLE = 60;
     private final String noDataTime = "--:--";
+    public UserViewModel userViewModel;
     Logger logger = LoggerFactory.getLogger(getClass());
-    private UserViewModel userViewModel;
-    private double medianValueTotalBets;
-    private double medianValueTotalSuccess; // Para poner los colores de la tabla en el futuro!
-    private double averageOnlyReliableUsersTotalBets;
     @FXML
     private Button buttonMainMiniView;
     // Menu
@@ -50,7 +51,8 @@ public class MainViewController {
     private MenuItem menuUpdateData;
     @FXML
     private MenuItem menuBackup;
-
+    @FXML
+    private MenuItem menuRanking;
     /* Create user */
     @FXML
     private Button buttonCleanSaveUsername;
@@ -127,54 +129,12 @@ public class MainViewController {
     private Label textFinalResultPercentSuccess;
     @FXML
     private Label textFinalResultTotalBets;
-
-    private void calculateMedianTotalBets() {
-        List<UserDTO> allUsers = userViewModel.getAll();
-        Integer numUsers = allUsers.size();
-
-        List<UserDTO> sortedAllUsers = allUsers.stream()
-                .sorted(Comparator.comparing(UserDTO::getTotalBets))
-                .collect(Collectors.toList());
-
-        // Calcula la mediana de los valores seleccionados
-        double medianValue;
-        if (numUsers % 2 == 0) {
-            int middle = numUsers / 2;
-            double value1 = sortedAllUsers.get(middle - 1).getTotalBets();
-            double value2 = sortedAllUsers.get(middle).getTotalBets();
-            medianValue = (value1 + value2) / 2.0;
-        } else {
-            medianValue = sortedAllUsers.get(numUsers / 2).getTotalBets();
-        }
-
-        // Redondea al entero más cercano
-        medianValueTotalBets = Math.round(medianValue);
-    }
-
-
-    private void calculateMedianTotalSuccess() {
-        List<UserDTO> allUsers = userViewModel.getAll();
-        Integer numUsers = allUsers.size();
-
-        List<UserDTO> sortedAllUsers = allUsers.stream()
-                .sorted(Comparator.comparing(UserDTO::getTotalBets))
-                .collect(Collectors.toList());
-
-        // Calcula la mediana de los valores seleccionados
-        double medianValue;
-        if (numUsers % 2 == 0) {
-            int middle = numUsers / 2;
-            double value1 = sortedAllUsers.get(middle - 1).getPercentReliable();
-            double value2 = sortedAllUsers.get(middle).getPercentReliable();
-            medianValue = (value1 + value2) / 2.0;
-        } else {
-            medianValue = sortedAllUsers.get(numUsers / 2).getPercentReliable();
-        }
-
-        // Redondea al entero más cercano
-        medianValueTotalSuccess = Math.round(medianValue);
-    }
-
+    @FXML
+    private ImageView imageRefresh;
+    @FXML
+    private PieChart pieChart;
+    @FXML
+    private Text noDataMessagePieChart;
 
     public TableView<UserDTO> getTableUsers() {
         return tableUsers;
@@ -183,12 +143,46 @@ public class MainViewController {
     public void init(UserViewModel userViewModel) {
         logger.info("Initializing MainViewController");
         this.userViewModel = userViewModel;
-        calculateMedianTotalBets();
-        calculateMedianTotalSuccess();
         initBindings();
         initDetails();
         initEvents();
-        averageOnlyReliableUsersTotalBets = calculateAverageOnlyReliableUsersTotalBets();
+        updatePieChart(FXCollections.observableArrayList());
+    }
+
+    private void updatePieChart(List<UserDTO> users) {
+        pieChart.getData().clear();
+
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+        for (UserDTO user : users) {
+            // Limitar la longitud del nombre, ya que pieChar no permite mucho espacio
+            String displayName = user.getUsername().length() > 14
+                    ? user.getUsername().substring(0, 10) + "..." // Mostrar solo los primeros 10 caracteres seguidos de "..."
+                    : user.getUsername();
+
+            PieChart.Data slice = new PieChart.Data(displayName, user.getTotalBets());
+            pieChartData.add(slice);
+        }
+
+        if (pieChartData.isEmpty()) {
+            noDataMessagePieChart.setVisible(true);
+            noDataMessagePieChart.setManaged(true);
+            pieChart.setVisible(false);
+            pieChart.setManaged(false);
+            noDataMessagePieChart.setVisible(true);
+        } else {
+            pieChart.setVisible(true);
+            pieChart.setManaged(true);
+            noDataMessagePieChart.setVisible(false);
+            noDataMessagePieChart.setManaged(false);
+            noDataMessagePieChart.setVisible(false);
+            pieChart.setData(pieChartData);
+        }
+
+        // Cambiar el color del texto de las etiquetas
+        pieChart.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/pieChart.css")).toExternalForm());
+        for (PieChart.Data data : pieChart.getData()) {
+            data.getNode().getStyleClass().add("chart-pie-label");
+        }
     }
 
     private double calculateAverageOnlyReliableUsersTotalBets() {
@@ -198,7 +192,7 @@ public class MainViewController {
 
         // Solamente cogemos de aquellos usuarios qu sean fiables
         for (UserDTO user : allUsers) {
-            if (user.getPercentReliable() > 65) {
+            if (user.getPercentReliable() > userViewModel.goodAverageAllUsersSuccessRate) {
                 totalBetsReliable += user.getTotalBets();
                 totalUsersReliable++;
             }
@@ -214,10 +208,7 @@ public class MainViewController {
         logger.info("Initializing Bindings");
 
         // Table Ranking Global
-        List<UserDTO> filterTopUsersReliable = filterRakingUsersReliable(userViewModel.getAll());
-        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable));
-        orderByTotalSuccessBets(tableUsersRanking);
-        listUsers(tableUsersRanking.getItems());
+        updateRankingTable();
 
         columnUsernameRanking.setCellValueFactory(new PropertyValueFactory<>("username"));
         columnSuccessRanking.setCellValueFactory(new PropertyValueFactory<>("percentReliable"));
@@ -263,43 +254,61 @@ public class MainViewController {
         comboTime.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
         tableUsers.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/tableUsers.css")).toExternalForm());
         tableUsersRanking.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/tableUsers.css")).toExternalForm());
+        imageRefresh.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/dev/sbytmacke/tokenhelper/icons/refresh.png"))));
     }
 
     private void initEvents() {
         logger.info("Initializing Events");
+
+        imageRefresh.setOnMouseEntered(event -> imageRefresh.setOpacity(0.5));
+        imageRefresh.setOnMouseExited(event -> imageRefresh.setOpacity(1));
+        imageRefresh.setOnMouseClicked(event -> {
+            logger.info("Refreshing data");
+            userViewModel.refreshData();
+            updateMainTable();
+            updateRankingTable();
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Actualización");
+            alert.setHeaderText("Actualización ✅");
+            alert.setContentText("Datos actualizados correctamente");
+            alert.showAndWait();
+        });
 
         // Evento para abrir la ventana modal al hacer clic en una fila de la tabla
         tableUsers.setOnMouseClicked(event -> {
             RoutesManager routesManager = new RoutesManager();
             try {
                 UserDTO selectedItem = tableUsers.getSelectionModel().getSelectedItem();
+                if (selectedItem == null) {
+                    return;
+                }
                 selectedItem.setUsername(selectedItem.getUsername().replace("⭐ ", ""));
                 routesManager.initUserDetailModal(selectedItem);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
-        // TODO:
-/*        tableUsersRanking.setOnMouseClicked(event -> {
+        tableUsersRanking.setOnMouseClicked(event -> {
             RoutesManager routesManager = new RoutesManager();
             try {
-                UserDTO selectedItem = tableUsers.getSelectionModel().getSelectedItem();
-                selectedItem.setUsername(selectedItem.getUsername().replace("⭐ ", ""));
-                // Reemplazar las emdallas
-       *//*         user.setUsername("  🥇 " + user.getUsername());
-                user.setUsername("  \uD83E\uDD48 " + user.getUsername());
-                user.setUsername("  \uD83E\uDD49  " + user.getUsername());
-                user.setUsername("   " + (i + 1) + ".  " + user.getUsername());
-            *//*
-                routesManager.initUserDetailModal(selectedItem);
+                UserDTO selectedItem = tableUsersRanking.getSelectionModel().getSelectedItem();
+                if (selectedItem == null) {
+                    return;
+                }
+                UserDTO userDTOCopy = new UserDTO(selectedItem.getUsername(), selectedItem.getPercentReliable(), selectedItem.getTotalBets(), selectedItem.getTotalSuccess());
+                selectedItem.setUsername(userDTOCopy.getUsername().replace("  🥇 ", ""));
+                selectedItem.setUsername(userDTOCopy.getUsername().replace("  \uD83E\uDD48 ", ""));
+                selectedItem.setUsername(userDTOCopy.getUsername().replace("  \uD83E\uDD49  ", ""));
+                selectedItem.setUsername(userDTOCopy.getUsername().replace(".*\\.\\s+", ""));
+                routesManager.initUserDetailModal(userDTOCopy);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        });*/
+        });
 
-        starCheckBox.setOnAction(event -> updateAllTables());
+        starCheckBox.setOnAction(event -> updateMainTable());
 
-        radioButtonHideTime.setOnAction(event -> updateAllTables());
+        radioButtonHideTime.setOnAction(event -> updateMainTable());
 
         menuBackup.setOnAction(event -> onBackupMenuAction());
 
@@ -319,7 +328,14 @@ public class MainViewController {
             radioButtonFriday.setSelected(false);
             radioButtonSaturday.setSelected(false);
             radioButtonSunday.setSelected(false);
-            updateAllTables();
+            updateMainTable();
+
+            // PieChart
+            noDataMessagePieChart.setVisible(true);
+            noDataMessagePieChart.setManaged(true);
+            pieChart.setVisible(false);
+            pieChart.setManaged(false);
+            noDataMessagePieChart.setVisible(true);
         });
 
         DateFormatterUtils dateFormatterUtils = new DateFormatterUtils();
@@ -339,14 +355,18 @@ public class MainViewController {
                 throw new RuntimeException(e);
             }
         });
+        menuRanking.setOnAction(event -> onRankingMenuAction());
 
         buttonCreateUser.setOnAction(event -> {
             saveUser();
+
+            // Actualizamos el ranking general
+            updateRankingTable();
         });
 
         // Filters
-        textSearchUserFilter.setOnKeyReleased(event -> updateAllTables());
-        comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> updateAllTables());
+        textSearchUserFilter.setOnKeyReleased(event -> updateMainTable());
+        comboTimeFilter.getSelectionModel().selectedItemProperty().addListener(event -> updateMainTable());
 
         // Cambiamos también en el DatePicker al añadir
         DateTimeFormatter dateFormatterDatePicker = dateFormatterUtils.formatDate(datePicker);
@@ -359,18 +379,18 @@ public class MainViewController {
             }
         });
 
-        radioButtonHideGreen.setOnAction(event -> updateAllTables());
-        radioButtonHideOrange.setOnAction(event -> updateAllTables());
-        radioButtonHideRed.setOnAction(event -> updateAllTables());
+        radioButtonHideGreen.setOnAction(event -> updateMainTable());
+        radioButtonHideOrange.setOnAction(event -> updateMainTable());
+        radioButtonHideRed.setOnAction(event -> updateMainTable());
 
-        radioButtonNone.setOnAction(event -> updateAllTables());
-        radioButtonMonday.setOnAction(event -> updateAllTables());
-        radioButtonTuesday.setOnAction(event -> updateAllTables());
-        radioButtonWednesday.setOnAction(event -> updateAllTables());
-        radioButtonThursday.setOnAction(event -> updateAllTables());
-        radioButtonFriday.setOnAction(event -> updateAllTables());
-        radioButtonSaturday.setOnAction(event -> updateAllTables());
-        radioButtonSunday.setOnAction(event -> updateAllTables());
+        radioButtonNone.setOnAction(event -> updateMainTable());
+        radioButtonMonday.setOnAction(event -> updateMainTable());
+        radioButtonTuesday.setOnAction(event -> updateMainTable());
+        radioButtonWednesday.setOnAction(event -> updateMainTable());
+        radioButtonThursday.setOnAction(event -> updateMainTable());
+        radioButtonFriday.setOnAction(event -> updateMainTable());
+        radioButtonSaturday.setOnAction(event -> updateMainTable());
+        radioButtonSunday.setOnAction(event -> updateMainTable());
 
         contextMenu = new ContextMenu();
         textFieldUser.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -420,7 +440,7 @@ public class MainViewController {
                 textFieldUser.setText(selectedItem.getText());
             } else if (textSearchUserFilter.isFocused()) {
                 textSearchUserFilter.setText(selectedItem.getText());
-                updateAllTables();
+                updateMainTable();
             }
             contextMenu.hide();
         });
@@ -435,6 +455,23 @@ public class MainViewController {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private void updateRankingTable() {
+        List<UserDTO> filterTopUsersReliable = filterStartsAndRakingUsersReliable(userViewModel.getAll());
+        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable));
+        orderByTotalSuccessBets(tableUsersRanking);
+        listUsers(tableUsersRanking.getItems());
+    }
+
+    private void onRankingMenuAction() {
+        logger.info("Initializing Ranking-Charts View");
+        RoutesManager routesManager = new RoutesManager();
+        try {
+            routesManager.initChartsView(this);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void onBackupMenuAction() {
@@ -598,13 +635,10 @@ public class MainViewController {
         return filterTopUsersReliable;
     }
 
-    public List<UserDTO> filterRakingUsersReliable(List<UserDTO> usersToFilter) {
+    public List<UserDTO> filterStartsAndRakingUsersReliable(List<UserDTO> usersToFilter) {
         return usersToFilter.stream()
-                .filter(user -> user.getPercentReliable() >= PERCENT_SUCCESS_RANKING_TO_SHOW) // Filtra usuarios fiables
-                // Buscando los datos con más apuestas
-                .filter(user -> user.getTotalBets() >= medianValueTotalBets)
-                // Filtramos aquellos que fallan mucho, aquellos que fallan el 50% de las apuestas o menos
-                .filter(user -> (double) user.getTotalBets() / 2 <= (double) user.getTotalSuccess())
+                .filter(user -> user.getPercentReliable() >= DECISION_STRICT_FILTER_RELIABLE)
+                .filter(user -> user.getTotalBets() >= userViewModel.medianTotalBets)
                 .limit(NUM_USERS_TO_SHOW_RANKING)
                 .collect(Collectors.toList());
     }
@@ -619,18 +653,18 @@ public class MainViewController {
                 if (item == null) {
                     setStyle("");
                 } else {
-                    if (item.getPercentReliable() <= 49.00) {
+                    if (item.getPercentReliable() <= userViewModel.badAverageAllUsersSuccessRate) {
                         setStyle("-fx-background-color: #ff6161;");
-                    } else if (item.getPercentReliable() > 49.00 && item.getPercentReliable() <= 65.00) {
+                    } else if (item.getPercentReliable() > userViewModel.badAverageAllUsersSuccessRate && item.getPercentReliable() <= userViewModel.goodAverageAllUsersSuccessRate) {
                         setStyle("-fx-background-color: orange;");
-                    } else if (item.getPercentReliable() > 65.00) {
+                    } else if (item.getPercentReliable() > userViewModel.goodAverageAllUsersSuccessRate) {
                         setStyle("-fx-background-color: #53db78;");
                     } else {
                         setStyle("-fx-background-color: #ffffff;");
                     }
 
                     // Filtro especial para los verdes que fallen la media
-                    if (item.getPercentReliable() > 65.00 && item.getTotalBets() < averageOnlyReliableUsersTotalBets) {
+                    if (item.getPercentReliable() > userViewModel.goodAverageAllUsersSuccessRate && item.getTotalBets() < userViewModel.medianTotalBets) {
                         setStyle("-fx-background-color: orange;");
                     }
                 }
@@ -698,10 +732,7 @@ public class MainViewController {
         return filteredSuggestions;
     }
 
-    public void updateAllTables() {
-        calculateMedianTotalBets();
-        calculateMedianTotalSuccess();
-
+    public void updateMainTable() {
         String newUsername = textSearchUserFilter.getText().toUpperCase();
         Integer newDateOfWeek = getNewDateOfWeek();
         String newTime;
@@ -724,25 +755,20 @@ public class MainViewController {
         Boolean onFilterByUserDateTime = onFilterDataTableByUserDateTime(newUsername, newTime, newDateOfWeek);
         orderByTotalSuccessBets(tableUsers);
 
-        List<UserDTO> filteredUsers = filterRakingUsersReliable(tableUsers.getItems());
+        if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
+            tableUsers.getItems().clear();
+        }
+
+        List<UserDTO> filteredUsers = filterStartsAndRakingUsersReliable(tableUsers.getItems());
         setStarTopUsers(filteredUsers);
+        updatePieChart(filteredUsers);
 
         if (starCheckBox.isSelected()) {
             tableUsers.setItems(FXCollections.observableArrayList(filteredUsers));
         } else {
             tableUsers.setItems(FXCollections.observableArrayList(tableUsers.getItems()));
         }
-
-        if (!onFilterByDate && !onFilterByTime && !onFilterByDateTime && !onFilterByUserDate && !onFilterByUserTime && !onFilterByUserDateTime) {
-            tableUsers.getItems().clear();
-        }
-
-        // Actualizamos el ranking general (en caso de modificar datos)
-        List<UserDTO> filterTopUsersReliable = filterRakingUsersReliable(userViewModel.getAll());
-        tableUsersRanking.setItems(FXCollections.observableArrayList(filterTopUsersReliable));
-        orderByTotalSuccessBets(tableUsersRanking);
-        listUsers(tableUsersRanking.getItems());
-
+        
         setColorsTable();
     }
 
@@ -844,11 +870,11 @@ public class MainViewController {
             return;
         }
         textFinalResultPercentSuccess.setText(percentSuccess + "%");
-        if (percentSuccess <= 49.00) {
+        if (percentSuccess <= userViewModel.badAverageAllUsersSuccessRate) {
             textFinalResultPercentSuccess.setTextFill(Color.RED);
-        } else if (percentSuccess > 49.00 && percentSuccess <= 65.00) {
+        } else if (percentSuccess <= userViewModel.goodAverageAllUsersSuccessRate) {
             textFinalResultPercentSuccess.setTextFill(Color.ORANGE);
-        } else if (percentSuccess > 65.00) {
+        } else if (percentSuccess > userViewModel.goodAverageAllUsersSuccessRate) {
             textFinalResultPercentSuccess.setTextFill(Color.GREEN);
         } else {
             textFinalResultPercentSuccess.setTextFill(Color.WHITE);
@@ -921,16 +947,16 @@ public class MainViewController {
 
     private void extractedUserByRadioButtonFilter(List<UserDTO> usersToShow) {
         if (radioButtonHideGreen.isSelected()) {
-            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00 && user.getTotalBets() > averageOnlyReliableUsersTotalBets);
+            usersToShow.removeIf(user -> user.getPercentReliable() >= userViewModel.goodAverageAllUsersSuccessRate && user.getTotalBets() >= userViewModel.medianTotalBets);
         }
 
         if (radioButtonHideOrange.isSelected()) {
-            usersToShow.removeIf(user -> user.getPercentReliable() > 49.00 && user.getPercentReliable() <= 65.00);
-            usersToShow.removeIf(user -> user.getPercentReliable() > 65.00 && user.getTotalBets() < averageOnlyReliableUsersTotalBets);
+            usersToShow.removeIf(user -> user.getPercentReliable() > userViewModel.badAverageAllUsersSuccessRate && user.getPercentReliable() <= userViewModel.goodAverageAllUsersSuccessRate);
+            usersToShow.removeIf(user -> user.getTotalBets() < userViewModel.medianTotalBets);
         }
 
         if (radioButtonHideRed.isSelected()) {
-            usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
+            usersToShow.removeIf(user -> user.getPercentReliable() <= userViewModel.badAverageAllUsersSuccessRate);
         }
     }
 
@@ -1141,7 +1167,7 @@ public class MainViewController {
         radioButtonGood.setSelected(false);
         radioButtonBad.setSelected(false);
 
-        updateAllTables();
+        updateMainTable();
     }
 
     public UserViewModel getUserViewModel() {
@@ -1165,7 +1191,7 @@ public class MainViewController {
         tableUsers.setItems(FXCollections.observableArrayList());
     }
 
-    public double getAverageOnlyReliableUsersTotalBets() {
+    /*public double getAverageOnlyReliableUsersTotalBets() {
         return averageOnlyReliableUsersTotalBets;
-    }
+    }*/
 }

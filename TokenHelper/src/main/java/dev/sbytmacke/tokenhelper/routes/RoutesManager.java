@@ -58,8 +58,8 @@ public class RoutesManager {
         MainViewController controller = fxmlLoader.getController(); // Obtenemos el controlador
         controller.init(userViewModel); // Inyección de dependencias desde el DatabaseManager hasta el Controller
 
-        Scene scene = new Scene(root, Control.USE_COMPUTED_SIZE, 810);
-        stage.setResizable(false);
+        Scene scene = new Scene(root, 1500, Control.USE_COMPUTED_SIZE);
+        stage.setResizable(true);
         stage.setTitle("TokenHelper");
         // Agregar un icono a la ventana
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource(pathMainPng)).toExternalForm()));
@@ -69,6 +69,10 @@ public class RoutesManager {
         _activeScene = scene;
 
         stage.setScene(scene);
+
+        // Maximizar la ventana al tamaño de la pantalla
+        stage.setMaximized(true);
+
         stage.show();
     }
 
@@ -124,7 +128,7 @@ public class RoutesManager {
         stage.setOnCloseRequest(event -> {
             // Limpiamos la tabla main-view
             mainViewController.clearTable();
-            mainViewController.updateAllTables();
+            mainViewController.updateMainTable();
             _mainStage.show();
         });
 
@@ -151,6 +155,25 @@ public class RoutesManager {
         stage.setScene(scene);
         stage.initOwner(_mainStage);
         stage.initModality(Modality.WINDOW_MODAL);
+
+        stage.show();
+    }
+
+    public void initChartsView(MainViewController mainViewController) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(AppMain.class.getResource("charts-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+
+        ChartsViewController controller = fxmlLoader.getController();
+        controller.init(mainViewController);
+
+        Stage stage = new Stage();
+        stage.setTitle("Ranking");
+        stage.setResizable(false);
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource(pathMainPng)).toExternalForm()));
+
+        stage.setScene(scene);
+        stage.initOwner(_mainStage);
+        stage.initModality(Modality.NONE);
 
         stage.show();
     }

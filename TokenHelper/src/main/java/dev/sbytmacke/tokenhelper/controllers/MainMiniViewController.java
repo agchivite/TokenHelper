@@ -1,6 +1,7 @@
 package dev.sbytmacke.tokenhelper.controllers;
 
 import dev.sbytmacke.tokenhelper.dto.UserDTO;
+import dev.sbytmacke.tokenhelper.routes.RoutesManager;
 import dev.sbytmacke.tokenhelper.utils.TimeUtils;
 import dev.sbytmacke.tokenhelper.viewmodel.UserViewModel;
 import javafx.collections.FXCollections;
@@ -9,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +21,7 @@ public class MainMiniViewController {
     private UserViewModel userViewModel;
     private MainViewController mainViewController;
     private TableView<UserDTO> tableUsersMainView;
+
     @FXML
     private TableView<UserDTO> tableUsers;
     @FXML
@@ -83,14 +86,25 @@ public class MainMiniViewController {
         radioButtonFriday.setOnAction(event -> updateAllTables());
         radioButtonSaturday.setOnAction(event -> updateAllTables());
         radioButtonSunday.setOnAction(event -> updateAllTables());
+
+        tableUsers.setOnMouseClicked(event -> {
+            RoutesManager routesManager = new RoutesManager();
+            try {
+                UserDTO selectedItem = tableUsers.getSelectionModel().getSelectedItem();
+                selectedItem.setUsername(selectedItem.getUsername().replace("⭐ ", ""));
+                routesManager.initUserDetailModal(selectedItem);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private void initDetails() {
         centerAndFontTextTable();
         setColorsTable();
-        tableUsers.setSelectionModel(null);
 
         comboTimeFilter.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/comboBox.css")).toExternalForm());
+        tableUsers.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dev/sbytmacke/tokenhelper/css/tableUsers.css")).toExternalForm());
     }
 
     private void setColorsTable() {
@@ -103,18 +117,18 @@ public class MainMiniViewController {
                 if (item == null) {
                     setStyle("");
                 } else {
-                    if (item.getPercentReliable() <= 49.00) {
+                    if (item.getPercentReliable() <= userViewModel.badAverageAllUsersSuccessRate) {
                         setStyle("-fx-background-color: #ff6161;");
-                    } else if (item.getPercentReliable() > 49.00 && item.getPercentReliable() <= 65.00) {
+                    } else if (item.getPercentReliable() > userViewModel.badAverageAllUsersSuccessRate && item.getPercentReliable() <= userViewModel.goodAverageAllUsersSuccessRate) {
                         setStyle("-fx-background-color: orange;");
-                    } else if (item.getPercentReliable() > 65.00) {
+                    } else if (item.getPercentReliable() > userViewModel.goodAverageAllUsersSuccessRate) {
                         setStyle("-fx-background-color: #53db78;");
                     } else {
                         setStyle("-fx-background-color: #ffffff;");
                     }
 
                     // Filtro especial para los verdes que fallen la media
-                    if (item.getPercentReliable() > 65.00 && item.getTotalBets() < mainViewController.getAverageOnlyReliableUsersTotalBets()) {
+                    if (item.getPercentReliable() > userViewModel.goodAverageAllUsersSuccessRate && item.getTotalBets() < userViewModel.medianTotalBets) {
                         setStyle("-fx-background-color: orange;");
                     }
                 }
@@ -186,7 +200,7 @@ public class MainMiniViewController {
 
             copyListFromMainView.addAll(tableUsersMainView.getItems());
             // Eliminamos los rojos
-            copyListFromMainView.removeIf(user -> user.getPercentReliable() <= 49.00);
+            copyListFromMainView.removeIf(user -> user.getPercentReliable() <= userViewModel.badAverageAllUsersSuccessRate);
             userData.addAll(copyListFromMainView);
         }
 
@@ -212,8 +226,8 @@ public class MainMiniViewController {
 
         mainViewController.orderByTotalSuccessBets(tableUsers);
 
-        List<UserDTO> filteredUsers = mainViewController.filterRakingUsersReliable(tableUsers.getItems());
-        mainViewController.setStarTopUsers(filteredUsers);
+        List<UserDTO> filteredUsers = mainViewController.filterStartsAndRakingUsersReliable(tableUsers.getItems());
+        setStarTopUsers(filteredUsers);
 
         if (starCheckBox.isSelected()) {
             tableUsers.setItems(FXCollections.observableArrayList(filteredUsers));
@@ -231,9 +245,8 @@ public class MainMiniViewController {
             List<UserDTO> usersToShow = userViewModel.getAllByDateTime(newTime, newDate);
 
             // Eliminamos los rojos
-            usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
+            usersToShow.removeIf(user -> user.getPercentReliable() <= userViewModel.badAverageAllUsersSuccessRate);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -246,9 +259,8 @@ public class MainMiniViewController {
             List<UserDTO> usersToShow = userViewModel.getAllByTime(newTime);
 
             // Eliminamos los rojos
-            usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
+            usersToShow.removeIf(user -> user.getPercentReliable() <= userViewModel.badAverageAllUsersSuccessRate);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
@@ -262,9 +274,8 @@ public class MainMiniViewController {
 
 
             // Eliminamos los rojos
-            usersToShow.removeIf(user -> user.getPercentReliable() <= 49.00);
+            usersToShow.removeIf(user -> user.getPercentReliable() <= userViewModel.badAverageAllUsersSuccessRate);
 
-            tableUsers.setSelectionModel(null);
             tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
@@ -298,6 +309,18 @@ public class MainMiniViewController {
             newDateOfWeek = 7;
         }
         return newDateOfWeek;
+    }
+
+    public void setStarTopUsers(List<UserDTO> filteredUsers) {
+        if (tableUsers.getItems().isEmpty()) {
+            return;
+        }
+
+        for (int i = filteredUsers.size() - 1; i >= 0; i--) {
+            tableUsers.getItems().remove(filteredUsers.get(i));
+            filteredUsers.get(i).setUsername("⭐ " + filteredUsers.get(i).getUsername());
+            tableUsers.getItems().add(i, filteredUsers.get(i));
+        }
     }
 }
 

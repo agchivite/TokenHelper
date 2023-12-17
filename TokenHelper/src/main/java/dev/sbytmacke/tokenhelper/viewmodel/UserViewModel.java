@@ -8,34 +8,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class UserViewModel {
+    public static final int USER_FILTER_RELABLE = 60;
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final UserRepository<UserEntity, String> repository;
+    public double goodAverageAllUsersSuccessRate;
+    public double badAverageAllUsersSuccessRate;
+    public int medianTotalBets;
+    private Boolean firstRun = true;
+    private double averageSuccessRate;
 
     public UserViewModel(UserRepository<UserEntity, String> repository) {
         logger.info("Initializing UserViewModel");
         this.repository = repository;
+        calculateThirdsSuccessRate();
+        calculateMedianTotalBets(repository.getAll());
     }
 
-    private double calculateGlobalAverageSuccess(List<UserDTO> users) {
-        int totalSuccess = 0;
-        int totalBets = 0;
 
-        for (UserDTO user : users) {
-            totalSuccess += user.getTotalSuccess();
-            totalBets += user.getTotalBets();
-        }
-
-        // Comprobar si la suma total es cero
-        if (totalBets == 0) {
-            return 0.0;
-        }
-
-        double totalPercentSuccess = (double) totalSuccess * 100 / totalBets * 100;
-
-        return Math.round(totalPercentSuccess) / 100.0;
+    private void calculateThirdsSuccessRate() {
+        averageSuccessRate = getAverageSuccessRate(repository.getAll());
+        double portionSuccessRate = averageSuccessRate / 3;
+        badAverageAllUsersSuccessRate = averageSuccessRate - portionSuccessRate;
+        goodAverageAllUsersSuccessRate = averageSuccessRate + portionSuccessRate;
+        System.out.println("badThirdSuccessRate: " + badAverageAllUsersSuccessRate);
+        System.out.println("goodSuccessRate: " + goodAverageAllUsersSuccessRate);
+        System.out.println("medianSuccessRate: " + averageSuccessRate);
     }
 
     public void saveUser(UserEntity userEntity) {
@@ -65,7 +67,7 @@ public class UserViewModel {
             return 0.0;
         }
 
-        return calculateGlobalAverageSuccess(users);
+        return getAverageSuccessRate(users);
     }
 
     public Integer getGlobalTotalBetsByDateTime(String newTime, Integer newDate) {
@@ -81,7 +83,18 @@ public class UserViewModel {
             return 0.0;
         }
 
-        return calculateGlobalAverageSuccess(users);
+        return getAverageSuccessRate(users);
+    }
+
+    public double getGlobalPercentSuccessByDate(Integer newDate) {
+        logger.info("getGlobalPercentSuccessByDate");
+        List<UserDTO> users = repository.getAllByDate(newDate);
+
+        if (users.isEmpty()) {
+            return 0.0;
+        }
+
+        return getAverageSuccessRate(users);
     }
 
     public List<String> getAllUsernamesNoRepeat() {
@@ -94,17 +107,6 @@ public class UserViewModel {
         return repository.getGlobalTotalBetsByDate(newDate);
     }
 
-    public double getGlobalPercentSuccessByDate(Integer newDate) {
-        logger.info("getGlobalPercentSuccessByDate");
-        List<UserDTO> users = repository.getAllByDate(newDate);
-
-        if (users.isEmpty()) {
-            return 0.0;
-        }
-
-        return calculateGlobalAverageSuccess(users);
-    }
-
     public List<UserDTO> getAllByDate(Integer newDate) {
         logger.info("getAllByDate");
         return repository.getAllByDate(newDate);
@@ -115,7 +117,7 @@ public class UserViewModel {
         List<UserDTO> users = repository.getAll();
 
         if (users.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
 
         return users;
@@ -159,5 +161,53 @@ public class UserViewModel {
     public List<UserEntity> getAllBetsByUser(String username) {
         logger.info("getAllBetsByUser");
         return repository.getAllBetsByUser(username);
+    }
+
+    private double getAverageSuccessRate(List<UserDTO> users) {
+        logger.info("getAverageSuccessRate");
+
+        if (users.isEmpty()) {
+            return 0.0;
+        }
+
+        double totalPercentSuccess = 0.0;
+        for (UserDTO user : users) {
+            totalPercentSuccess += user.getPercentReliable();
+        }
+
+        // Redondea al entero más cercano
+        return Math.round(totalPercentSuccess / users.size() * 100) / 100.0;
+    }
+
+    private int calculateMedianTotalBets(List<UserDTO> allUsers) {
+        int numUsers = allUsers.size();
+
+        List<UserDTO> sortedAllUsers = allUsers.stream()
+                .sorted(Comparator.comparing(UserDTO::getTotalBets))
+                .toList();
+
+        // Calcula la mediana de los valores seleccionados
+        double medianValue;
+        if (numUsers % 2 == 0) {
+            int middle = numUsers / 2;
+            double value1 = sortedAllUsers.get(middle - 1).getTotalBets();
+            double value2 = sortedAllUsers.get(middle).getTotalBets();
+            medianValue = (value1 + value2) / 2.0;
+        } else {
+            medianValue = sortedAllUsers.get(numUsers / 2).getTotalBets();
+        }
+
+        if (Boolean.TRUE.equals(firstRun)) {
+            medianTotalBets = (int) Math.round(medianValue);
+            firstRun = false;
+        }
+
+        return medianTotalBets;
+    }
+
+    public void refreshData() {
+        logger.info("refreshData");
+        calculateThirdsSuccessRate();
+        calculateMedianTotalBets(repository.getAll());
     }
 }
