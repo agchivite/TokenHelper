@@ -6,15 +6,15 @@ The main idea is to store your data from your journal token activity and suggest
 
 - Like a "mega-app-note" to your bets with charts support.
 
+### Interface
+
+![interface](./assets/interface.png)
+
 ## MongoDB
 
 To keep flexibility and easiest way to change data.
 
 - You must have MongoDB installed in your local S.O.
-
-## Dagger
-
-Developing... not implemented...
 
 ## Java & Gradle
 
@@ -24,6 +24,3 @@ To have more compatibility with JavaFX.
 
 Simple interface where you can filter when yopu want to bet, and is going to suggest you. Or add new data.
 
-### Init interface (developing)
-
-![interface](./assets/interface.png)
