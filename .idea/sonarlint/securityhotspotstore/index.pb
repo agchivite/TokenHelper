@@ -25,3 +25,7 @@ KTokenHelper/src/main/java/dev/sbytmacke/tokenhelper/mappers/UserMapper.java,2\
 PTokenHelper/src/main/java/dev/sbytmacke/tokenhelper/utils/DayHourComparator.java,3\8\38eb0e7961d04f65a6e65b2c7df5502e1c7bca2c
 ‹
 [TokenHelper/src/main/java/dev/sbytmacke/tokenhelper/controllers/MainMiniViewController.java,a\f\af761259dcaaa7b1de729e9ec897938ec0cac48e
+‰
+YTokenHelper/src/main/java/dev/sbytmacke/tokenhelper/controllers/ChartsViewController.java,0\0\001ca8b6a05110fe59c1447c4393014a152f33a2
+‰
+YTokenHelper/src/main/java/dev/sbytmacke/tokenhelper/controllers/UpdateViewController.java,a\5\a5502c551aa5634a5b4e7f654d62aa8936a6d2e0
