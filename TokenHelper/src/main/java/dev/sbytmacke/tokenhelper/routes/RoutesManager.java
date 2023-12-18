@@ -46,8 +46,9 @@ public class RoutesManager {
         modalStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource(pathMainPng)).toExternalForm()));
 
         modalStage.setScene(scene);
-        modalStage.initOwner(_mainStage);
-        modalStage.initModality(Modality.NONE); // Para poder interactuar con la pantalla principal
+        modalStage.initModality(Modality.NONE); // Mantenemos la modalidad como NONE
+
+        modalStage.setAlwaysOnTop(true);
         modalStage.show();
     }
 

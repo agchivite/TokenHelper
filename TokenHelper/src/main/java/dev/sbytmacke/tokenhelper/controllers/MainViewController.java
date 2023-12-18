@@ -759,16 +759,23 @@ public class MainViewController {
             tableUsers.getItems().clear();
         }
 
-        List<UserDTO> filteredUsers = filterStartsAndRakingUsersReliable(tableUsers.getItems());
-        setStarTopUsers(filteredUsers);
-        updatePieChart(filteredUsers);
+        List<UserDTO> tablerUsersFilterByDateTimeName = tableUsers.getItems();
+
+        List<UserDTO> filteredUsersByStarFilter = filterStartsAndRakingUsersReliable(tablerUsersFilterByDateTimeName);
+        setStarTopUsers(filteredUsersByStarFilter);
+
+        // Mostramos todos los usuarios en el pie chart que sean buenos, sin tener en cuenta el filtro de ocultación de color
+        List<UserDTO> filteredUsersByStarToPieChart = filterStartsAndRakingUsersReliable(tablerUsersFilterByDateTimeName);
+        updatePieChart(filteredUsersByStarToPieChart);
+
+        extractedUserByRadioButtonColorFilter(tablerUsersFilterByDateTimeName);
 
         if (starCheckBox.isSelected()) {
-            tableUsers.setItems(FXCollections.observableArrayList(filteredUsers));
+            tableUsers.setItems(FXCollections.observableArrayList(filteredUsersByStarFilter));
         } else {
-            tableUsers.setItems(FXCollections.observableArrayList(tableUsers.getItems()));
+            tableUsers.setItems(FXCollections.observableArrayList(tablerUsersFilterByDateTimeName));
         }
-        
+
         setColorsTable();
     }
 
@@ -945,7 +952,7 @@ public class MainViewController {
         textFinalResultTime.setTextFill(Color.WHITE);
     }
 
-    private void extractedUserByRadioButtonFilter(List<UserDTO> usersToShow) {
+    private void extractedUserByRadioButtonColorFilter(List<UserDTO> usersToShow) {
         if (radioButtonHideGreen.isSelected()) {
             usersToShow.removeIf(user -> user.getPercentReliable() >= userViewModel.goodAverageAllUsersSuccessRate && user.getTotalBets() >= userViewModel.medianTotalBets);
         }
@@ -958,6 +965,8 @@ public class MainViewController {
         if (radioButtonHideRed.isSelected()) {
             usersToShow.removeIf(user -> user.getPercentReliable() <= userViewModel.badAverageAllUsersSuccessRate);
         }
+
+        tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
     }
 
     private Boolean onFilterDataTableByDate(String newUsername, String newTime, Integer newDateOfWeek) {
@@ -965,9 +974,6 @@ public class MainViewController {
             logger.info("Filtering all by date");
             List<UserDTO> usersToShow = userViewModel.getAllByDate(newDateOfWeek);
 
-            extractedUserByRadioButtonFilter(usersToShow);
-
-            tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
             return true;
@@ -980,9 +986,6 @@ public class MainViewController {
             logger.info("Filtering all by time");
             List<UserDTO> usersToShow = userViewModel.getAllByTime(newTime);
 
-            extractedUserByRadioButtonFilter(usersToShow);
-
-            tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
         }
@@ -995,9 +998,6 @@ public class MainViewController {
 
             List<UserDTO> usersToShow = userViewModel.getAllByDateTime(newTime, newDate);
 
-            extractedUserByRadioButtonFilter(usersToShow);
-
-            tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
         }
@@ -1023,12 +1023,9 @@ public class MainViewController {
             logger.info("Filtering all by user & date");
             List<UserDTO> usersToShow = userViewModel.getAllByDate(newDate);
 
-            extractedUserByRadioButtonFilter(usersToShow);
-
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
 
             return true;
@@ -1043,12 +1040,9 @@ public class MainViewController {
 
             List<UserDTO> usersToShow = userViewModel.getAllByTime(newTime);
 
-            extractedUserByRadioButtonFilter(usersToShow);
-
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
         }
@@ -1061,12 +1055,9 @@ public class MainViewController {
 
             List<UserDTO> usersToShow = userViewModel.getAllByDateTime(newTime, newDate);
 
-            extractedUserByRadioButtonFilter(usersToShow);
-
             // Filtrar la lista por los primeros caracteres del nombre de usuario
             usersToShow = filterUsersByPartialUsername(usersToShow, newUsername);
 
-            tableUsers.getItems().clear();
             tableUsers.setItems(FXCollections.observableArrayList(usersToShow));
             return true;
         }
