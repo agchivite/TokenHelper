@@ -136,7 +136,9 @@ public class UserDetailController {
             double betsOnDayHour = successAndBets.get(1);
 
             System.out.println("dayOfWeekAndHour: " + dayOfWeekAndHour + ", successRate: " + successRate + ", betsOnDay: " + betsOnDayHour + ", averageBetsByOneUser: " + averageBetsByOneUser + ", averageAllUsersSuccessRate: " + userViewModel.goodAverageAllUsersSuccessRate);
-            if (betsOnDayHour >= averageBetsByOneUser && betsOnDayHour >= userViewModel.medianTotalBets && successRate >= userViewModel.goodAverageAllUsersSuccessRate) {
+
+            // betsOnDayHour >= averageBetsByOneUser &&
+            if (betsOnDayHour >= userViewModel.medianTotalBets && successRate >= userViewModel.goodAverageAllUsersSuccessRate) {
                 successRate = Math.round(successRate * 100.0) / 100.0;
                 String percentAndDayOfWeekAndHour = successRate + " % - " + dayOfWeekAndHour;
                 filteredDaysByAverageBetsPerDayHour.add(percentAndDayOfWeekAndHour);
@@ -315,7 +317,8 @@ public class UserDetailController {
             };
 
             System.out.println("dayOfWeekNumber: " + betDayOfWeekSpanish + ", successRate: " + successRate + ", betsOnDay: " + betsOnDay + ", averageBetsByOneUser: " + averageBetsPerDayByOneUser + ", averageAllUsersSuccessRate: " + userViewModel.goodAverageAllUsersSuccessRate);
-            if (betsOnDay >= averageBetsPerDayByOneUser && betsOnDay >= userViewModel.medianTotalBets && successRate >= userViewModel.goodAverageAllUsersSuccessRate) {
+            // betsOnDay >= averageBetsPerDayByOneUser &&
+            if (betsOnDay >= userViewModel.medianTotalBets && successRate >= userViewModel.goodAverageAllUsersSuccessRate) {
                 successRate = Math.round(successRate * 100.0) / 100.0;
                 String percentAndDayOfWeek = successRate + " % - " + betDayOfWeekSpanish;
                 filteredDaysByAverageBetsPerDay.add(percentAndDayOfWeek);
@@ -363,7 +366,8 @@ public class UserDetailController {
             double successRate = successAndBets.get(0) / successAndBets.get(1) * 100;
             double betsOnHour = successAndBets.get(1);
 
-            if (betsOnHour >= averageBetsPerHourByOneUser && betsOnHour >= userViewModel.medianTotalBets && successRate >= userViewModel.goodAverageAllUsersSuccessRate) {
+            // betsOnHour >= averageBetsPerHourByOneUser &&
+            if (betsOnHour >= userViewModel.medianTotalBets && successRate >= userViewModel.goodAverageAllUsersSuccessRate) {
                 successRate = Math.round(successRate * 100.0) / 100.0;
                 String percentHour = successRate + " % - " + hourEntry;
                 filteredHours.add(percentHour);
