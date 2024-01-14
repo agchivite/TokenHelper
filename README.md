@@ -1,6 +1,6 @@
 # TokenHelper
 
-GUI to anticipate reliable tokens.
+GUI to anticipate reliable tokens from users-bets.
 
 The main idea is to store your data from your journal token activity and suggest which token to bet on.
 
