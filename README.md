@@ -8,7 +8,7 @@ The main idea is to store your data from your journal token activity and suggest
 
 ## Deploy
 
-There is and executable in `build/jpackage/TokenHelper/TokenHelper.exe`
+There is an executable in `build/jpackage/TokenHelper/TokenHelper.exe`
 
 - gradle 8.1: https://gradle.org/
 
